@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"Jira__backend/handlers"
+	"Jira__backend/tools"
 )
 
 type Route struct {
@@ -17,6 +18,6 @@ var RoutesList = Routes{
 	Route{
 		"Test",
 		"/api/v1/",
-		handlers.Test,
+		tools.GetOnly(handlers.Test),
 	},
 }
