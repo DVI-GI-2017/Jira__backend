@@ -1,4 +1,4 @@
-package dataBase
+package db
 
 import "github.com/DVI-GI-2017/Jira__backend/models"
 
