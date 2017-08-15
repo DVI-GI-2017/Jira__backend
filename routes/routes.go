@@ -20,4 +20,14 @@ var RoutesList = Routes{
 		"/api/v1/",
 		tools.GetOnly(handlers.Test),
 	},
+	Route{
+		"Test",
+		"/api/v1/login",
+		tools.PostOnly(handlers.Login),
+	},
+	Route{
+		"Test",
+		"/api/v1/check",
+		tools.GetOnly(tools.ValidateToken(handlers.Check)),
+	},
 }

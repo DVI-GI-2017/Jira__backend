@@ -8,7 +8,7 @@ var UsersListFromFakeDB = models.Users{
 		FirstName: "Jeremy",
 		LastName: "Moore",
 		Tasks: models.Tasks{},
-		Password: "??04*products*GRAIN*began*58??",
+		Password: "p@ssword",
 		Bio: `Spent childhood selling wooden tops in Pensacola, FL. In 2008 I
 was testing the market for sheep in Miami, FL. Was quite successful at promoting
 yard waste in Tampa, FL. Spent 2001-2006 implementing bullwhips in the government

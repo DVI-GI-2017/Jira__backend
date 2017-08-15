@@ -5,11 +5,11 @@ import (
 	"io"
 	"os"
 	"strconv"
-	"Jira__backend/models"
+	"Jira__backend/configs"
 )
 
-func decode(r io.Reader) (x *models.Server, err error) {
-	x = new(models.Server)
+func decode(r io.Reader) (x *configs.Server, err error) {
+	x = new(configs.Server)
 	err = json.NewDecoder(r).Decode(x)
 
 	return
