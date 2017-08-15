@@ -15,5 +15,5 @@
 
 .idea/
 .DS_Store
-.rsa
-.pub
+*.rsa
+*.pub
