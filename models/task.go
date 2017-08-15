@@ -1,8 +1,9 @@
 package models
 
 type Task struct {
-	id          uint32
-	title       string
-	description string
-	assignee    string
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Assignee    *User `json:"assignee"`
 }
+
+type Tasks []User
