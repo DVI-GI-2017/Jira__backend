@@ -8,4 +8,4 @@ type Task struct {
 	Labels      Labels `json:"labels"`
 }
 
-type Tasks []User
+type Tasks []Task
