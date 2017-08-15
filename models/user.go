@@ -1,7 +1,9 @@
 package models
 
 type User struct {
-	id    uint32
-	login string
-	email string
+	Name string `json:"Name"`
+	Data string `json:"Data"`
+	Phone string `json:"Phone"`
 }
+
+type Users []User
