@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"fmt"
 	"strconv"
+	"log"
 	"Jira__backend/tools"
 	"Jira__backend/router"
 )
@@ -18,5 +19,5 @@ func main() {
 	router.NewRouter()
 
 	fmt.Printf("Server started on port %d...\n", port)
-	http.ListenAndServe(":" + strconv.Itoa(port), nil)
+	log.Fatal(http.ListenAndServe(":" + strconv.Itoa(port), nil))
 }

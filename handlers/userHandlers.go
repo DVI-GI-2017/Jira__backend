@@ -3,14 +3,18 @@ package handlers
 import (
 	"net/http"
 	"fmt"
+	"encoding/json"
+	"Jira__backend/dataBase"
 )
 
-func Index(method string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if method == r.Method {
-			fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
-		} else {
-			fmt.Fprintf(w, "Bye, %s!", r.URL.Path[1:])
-		}
+func Test(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+		json.NewEncoder(w).Encode(dataBase.UsersListFromFakeDB)
+	default:
+		w.WriteHeader(200)
+		fmt.Fprintln(w, "Method not allowed!")
 	}
 }
