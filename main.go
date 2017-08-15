@@ -12,7 +12,7 @@ func main() {
 	port, err := tools.GetPort("configs/server.json")
 
 	if err != nil {
-		panic("bad config: ")
+		panic("bad config")
 	}
 
 	router.NewRouter()
