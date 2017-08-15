@@ -1,6 +1,6 @@
 package dataBase
 
-import "Jira__backend/models"
+import "github.com/DVI-GI-2017/Jira__backend/models"
 
 var UsersListFromFakeDB = models.Users{
 	models.User{

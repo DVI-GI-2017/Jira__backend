@@ -1,9 +1,9 @@
 package handlers
 
 import (
-"log"
-"net/http"
-"time"
+	"log"
+	"net/http"
+	"time"
 )
 
 func Logger(inner http.Handler, name string) http.HandlerFunc {

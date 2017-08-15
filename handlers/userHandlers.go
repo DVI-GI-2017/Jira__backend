@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 	"encoding/json"
-	"Jira__backend/dataBase"
+	"github.com/DVI-GI-2017/Jira__backend/dataBase"
 )
 
 func Test(w http.ResponseWriter, r *http.Request) {

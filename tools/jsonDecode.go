@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	"Jira__backend/models"
 	"strconv"
+	"github.com/DVI-GI-2017/Jira__backend/models"
 )
 
 func decode(r io.Reader) (x *models.Server, err error) {
