@@ -2,8 +2,8 @@ package router
 
 import (
 	"net/http"
-	"github.com/DVI-GI-2017/Jira__backend/routes"
-	"github.com/DVI-GI-2017/Jira__backend/handlers"
+	"Jira__backend/routes"
+	"Jira__backend/handlers"
 )
 
 func NewRouter() {
