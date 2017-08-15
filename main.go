@@ -2,15 +2,20 @@ package main
 
 import (
 	"net/http"
-	"Jira__backend/router"
 	"fmt"
 	"strconv"
+	"Jira__backend/tools"
+	"Jira__backend/router"
 )
 
 func main() {
-	router.NewRouter()
+	port, err := tools.GetPort("configs/server.json")
 
-	port := 3000
+	if err != nil {
+		panic("bad config: ")
+	}
+
+	router.NewRouter()
 
 	fmt.Printf("Server started on port %d...\n", port)
 	http.ListenAndServe(":" + strconv.Itoa(port), nil)
