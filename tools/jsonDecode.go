@@ -15,7 +15,7 @@ func decode(r io.Reader) (x *models.Server, err error) {
 	return
 }
 
-func GetPort(path string) (port int, err error) {
+func GetServerPort(path string) (port int, err error) {
 	file, err := os.Open(path)
 
 	if err != nil {

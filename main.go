@@ -7,10 +7,13 @@ import (
 	"log"
 	"Jira__backend/tools"
 	"Jira__backend/router"
+	"Jira__backend/dataBase"
 )
 
 func main() {
-	port, err := tools.GetPort("configs/server.json")
+	dataBase.NewDBConnection()
+
+	port, err := tools.GetServerPort("configs/server.json")
 
 	if err != nil {
 		panic("bad config")
