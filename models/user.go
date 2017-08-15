@@ -1,9 +1,12 @@
 package models
 
 type User struct {
-	Name string `json:"Name"`
-	Data string `json:"Data"`
-	Phone string `json:"Phone"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Bio       string `json:"bio"`
+	Tasks     Tasks `json:"tasks"`
 }
 
 type Users []User
