@@ -1,8 +1,8 @@
 package tools
 
 import (
-	"encoding/json"
 	"net/http"
+	"encoding/json"
 )
 
 func JsonResponse(response interface{}, w http.ResponseWriter) {

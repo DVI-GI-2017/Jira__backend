@@ -1,4 +1,4 @@
-package dataBase
+package db
 
 import (
 	"fmt"

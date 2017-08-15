@@ -1,17 +1,17 @@
 package main
 
 import (
-	"net/http"
-	"fmt"
-	"strconv"
 	"log"
-	"Jira__backend/tools"
-	"Jira__backend/router"
-	"Jira__backend/dataBase"
+	"fmt"
+	"net/http"
+	"strconv"
+	"github.com/DVI-GI-2017/Jira__backend/tools"
+	"github.com/DVI-GI-2017/Jira__backend/router"
+	"github.com/DVI-GI-2017/Jira__backend/db"
 )
 
 func main() {
-	dataBase.NewDBConnection()
+	db.NewDBConnection()
 
 	port, err := tools.GetServerPort("configs/server.json")
 
@@ -22,5 +22,5 @@ func main() {
 	router.NewRouter()
 
 	fmt.Printf("Server started on port %d...\n", port)
-	log.Fatal(http.ListenAndServe(":" + strconv.Itoa(port), nil))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), nil))
 }

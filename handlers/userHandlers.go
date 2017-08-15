@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"net/http"
 	"encoding/json"
-	"Jira__backend/dataBase"
-	"Jira__backend/models"
-	"Jira__backend/validators"
-	"Jira__backend/tools"
+	"github.com/DVI-GI-2017/Jira__backend/validators"
+	"github.com/DVI-GI-2017/Jira__backend/tools"
+	"github.com/DVI-GI-2017/Jira__backend/models"
+	"github.com/DVI-GI-2017/Jira__backend/db"
 )
 
-func Test(w http.ResponseWriter, r *http.Request) {
+func Test(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(dataBase.UsersListFromFakeDB)
+	json.NewEncoder(w).Encode(db.UsersListFromFakeDB)
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -44,8 +44,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	tools.JsonResponse(response, w)
 }
 
-func Check(w http.ResponseWriter, r *http.Request) {
+func Check(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(dataBase.UsersListFromFakeDB)
+	json.NewEncoder(w).Encode(db.UsersListFromFakeDB)
 }

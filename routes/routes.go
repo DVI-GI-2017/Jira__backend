@@ -2,8 +2,8 @@ package routes
 
 import (
 	"net/http"
-	"Jira__backend/tools"
-	"Jira__backend/handlers"
+	"github.com/DVI-GI-2017/Jira__backend/handlers"
+	"github.com/DVI-GI-2017/Jira__backend/tools"
 )
 
 type Route struct {

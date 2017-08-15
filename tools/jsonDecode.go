@@ -1,11 +1,11 @@
 package tools
 
 import (
-	"encoding/json"
 	"io"
 	"os"
 	"strconv"
-	"Jira__backend/configs"
+	"encoding/json"
+	"github.com/DVI-GI-2017/Jira__backend/configs"
 )
 
 func decode(r io.Reader) (x *configs.Server, err error) {
@@ -35,8 +35,4 @@ func GetServerPort(path string) (port int, err error) {
 
 	err = fileError
 	return
-}
-
-func GetMongoInfo(path string) {
-	// return ServerConfig
 }
