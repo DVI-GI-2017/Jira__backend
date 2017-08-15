@@ -36,3 +36,7 @@ func GetServerPort(path string) (port int, err error) {
 	err = fileError
 	return
 }
+
+func GetMongoInfo(path string) {
+	// return ServerConfig
+}
