@@ -1,19 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
+	"Jira__backend/router"
+	"fmt"
+	"strconv"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
-	} else {
-		fmt.Fprintf(w, "Bye, %s!", r.URL.Path[1:])
-	}
-}
-
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8081", nil)
+	router.NewRouter()
+
+	port := 3000
+
+	fmt.Printf("Server started on port %d...\n", port)
+	http.ListenAndServe(":" + strconv.Itoa(port), nil)
 }
