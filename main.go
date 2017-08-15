@@ -11,6 +11,8 @@ import (
 )
 
 func main() {
+	tools.StartServerDouble()
+
 	dataBase.NewDBConnection()
 
 	port, err := tools.GetServerPort("configs/server.json")
