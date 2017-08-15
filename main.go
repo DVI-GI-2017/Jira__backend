@@ -1,19 +1,26 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
+	"fmt"
+	"strconv"
+	"log"
+	"Jira__backend/tools"
+	"Jira__backend/router"
+	"Jira__backend/dataBase"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
-	} else {
-		fmt.Fprintf(w, "Bye, %s!", r.URL.Path[1:])
-	}
-}
-
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8081", nil)
+	dataBase.NewDBConnection()
+
+	port, err := tools.GetServerPort("configs/server.json")
+
+	if err != nil {
+		panic("bad config")
+	}
+
+	router.NewRouter()
+
+	fmt.Printf("Server started on port %d...\n", port)
+	log.Fatal(http.ListenAndServe(":" + strconv.Itoa(port), nil))
 }
