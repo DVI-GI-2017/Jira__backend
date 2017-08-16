@@ -2,9 +2,11 @@ package models
 
 import (
 	"time"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type User struct {
+	ID        bson.ObjectId `bson:"_id,omitempty"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
 	FirstName string `json:"first_name"`

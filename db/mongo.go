@@ -84,7 +84,7 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 
 	// Query One
 	result := models.User{}
-	err = users.Find(bson.M{"first_name": "Jeremy"}).Select(bson.M{"Email": 0}).One(&result)
+	err = users.Find(bson.M{"firstname": "Jeremy"}).Select(bson.M{"Email": 0}).One(&result)
 	if err != nil {
 		panic(err)
 	}
@@ -92,7 +92,7 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 
 	// Query All
 	var results models.Users
-	err = users.Find(bson.M{"first_name": "Jeremy"}).Sort("-created_at").All(&results)
+	err = users.Find(bson.M{"firstname": "Jeremy"}).Sort("-created_at").All(&results)
 
 	if err != nil {
 		panic(err)
@@ -101,14 +101,14 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 
 	// Update
 	colQuerier := bson.M{"name": "Jeremy"}
-	change := bson.M{"$set": bson.M{"last_name": "Cumberbatch", "updated_at": time.Now()}}
+	change := bson.M{"$set": bson.M{"lastname": "Cumberbatch", "updated_at": time.Now()}}
 	err = users.Update(colQuerier, change)
 	if err != nil {
 		panic(err)
 	}
 
 	// Query All
-	err = users.Find(bson.M{"first_name": "Jeremy"}).Sort("-updated_at").All(&results)
+	err = users.Find(bson.M{"firstname": "Jeremy"}).Sort("-updated_at").All(&results)
 
 	if err != nil {
 		panic(err)
