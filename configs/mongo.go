@@ -1,9 +1,9 @@
 package configs
 
-type MongoConfig struct {
+type Mongo struct {
 	Server string `json:"server"`
 	Host string `json:"host"`
-	Port string `json:"port"`
+	Port int `json:"port"`
 	Db string `json:"db"`
 	Collections []string `json:"collections"`
 }
