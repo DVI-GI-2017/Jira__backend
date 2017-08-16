@@ -22,16 +22,6 @@ func rsaInit() {
 	}
 }
 
-func configParse(path string) (config *configs.Config) {
-	config, err := configs.FromFile(path)
-
-	if err != nil {
-		log.Panic("bad configs: ", err)
-	}
-
-	return
-}
-
 func raii(handler func()) {
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -55,12 +45,12 @@ func startRouter() (mux http.Handler) {
 func main() {
 	rsaInit()
 
-	config := configParse("config.json")
-	connection := db.NewDBConnection(config.Mongo)
+	configs.ParseFromFile("config.json")
+	connection := db.NewDBConnection(configs.ConfigInfo.Mongo)
 
 	raii(connection.CloseConnection)
 	mux := startRouter()
 
-	fmt.Printf("Server started on port %d...\n", config.Server.Port)
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Server.Port), mux))
+	fmt.Printf("Server started on port %d...\n", configs.ConfigInfo.Server.Port)
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(configs.ConfigInfo.Server.Port), mux))
 }
