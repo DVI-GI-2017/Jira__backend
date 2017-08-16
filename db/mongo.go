@@ -5,14 +5,8 @@ import (
 	"time"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"github.com/DVI-GI-2017/Jira__backend/models"
 )
-
-type Person struct {
-	ID        bson.ObjectId `bson:"_id,omitempty"`
-	Name      string
-	Phone     string
-	Timestamp time.Time
-}
 
 var (
 	IsDrop = true
@@ -53,7 +47,7 @@ func (c *MongoConnection) createConnection() (err error) {
 
 	// Index
 	index := mgo.Index{
-		Key:        []string{"name", "phone"},
+		Key:        []string{"first_name", "updated_at"},
 		Unique:     true,
 		DropDups:   true,
 		Background: true,
@@ -66,24 +60,23 @@ func (c *MongoConnection) createConnection() (err error) {
 	}
 
 	// Insert Datas
-	err = collection.Insert(&Person{Name: "Ale", Phone: "+55 53 1234 4321", Timestamp: time.Now()},
-		&Person{Name: "Cla", Phone: "+66 33 1234 5678", Timestamp: time.Now()})
+	err = collection.Insert(&FakeUsers[0])
 
 	if err != nil {
 		panic(err)
 	}
 
 	// Query One
-	result := Person{}
-	err = collection.Find(bson.M{"name": "Ale"}).Select(bson.M{"phone": 0}).One(&result)
+	result := models.User{}
+	err = collection.Find(bson.M{"first_name": "Jeremy"}).Select(bson.M{"Email": 0}).One(&result)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Phone", result)
+	fmt.Println("Email", result)
 
 	// Query All
-	var results []Person
-	err = collection.Find(bson.M{"name": "Ale"}).Sort("-timestamp").All(&results)
+	var results models.Users
+	err = collection.Find(bson.M{"first_name": "Jeremy"}).Sort("-created_at").All(&results)
 
 	if err != nil {
 		panic(err)
@@ -91,15 +84,15 @@ func (c *MongoConnection) createConnection() (err error) {
 	fmt.Println("Results All: ", results)
 
 	// Update
-	colQuerier := bson.M{"name": "Ale"}
-	change := bson.M{"$set": bson.M{"phone": "+86 99 8888 7777", "timestamp": time.Now()}}
+	colQuerier := bson.M{"name": "Jeremy"}
+	change := bson.M{"$set": bson.M{"last_name": "Cumberbatch", "updated_at": time.Now()}}
 	err = collection.Update(colQuerier, change)
 	if err != nil {
 		panic(err)
 	}
 
 	// Query All
-	err = collection.Find(bson.M{"name": "Ale"}).Sort("-timestamp").All(&results)
+	err = collection.Find(bson.M{"first_name": "Jeremy"}).Sort("-updated_at").All(&results)
 
 	if err != nil {
 		panic(err)
