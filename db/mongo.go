@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2"
@@ -78,8 +79,12 @@ func StartDB() {
 	Connection = NewDBConnection(configs.ConfigInfo.Mongo)
 }
 
+const (
+	UserCollection = "users",
+)
+
 func FillDataBase() {
-	users := Connection.GetCollection(configs.ConfigInfo.Mongo.Db, configs.ConfigInfo.Mongo.Collections[0])
+	users := Connection.GetCollection(configs.ConfigInfo.Mongo.Db, UserCollection)
 
 	for _, user := range FakeUsers {
 		err := users.Insert(&user)
