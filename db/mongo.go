@@ -2,10 +2,7 @@ package db
 
 import (
 	"fmt"
-	//"time"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 )
@@ -57,36 +54,6 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 	}
 
 	c.originalSession.SetMode(mgo.Monotonic, true)
-
-	// TODO: Init several collections or remove they from config?
-	users := c.originalSession.DB(mongo.Db).C(mongo.Collections[0])
-
-	err = c.SetIndex(users, &tools.DBIndex{
-		Key:        []string{"first_name", "updated_at"},
-		Unique:     true,
-		DropDups:   true,
-		Background: true,
-		Sparse:     true,
-	})
-
-	if err != nil {
-		return err
-	}
-
-	// Insert Datas
-	err = users.Insert(&FakeUsers[0])
-
-	if err != nil {
-		panic(err)
-	}
-
-	// Query One
-	result := models.User{}
-	err = users.Find(bson.M{"firstname": "Jeremy"}).Select(bson.M{"Email": 0}).One(&result)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Email", result)
 
 	return nil
 }
