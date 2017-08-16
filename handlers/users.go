@@ -10,7 +10,6 @@ import (
 
 var AllUsers = GetOnly(
 	func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
 		err := json.NewEncoder(w).Encode(db.FakeUsers)
 
 		if err != nil {
@@ -19,5 +18,7 @@ var AllUsers = GetOnly(
 
 			w.WriteHeader(http.StatusBadRequest)
 		}
+
+		w.WriteHeader(http.StatusOK)
 	},
 )
