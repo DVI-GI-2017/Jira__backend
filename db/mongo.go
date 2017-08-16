@@ -7,6 +7,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
+	"github.com/DVI-GI-2017/Jira__backend/tools"
 )
 
 type MongoConnection struct {
@@ -34,6 +35,18 @@ func (c *MongoConnection) GetCollection(mongo *configs.Mongo) (collection *mgo.C
 	return c.originalSession.DB(mongo.Db).C(mongo.Collections[0])
 }
 
+func (c *MongoConnection) SetIndex(collection *mgo.Collection, index *tools.DBIndex) (err error) {
+	err = collection.EnsureIndex(mgo.Index{
+		Key:        index.Key,
+		Unique:     index.Unique,
+		DropDups:   index.DropDups,
+		Background: index.Background,
+		Sparse:     index.Sparse,
+	})
+
+	return
+}
+
 func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 	fmt.Println("Connecting to local mongo server....")
 
@@ -50,18 +63,16 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 	// TODO: Init several collections or remove they from config?
 	users := c.originalSession.DB(mongo.Db).C(mongo.Collections[0])
 
-	// Index
-	index := mgo.Index{
+	err = c.SetIndex(users, &tools.DBIndex{
 		Key:        []string{"first_name", "updated_at"},
 		Unique:     true,
 		DropDups:   true,
 		Background: true,
 		Sparse:     true,
-	}
+	})
 
-	err = users.EnsureIndex(index)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Insert Datas
