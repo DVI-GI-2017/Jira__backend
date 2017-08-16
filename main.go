@@ -11,18 +11,16 @@ import (
 )
 
 func main() {
-	db.NewDBConnection()
-
-	conf, err := configs.FromFile("config.json")
+	config, err := configs.FromFile("config.json")
 
 	if err != nil {
 		log.Panic("bad configs: ", err)
 	}
 
-	port := conf.Server.Port
+	db.NewDBConnection(config.Mongo)
 
 	router.NewRouter()
 
-	fmt.Printf("Server started on port %d...\n", port)
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), nil))
+	fmt.Printf("Server started on port %d...\n", config.Server.Port)
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Server.Port), nil))
 }
