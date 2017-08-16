@@ -1,6 +1,7 @@
 package login
 
 import (
+	"log"
 	"fmt"
 	"net/http"
 	"encoding/json"
@@ -19,13 +20,19 @@ var Login = handlers.PostOnly(
 
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			w.WriteHeader(http.StatusForbidden)
+
 			fmt.Fprint(w, "Error in request")
+			log.Printf("%v", err)
+
 			return
 		}
 
 		if err := CheckUser(&user); err != nil {
 			w.WriteHeader(http.StatusForbidden)
+
 			fmt.Fprint(w, err)
+			log.Printf("%v", err)
+
 			return
 		}
 
@@ -33,7 +40,9 @@ var Login = handlers.PostOnly(
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+
 			fmt.Fprintln(w, "Error while signing the token")
+			log.Printf("%v", err)
 
 			return
 		}
