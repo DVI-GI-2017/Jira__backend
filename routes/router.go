@@ -3,8 +3,8 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"github.com/DVI-GI-2017/Jira__backend/handlers"
 	"github.com/DVI-GI-2017/Jira__backend/auth"
+	"github.com/DVI-GI-2017/Jira__backend/handlers"
 )
 
 func NewRouter() (http.Handler, error) {
@@ -12,7 +12,7 @@ func NewRouter() (http.Handler, error) {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc(fmt.Sprintf("%s%s", apiRoot, "/login/"), login.Login)
+	mux.HandleFunc(fmt.Sprintf("%s%s", apiRoot, "/login/"), auth.Login)
 
 	return handlers.Logger(mux), nil
 }
