@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"encoding/json"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
-	"github.com/DVI-GI-2017/Jira__backend/login"
+	"github.com/DVI-GI-2017/Jira__backend/auth"
 )
 
 var Login = PostOnly(
 	func(w http.ResponseWriter, r *http.Request) {
-		var user login.Credentials
+		var user auth.Credentials
 
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			w.WriteHeader(http.StatusForbidden)
@@ -22,7 +22,7 @@ var Login = PostOnly(
 			return
 		}
 
-		if err := login.LoginUser(&user); err != nil {
+		if err := auth.LoginUser(&user); err != nil {
 			w.WriteHeader(http.StatusForbidden)
 
 			fmt.Fprint(w, err)
@@ -31,7 +31,7 @@ var Login = PostOnly(
 			return
 		}
 
-		token, err := login.NewToken()
+		token, err := auth.NewToken()
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

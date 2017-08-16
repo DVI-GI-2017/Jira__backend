@@ -1,4 +1,4 @@
-package login
+package auth
 
 import (
 	"github.com/DVI-GI-2017/Jira__backend/db"

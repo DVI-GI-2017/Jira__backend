@@ -8,11 +8,11 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
-	"github.com/DVI-GI-2017/Jira__backend/login"
+	"github.com/DVI-GI-2017/Jira__backend/auth"
 )
 
 func main() {
-	err := login.InitKeys()
+	err := auth.InitKeys()
 	if err != nil {
 		log.Panic("can not init rsa keys: ", err)
 	}

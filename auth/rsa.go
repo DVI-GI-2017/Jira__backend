@@ -1,4 +1,4 @@
-package login
+package auth
 
 import (
 	"io/ioutil"
@@ -36,4 +36,6 @@ func InitKeys() error {
 	if err != nil {
 		return err
 	}
+
+	return nil
 }

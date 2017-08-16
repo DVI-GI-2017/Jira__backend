@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
-	"github.com/DVI-GI-2017/Jira__backend/login"
+	"github.com/DVI-GI-2017/Jira__backend/auth"
 )
 
 func NewRouter() (http.Handler, error) {
