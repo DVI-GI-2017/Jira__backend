@@ -14,34 +14,52 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 )
 
-func main() {
+func rsaInit() {
 	err := auth.InitKeys()
 
 	if err != nil {
 		log.Panic("can not init rsa keys: ", err)
 	}
+}
 
-	config, err := configs.FromFile("config.json")
+func configParse(path string) (config *configs.Config) {
+	config, err := configs.FromFile(path)
 
 	if err != nil {
 		log.Panic("bad configs: ", err)
 	}
 
-	connection := db.NewDBConnection(config.Mongo)
+	return
+}
 
+func raii(handler func()) {
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
-		connection.CloseConnection()
+		handler()
 		os.Exit(0)
 	}()
+}
 
+func startRouter() (mux http.Handler) {
 	mux, err := routes.NewRouter()
 
 	if err != nil {
 		log.Panic("can not create router: ", err)
 	}
+
+	return
+}
+
+func main() {
+	rsaInit()
+
+	config := configParse("config.json")
+	connection := db.NewDBConnection(config.Mongo)
+
+	raii(connection.CloseConnection)
+	mux := startRouter()
 
 	fmt.Printf("Server started on port %d...\n", config.Server.Port)
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Server.Port), mux))
