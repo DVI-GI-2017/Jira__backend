@@ -1,8 +1,10 @@
 package auth
 
 import (
-	"github.com/DVI-GI-2017/Jira__backend/db"
 	"errors"
+	"github.com/DVI-GI-2017/Jira__backend/models"
+	"github.com/DVI-GI-2017/Jira__backend/db"
+	"github.com/DVI-GI-2017/Jira__backend/services"
 )
 
 type Credentials struct {
@@ -21,11 +23,6 @@ func LoginUser(user *Credentials) (err error) {
 	return errors.New("Invalid credentials")
 }
 
-func RegisterUser(user *Credentials) (error) {
-	for _, value := range db.FakeUsers {
-		if user.Email == value.Email {
-			return errors.New("User with this email already exists!")
-		}
-	}
-	return nil
+func RegisterUser(user *Credentials) (result models.User, err error) {
+	return services.GetUserByEmailAndPassword(user.Email, user.Password)
 }

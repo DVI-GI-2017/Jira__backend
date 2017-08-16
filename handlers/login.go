@@ -5,10 +5,8 @@ import (
 	"log"
 	"net/http"
 	"encoding/json"
-	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"github.com/DVI-GI-2017/Jira__backend/auth"
-	"github.com/DVI-GI-2017/Jira__backend/models"
 )
 
 var RegisterUser = PostOnly(
@@ -24,19 +22,16 @@ var RegisterUser = PostOnly(
 			return
 		}
 
-		if err := auth.RegisterUser(&credentials); err != nil {
+		if _, err := auth.RegisterUser(&credentials); err == nil {
 			w.WriteHeader(http.StatusConflict)
 
 			fmt.Fprint(w, "User with this email already exists.")
-			log.Printf("%v", err)
 
 			return
 		}
 
-		user := models.User{Email: credentials.Email, Password: credentials.Password}
-
-		db.FakeUsers = append(db.FakeUsers, user)
 		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, credentials)
 	})
 
 var Login = PostOnly(

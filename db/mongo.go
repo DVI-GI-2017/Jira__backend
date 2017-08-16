@@ -2,18 +2,24 @@ package db
 
 import (
 	"fmt"
-	"gopkg.in/mgo.v2"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
+	"gopkg.in/mgo.v2"
 )
 
 type MongoConnection struct {
 	originalSession *mgo.Session
 }
 
+var Connection *MongoConnection
+
 func NewDBConnection(mongo *configs.Mongo) (conn *MongoConnection) {
 	conn = new(MongoConnection)
-	conn.createConnection(mongo)
+
+	if err := conn.createConnection(mongo); err != nil {
+		fmt.Errorf("open error: %s", err)
+	}
+
 	return
 }
 
@@ -65,5 +71,21 @@ func (c *MongoConnection) CloseConnection() {
 		c.originalSession.Close()
 
 		fmt.Println("Mongo server is closed....")
+	}
+}
+
+func StartDB() {
+	Connection = NewDBConnection(configs.ConfigInfo.Mongo)
+}
+
+func FillDataBase() {
+	users := Connection.GetCollection(configs.ConfigInfo.Mongo)
+
+	for _, user := range FakeUsers {
+		err := users.Insert(&user)
+		if err != nil {
+			fmt.Println("Bad insert")
+			break
+		}
 	}
 }

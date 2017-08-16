@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
+	"github.com/DVI-GI-2017/Jira__backend/auth"
 )
 
 type RouteList []Route
@@ -27,6 +28,6 @@ var routeList = RouteList{
 	Route{
 		Name: "All users",
 		Pattern: "/users",
-		HandlerFunc: handlers.AllUsers,
+		HandlerFunc: auth.ValidateToken(handlers.AllUsers),
 	},
 }

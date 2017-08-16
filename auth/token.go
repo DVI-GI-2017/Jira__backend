@@ -43,8 +43,11 @@ func ValidateToken(h http.HandlerFunc) http.HandlerFunc {
 				h(w, r)
 			} else {
 				w.WriteHeader(http.StatusUnauthorized)
-				fmt.Fprintln(w, "Unauthorized")
+				fmt.Fprintln(w, "Bad token")
 			}
 		}
+
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprintln(w, "Unauthorized")
 	}
 }
