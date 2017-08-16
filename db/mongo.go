@@ -2,9 +2,9 @@ package db
 
 import (
 	"fmt"
-	"gopkg.in/mgo.v2"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
+	"gopkg.in/mgo.v2"
 )
 
 type MongoConnection struct {
@@ -79,10 +79,7 @@ func StartDB() {
 }
 
 func FillDataBase() {
-	connection := NewDBConnection(configs.ConfigInfo.Mongo)
-	defer connection.CloseConnection()
-
-	users := connection.GetCollection(configs.ConfigInfo.Mongo)
+	users := Connection.GetCollection(configs.ConfigInfo.Mongo)
 
 	for _, user := range FakeUsers {
 		err := users.Insert(&user)
