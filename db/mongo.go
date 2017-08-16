@@ -13,7 +13,11 @@ type MongoConnection struct {
 
 func NewDBConnection(mongo *configs.Mongo) (conn *MongoConnection) {
 	conn = new(MongoConnection)
-	conn.createConnection(mongo)
+
+	if err := conn.createConnection(mongo); err != nil {
+		fmt.Errorf("open error: %s", err)
+	}
+
 	return
 }
 
@@ -65,5 +69,20 @@ func (c *MongoConnection) CloseConnection() {
 		c.originalSession.Close()
 
 		fmt.Println("Mongo server is closed....")
+	}
+}
+
+func FillDataBase() {
+	connection := NewDBConnection(configs.ConfigInfo.Mongo)
+	defer connection.CloseConnection()
+
+	users := connection.GetCollection(configs.ConfigInfo.Mongo)
+
+	for _, user := range FakeUsers {
+		err := users.Insert(&user)
+		if err != nil {
+			fmt.Println("Bad insert")
+			break
+		}
 	}
 }
