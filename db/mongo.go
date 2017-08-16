@@ -11,6 +11,8 @@ type MongoConnection struct {
 	originalSession *mgo.Session
 }
 
+var Connection *MongoConnection
+
 func NewDBConnection(mongo *configs.Mongo) (conn *MongoConnection) {
 	conn = new(MongoConnection)
 
@@ -70,6 +72,10 @@ func (c *MongoConnection) CloseConnection() {
 
 		fmt.Println("Mongo server is closed....")
 	}
+}
+
+func StartDB() {
+	Connection = NewDBConnection(configs.ConfigInfo.Mongo)
 }
 
 func FillDataBase() {

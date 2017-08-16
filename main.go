@@ -4,6 +4,9 @@ import (
 	"log"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"strconv"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
@@ -29,10 +32,24 @@ func startRouter() (mux http.Handler) {
 	return
 }
 
+func raii(handler func()) {
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		handler()
+		os.Exit(0)
+	}()
+}
+
 func main() {
 	rsaInit()
 
 	configs.ParseFromFile("config.json")
+
+	db.StartDB()
+	raii(db.Connection.CloseConnection)
+
 	mux := startRouter()
 
 	db.FillDataBase()
