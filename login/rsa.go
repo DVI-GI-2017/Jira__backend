@@ -1,7 +1,6 @@
 package login
 
 import (
-	"fmt"
 	"io/ioutil"
 	"crypto/rsa"
 	"github.com/dgrijalva/jwt-go"
@@ -17,22 +16,24 @@ var (
 	SignKey   *rsa.PrivateKey
 )
 
-func fatal(err error) {
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func InitKeys() {
+func InitKeys() error {
 	signBytes, err := ioutil.ReadFile(privKeyPath)
-	fatal(err)
+	if err != nil {
+		return err
+	}
 
 	SignKey, err = jwt.ParseRSAPrivateKeyFromPEM(signBytes)
-	fatal(err)
+	if err != nil {
+		return err
+	}
 
 	verifyBytes, err := ioutil.ReadFile(pubKeyPath)
-	fatal(err)
+	if err != nil {
+		return err
+	}
 
 	VerifyKey, err = jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
-	fatal(err)
+	if err != nil {
+		return err
+	}
 }

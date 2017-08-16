@@ -12,7 +12,10 @@ import (
 )
 
 func main() {
-	login.InitKeys()
+	err := login.InitKeys()
+	if err != nil {
+		log.Panic("can not init rsa keys: ", err)
+	}
 
 	config, err := configs.FromFile("config.json")
 
