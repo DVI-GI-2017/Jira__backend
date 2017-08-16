@@ -2,6 +2,7 @@ package routes
 
 import (
 	"net/http"
+	"github.com/DVI-GI-2017/Jira__backend/handlers"
 )
 
 type RouteList []Route
@@ -13,5 +14,19 @@ type Route struct {
 }
 
 var routeList = RouteList{
-
+	Route{
+		Name:        "Register new user",
+		Pattern:     "/signup",
+		HandlerFunc: handlers.RegisterUser,
+	},
+	Route{
+		Name:        "Login user",
+		Pattern:     "/signin",
+		HandlerFunc: handlers.Login,
+	},
+	Route{
+		Name: "All users",
+		Pattern: "/users",
+		HandlerFunc: handlers.AllUsers,
+	},
 }
