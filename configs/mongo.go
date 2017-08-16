@@ -12,5 +12,5 @@ type Mongo struct {
 }
 
 func (m *Mongo) URL() string {
-	return fmt.Sprintf("%s://%s:%s", m.Server, m.Host, m.Port)
+	return fmt.Sprintf("%s://%s:%d", m.Server, m.Host, m.Port)
 }
