@@ -34,8 +34,8 @@ func (c *MongoConnection) DropDataBase(mongo *configs.Mongo) (err error) {
 	return nil
 }
 
-func (c *MongoConnection) GetCollection(mongo *configs.Mongo) (collection *mgo.Collection) {
-	return c.originalSession.DB(mongo.Db).C(mongo.Collections[0])
+func (c *MongoConnection) GetCollection(dbName string, collectionName string) (collection *mgo.Collection) {
+	return c.originalSession.DB(dbName).C(collectionName)
 }
 
 func (c *MongoConnection) SetIndex(collection *mgo.Collection, index *tools.DBIndex) (err error) {
@@ -79,7 +79,7 @@ func StartDB() {
 }
 
 func FillDataBase() {
-	users := Connection.GetCollection(configs.ConfigInfo.Mongo)
+	users := Connection.GetCollection(configs.ConfigInfo.Mongo.Db, configs.ConfigInfo.Mongo.Collections[0])
 
 	for _, user := range FakeUsers {
 		err := users.Insert(&user)

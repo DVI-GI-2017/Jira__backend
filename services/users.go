@@ -8,7 +8,7 @@ import (
 )
 
 func GetUserByEmailAndPassword(email string, password string) (result models.User, err error) {
-	users := db.Connection.GetCollection(configs.ConfigInfo.Mongo)
+	users := db.Connection.GetCollection(configs.ConfigInfo.Mongo.Db, configs.ConfigInfo.Mongo.Collections[0])
 
 	result = models.User{}
 	err = users.Find(bson.M{
