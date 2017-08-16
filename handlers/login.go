@@ -22,8 +22,7 @@ var RegisterUser = PostOnly(
 			return
 		}
 
-		result, err := auth.RegisterUser(&credentials)
-		if err == nil {
+		if _, err := auth.RegisterUser(&credentials); err == nil {
 			w.WriteHeader(http.StatusConflict)
 
 			fmt.Fprint(w, "User with this email already exists.")
@@ -32,7 +31,7 @@ var RegisterUser = PostOnly(
 		}
 
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, result)
+		fmt.Fprint(w, credentials)
 	})
 
 var Login = PostOnly(
