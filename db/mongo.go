@@ -19,6 +19,21 @@ func NewDBConnection(mongo *configs.Mongo) (conn *MongoConnection) {
 	return
 }
 
+func (c *MongoConnection) DropDataBase(mongo *configs.Mongo) (err error) {
+	if mongo.Drop {
+		err = c.originalSession.DB(mongo.Db).DropDatabase()
+		if err != nil {
+			return
+		}
+	}
+
+	return nil
+}
+
+func (c *MongoConnection) GetCollection(mongo *configs.Mongo) (collection *mgo.Collection) {
+	return c.originalSession.DB(mongo.Db).C(mongo.Collections[0])
+}
+
 func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 	fmt.Println("Connecting to local mongo server....")
 
@@ -31,14 +46,6 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 	defer c.CloseConnection()
 
 	c.originalSession.SetMode(mgo.Monotonic, true)
-
-	// Drop Database
-	if mongo.Drop {
-		err = c.originalSession.DB(mongo.Db).DropDatabase()
-		if err != nil {
-			panic(err)
-		}
-	}
 
 	// TODO: Init several collections or remove they from config?
 	users := c.originalSession.DB(mongo.Db).C(mongo.Collections[0])
