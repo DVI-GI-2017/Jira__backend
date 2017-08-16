@@ -7,7 +7,7 @@ import (
 )
 
 func CheckUser(user models.User) (err error) {
-	for _, value := range db.UsersListFromFakeDB {
+	for _, value := range db.FakeUsers {
 		if user.Email == value.Email && user.Password == value.Password {
 			return nil
 		}
