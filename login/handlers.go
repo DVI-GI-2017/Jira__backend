@@ -1,17 +1,21 @@
-package handlers
+package login
 
 import (
 	"fmt"
 	"net/http"
 	"encoding/json"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
-	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/validators"
+	"github.com/DVI-GI-2017/Jira__backend/handlers"
 )
 
-var Login = postOnly(
+type Credentials struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+var Login = handlers.PostOnly(
 	func(w http.ResponseWriter, r *http.Request) {
-		var user models.User
+		var user Credentials
 
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			w.WriteHeader(http.StatusForbidden)
@@ -19,13 +23,13 @@ var Login = postOnly(
 			return
 		}
 
-		if err := validators.CheckUser(user); err != nil {
+		if err := CheckUser(&user); err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			fmt.Fprint(w, err)
 			return
 		}
 
-		tokenString, err := tools.CreateToken()
+		token, err := NewToken()
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -34,6 +38,6 @@ var Login = postOnly(
 			return
 		}
 
-		response := tools.Token{Token: tokenString}
+		response := token
 		tools.JsonResponse(response, w)
 	})

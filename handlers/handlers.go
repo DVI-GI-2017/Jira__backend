@@ -2,7 +2,7 @@ package handlers
 
 import "net/http"
 
-func getOnly(h http.HandlerFunc) http.HandlerFunc {
+func GetOnly(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			h(w, r)
@@ -14,7 +14,7 @@ func getOnly(h http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func postOnly(h http.HandlerFunc) http.HandlerFunc {
+func PostOnly(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			h(w, r)
