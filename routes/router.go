@@ -2,8 +2,8 @@ package routes
 
 import (
 	"fmt"
-	"net/http"
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
+	"net/http"
 )
 
 func NewRouter() (http.Handler, error) {

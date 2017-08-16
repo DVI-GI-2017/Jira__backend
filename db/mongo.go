@@ -2,11 +2,12 @@ package db
 
 import (
 	"fmt"
-
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2"
 )
+
+const UserCollection = "users"
 
 type MongoConnection struct {
 	originalSession *mgo.Session
@@ -78,10 +79,6 @@ func (c *MongoConnection) CloseConnection() {
 func StartDB() {
 	Connection = NewDBConnection(configs.ConfigInfo.Mongo)
 }
-
-const (
-	UserCollection = "users",
-)
 
 func FillDataBase() {
 	users := Connection.GetCollection(configs.ConfigInfo.Mongo.Db, UserCollection)
