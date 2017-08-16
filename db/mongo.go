@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"time"
+	//"time"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/DVI-GI-2017/Jira__backend/models"
@@ -56,8 +56,6 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 		return
 	}
 
-	defer c.CloseConnection()
-
 	c.originalSession.SetMode(mgo.Monotonic, true)
 
 	// TODO: Init several collections or remove they from config?
@@ -89,31 +87,6 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 		panic(err)
 	}
 	fmt.Println("Email", result)
-
-	// Query All
-	var results models.Users
-	err = users.Find(bson.M{"firstname": "Jeremy"}).Sort("-created_at").All(&results)
-
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Results All: ", results)
-
-	// Update
-	colQuerier := bson.M{"name": "Jeremy"}
-	change := bson.M{"$set": bson.M{"lastname": "Cumberbatch", "updated_at": time.Now()}}
-	err = users.Update(colQuerier, change)
-	if err != nil {
-		panic(err)
-	}
-
-	// Query All
-	err = users.Find(bson.M{"firstname": "Jeremy"}).Sort("-updated_at").All(&results)
-
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Results All: ", results)
 
 	return nil
 }
