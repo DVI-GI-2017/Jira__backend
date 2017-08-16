@@ -4,10 +4,14 @@ import (
 	"net/http"
 )
 
+type RouteList []Route
+
 type Route struct {
 	Name        string
 	Pattern     string
-	Method      string
 	HandlerFunc http.HandlerFunc
 }
 
+var routeList = RouteList{
+
+}

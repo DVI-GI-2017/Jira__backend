@@ -11,11 +11,9 @@ func NewRouter() (http.Handler, error) {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc(fmt.Sprintf("%s%s", apiRoot, "/login/"), handlers.Login)
+	for _, r := range routeList {
+		mux.HandleFunc(fmt.Sprintf("%s%s", apiRoot, r.Pattern), r.HandlerFunc)
+	}
 
 	return handlers.Logger(mux), nil
-}
-
-type Router struct {
-	mux http.ServeMux
 }
