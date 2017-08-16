@@ -20,3 +20,12 @@ func LoginUser(user *Credentials) (err error) {
 
 	return errors.New("Invalid credentials")
 }
+
+func RegisterUser(user *Credentials) (error) {
+	for _, value := range db.FakeUsers {
+		if user.Email == value.Email {
+			return errors.New("User with this email already exists!")
+		}
+	}
+	return nil
+}
