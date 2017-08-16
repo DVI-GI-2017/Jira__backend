@@ -23,7 +23,7 @@ func fatal(err error) {
 	}
 }
 
-func initKeys() {
+func InitKeys() {
 	signBytes, err := ioutil.ReadFile(privKeyPath)
 	fatal(err)
 

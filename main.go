@@ -8,9 +8,12 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
+	"github.com/DVI-GI-2017/Jira__backend/login"
 )
 
 func main() {
+	login.InitKeys()
+
 	config, err := configs.FromFile("config.json")
 
 	if err != nil {
