@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/DVI-GI-2017/Jira__backend/auth"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
@@ -17,6 +18,13 @@ func GetUserByEmailAndPassword(email string, password string) (result models.Use
 			bson.M{"password": password},
 		},
 	}).One(&result)
+
+	return
+}
+
+func AddUser(user *auth.Credentials) (err error) {
+	users := db.Connection.GetCollection(configs.ConfigInfo.Mongo.Db, configs.ConfigInfo.Mongo.Collections[0])
+	err = users.Insert(user)
 
 	return
 }

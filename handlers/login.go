@@ -1,12 +1,13 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/DVI-GI-2017/Jira__backend/auth"
+	"github.com/DVI-GI-2017/Jira__backend/controllers"
+	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"log"
 	"net/http"
-	"encoding/json"
-	"github.com/DVI-GI-2017/Jira__backend/tools"
-	"github.com/DVI-GI-2017/Jira__backend/auth"
 )
 
 var RegisterUser = PostOnly(
@@ -22,10 +23,19 @@ var RegisterUser = PostOnly(
 			return
 		}
 
-		if _, err := auth.RegisterUser(&credentials); err == nil {
+		if _, err := controllers.CheckUser(&credentials); err == nil {
 			w.WriteHeader(http.StatusConflict)
 
 			fmt.Fprint(w, "User with this email already exists.")
+
+			return
+		}
+
+		err := controllers.AddUser(&credentials)
+
+		if err != nil {
+			fmt.Fprint(w, "Error insert")
+			w.WriteHeader(http.StatusBadGateway)
 
 			return
 		}
