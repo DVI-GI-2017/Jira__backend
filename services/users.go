@@ -1,10 +1,10 @@
 package services
 
 import (
-	"gopkg.in/mgo.v2/bson"
-	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
+	"github.com/DVI-GI-2017/Jira__backend/db"
+	"github.com/DVI-GI-2017/Jira__backend/models"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func GetUserByEmailAndPassword(email string, password string) (result models.User, err error) {
