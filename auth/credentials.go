@@ -2,9 +2,7 @@ package auth
 
 import (
 	"errors"
-	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/db"
-	"github.com/DVI-GI-2017/Jira__backend/services"
 )
 
 type Credentials struct {
@@ -21,8 +19,4 @@ func LoginUser(user *Credentials) (err error) {
 	}
 
 	return errors.New("Invalid credentials")
-}
-
-func RegisterUser(user *Credentials) (result models.User, err error) {
-	return services.GetUserByEmailAndPassword(user.Email, user.Password)
 }
