@@ -40,7 +40,7 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 		}
 	}
 
-	// TODO: Init several collections?
+	// TODO: Init several collections or remove they from config?
 	users := c.originalSession.DB(mongo.Db).C(mongo.Collections[0])
 
 	// Index
