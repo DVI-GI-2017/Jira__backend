@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var Tasks = models.Tasks{
+var FakeTasks = models.Tasks{
 	models.Task{
 		Title:       "Meaningful commit message",
 		Description: "TODO: write meaningful commit message",
