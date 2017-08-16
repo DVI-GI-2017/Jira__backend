@@ -1,10 +1,10 @@
 package db
 
 import (
-	"gopkg.in/mgo.v2"
 	"fmt"
-	"gopkg.in/mgo.v2/bson"
 	"time"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Person struct {

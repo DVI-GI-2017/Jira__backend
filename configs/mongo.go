@@ -1,4 +1,4 @@
-package models
+package configs
 
 type MongoConfig struct {
 	Server string `json:"server"`
