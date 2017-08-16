@@ -1,12 +1,10 @@
-package tools
+package handlers
 
-import (
-	"net/http"
-)
+import "net/http"
 
 func GetOnly(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "GET" {
+		if r.Method == http.MethodGet {
 			h(w, r)
 
 			return
@@ -18,7 +16,7 @@ func GetOnly(h http.HandlerFunc) http.HandlerFunc {
 
 func PostOnly(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "POST" {
+		if r.Method == http.MethodPost {
 			h(w, r)
 
 			return

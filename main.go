@@ -5,12 +5,18 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"github.com/DVI-GI-2017/Jira__backend/router"
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
+	"github.com/DVI-GI-2017/Jira__backend/routes"
+	"github.com/DVI-GI-2017/Jira__backend/auth"
 )
 
 func main() {
+	err := auth.InitKeys()
+	if err != nil {
+		log.Panic("can not init rsa keys: ", err)
+	}
+
 	config, err := configs.FromFile("config.json")
 
 	if err != nil {
@@ -19,8 +25,12 @@ func main() {
 
 	db.NewDBConnection(config.Mongo)
 
-	router.NewRouter()
+	mux, err := routes.NewRouter()
+
+	if err != nil {
+		log.Panic("can not create router: ", err)
+	}
 
 	fmt.Printf("Server started on port %d...\n", config.Server.Port)
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Server.Port), nil))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Server.Port), mux))
 }

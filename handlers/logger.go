@@ -2,21 +2,20 @@ package handlers
 
 import (
 	"log"
-	"net/http"
 	"time"
+	"net/http"
 )
 
-func Logger(inner http.Handler, name string) http.HandlerFunc {
+func Logger(handler http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		inner.ServeHTTP(w, r)
+		handler.ServeHTTP(w, r)
 
 		log.Printf(
-			"%s\t%s\t%s\t%s",
+			"%s\t%s\t%s",
 			r.Method,
 			r.RequestURI,
-			name,
 			time.Since(start),
 		)
 	})
