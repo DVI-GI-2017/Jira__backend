@@ -13,6 +13,7 @@ var FakeUsers = models.Users{
 		Tasks:     models.Tasks{},
 		Password:  "p@ssword",
 		CreatedAt: time.Date(2016, 11, 30, 12, 07, 41, 0, time.UTC),
+		UpdatedAt: time.Date(2016, 11, 30, 12, 07, 41, 0, time.UTC),
 		Bio: `Spent childhood selling wooden tops in Pensacola, FL. In 2008 I
 was testing the market for sheep in Miami, FL. Was quite successful at promoting
 yard waste in Tampa, FL. Spent 2001-2006 implementing bullwhips in the government
@@ -26,6 +27,7 @@ when it comes to selling action figures for farmers.`},
 		Tasks:     models.Tasks{},
 		Password:  "//56.belong.SURE.fresh.16//",
 		CreatedAt: time.Date(2017, 07, 30, 11, 21, 9, 0, time.UTC),
+		UpdatedAt: time.Date(2017, 07, 30, 11, 21, 9, 0, time.UTC),
 		Bio: `Once had a dream of creating marketing channels for jigsaw puzzles in
 Gainesville, FL. Spent 2001-2008 building bathtub gin for the government. What gets
 me going now is consulting about Yugos on Wall Street. Earned praise for marketing
@@ -39,6 +41,7 @@ Enthusiastic about getting my feet wet with tobacco in Jacksonville, FL.`},
 		Tasks:     models.Tasks{},
 		Password:  "--06$last$REST$prepared$76--",
 		CreatedAt: time.Date(2006, 1, 31, 00, 07, 41, 213, time.UTC),
+		UpdatedAt: time.Date(2006, 1, 31, 00, 07, 41, 213, time.UTC),
 		Bio: `Spent childhood licensing banjos in Salisbury, MD. Spent 2001-2008
 analyzing puppets in Ohio. Once had a dream of implementing mosquito repellent on
 Wall Street. Managed a small team investing in hugs in New York, NY. Was quite
