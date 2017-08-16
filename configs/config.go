@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"io"
 	"os"
 	"fmt"
 	"encoding/json"
@@ -19,11 +20,15 @@ func FromFile(filename string) (*Config, error) {
 		return &Config{}, fmt.Errorf("can not open file: %v", err)
 	}
 
+	return FromReader(file)
+}
+
+func FromReader(r io.Reader) (*Config, error) {
 	config := new(Config)
-	err = json.NewDecoder(file).Decode(config)
+	err := json.NewDecoder(r).Decode(config)
 
 	if err != nil {
-		return config, fmt.Errorf("can not parse json: %v", err)
+		return config, fmt.Errorf("can not parse config: %v", err)
 	}
 
 	return config, nil
