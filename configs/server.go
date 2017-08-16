@@ -1,5 +1,5 @@
 package configs
 
 type Server struct {
-	Port string `json:"port"`
+	Port int `json:"port"`
 }

@@ -6,25 +6,23 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/DVI-GI-2017/Jira__backend/models"
-)
-
-var (
-	IsDrop = true
+	"github.com/DVI-GI-2017/Jira__backend/configs"
 )
 
 type MongoConnection struct {
 	originalSession *mgo.Session
 }
 
-func NewDBConnection() (conn *MongoConnection) {
+func NewDBConnection(mongo *configs.Mongo) (conn *MongoConnection) {
 	conn = new(MongoConnection)
-	conn.createConnection()
+	conn.createConnection(mongo)
 	return
 }
 
-func (c *MongoConnection) createConnection() (err error) {
+func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 	fmt.Println("Connecting to local mongo server....")
-	c.originalSession, err = mgo.Dial("mongodb://127.0.0.1:27017")
+
+	c.originalSession, err = mgo.Dial(mongo.URL())
 
 	if err != nil {
 		return
@@ -35,15 +33,15 @@ func (c *MongoConnection) createConnection() (err error) {
 	c.originalSession.SetMode(mgo.Monotonic, true)
 
 	// Drop Database
-	if IsDrop {
-		err = c.originalSession.DB("test").DropDatabase()
+	if mongo.Drop {
+		err = c.originalSession.DB(mongo.Db).DropDatabase()
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	// Collection People
-	collection := c.originalSession.DB("test").C("people")
+	// TODO: Init several collections or remove they from config?
+	users := c.originalSession.DB(mongo.Db).C(mongo.Collections[0])
 
 	// Index
 	index := mgo.Index{
@@ -54,13 +52,13 @@ func (c *MongoConnection) createConnection() (err error) {
 		Sparse:     true,
 	}
 
-	err = collection.EnsureIndex(index)
+	err = users.EnsureIndex(index)
 	if err != nil {
 		panic(err)
 	}
 
 	// Insert Datas
-	err = collection.Insert(&FakeUsers[0])
+	err = users.Insert(&FakeUsers[0])
 
 	if err != nil {
 		panic(err)
@@ -68,7 +66,7 @@ func (c *MongoConnection) createConnection() (err error) {
 
 	// Query One
 	result := models.User{}
-	err = collection.Find(bson.M{"first_name": "Jeremy"}).Select(bson.M{"Email": 0}).One(&result)
+	err = users.Find(bson.M{"first_name": "Jeremy"}).Select(bson.M{"Email": 0}).One(&result)
 	if err != nil {
 		panic(err)
 	}
@@ -76,7 +74,7 @@ func (c *MongoConnection) createConnection() (err error) {
 
 	// Query All
 	var results models.Users
-	err = collection.Find(bson.M{"first_name": "Jeremy"}).Sort("-created_at").All(&results)
+	err = users.Find(bson.M{"first_name": "Jeremy"}).Sort("-created_at").All(&results)
 
 	if err != nil {
 		panic(err)
@@ -86,13 +84,13 @@ func (c *MongoConnection) createConnection() (err error) {
 	// Update
 	colQuerier := bson.M{"name": "Jeremy"}
 	change := bson.M{"$set": bson.M{"last_name": "Cumberbatch", "updated_at": time.Now()}}
-	err = collection.Update(colQuerier, change)
+	err = users.Update(colQuerier, change)
 	if err != nil {
 		panic(err)
 	}
 
 	// Query All
-	err = collection.Find(bson.M{"first_name": "Jeremy"}).Sort("-updated_at").All(&results)
+	err = users.Find(bson.M{"first_name": "Jeremy"}).Sort("-updated_at").All(&results)
 
 	if err != nil {
 		panic(err)
