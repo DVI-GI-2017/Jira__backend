@@ -5,13 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"os"
-	"os/signal"
-	"syscall"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
 	"github.com/DVI-GI-2017/Jira__backend/auth"
-	"github.com/DVI-GI-2017/Jira__backend/db"
 )
 
 func rsaInit() {
@@ -20,16 +16,6 @@ func rsaInit() {
 	if err != nil {
 		log.Panic("can not init rsa keys: ", err)
 	}
-}
-
-func raii(handler func()) {
-	c := make(chan os.Signal, 2)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		handler()
-		os.Exit(0)
-	}()
 }
 
 func startRouter() (mux http.Handler) {
@@ -46,9 +32,6 @@ func main() {
 	rsaInit()
 
 	configs.ParseFromFile("config.json")
-	connection := db.NewDBConnection(configs.ConfigInfo.Mongo)
-
-	raii(connection.CloseConnection)
 	mux := startRouter()
 
 	fmt.Printf("Server started on port %d...\n", configs.ConfigInfo.Server.Port)

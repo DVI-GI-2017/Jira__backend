@@ -2,46 +2,33 @@ package handlers
 
 import (
 	"net/http"
-	"encoding/json"
 	"fmt"
-	"log"
-	"github.com/DVI-GI-2017/Jira__backend/auth"
-	"github.com/DVI-GI-2017/Jira__backend/tools"
+	"gopkg.in/mgo.v2/bson"
+	"github.com/DVI-GI-2017/Jira__backend/db"
+	"github.com/DVI-GI-2017/Jira__backend/configs"
+	"Jira__backend/models"
 )
 
 var CheckDB = GetOnly(
 	func(w http.ResponseWriter, r *http.Request) {
-		var user auth.Credentials
+		connection := db.NewDBConnection(configs.ConfigInfo.Mongo)
+		defer connection.CloseConnection()
 
-		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-			w.WriteHeader(http.StatusForbidden)
+		users := connection.GetCollection(configs.ConfigInfo.Mongo)
 
-			fmt.Fprint(w, "Error in request")
-			log.Printf("%v", err)
-
-			return
-		}
-
-		if err := auth.LoginUser(&user); err != nil {
-			w.WriteHeader(http.StatusForbidden)
-
-			fmt.Fprint(w, err)
-			log.Printf("%v", err)
-
-			return
-		}
-
-		token, err := auth.NewToken()
-
+		err := users.Insert(&db.FakeUsers[0])
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-
-			fmt.Fprintln(w, "Error while signing the token")
-			log.Printf("%v", err)
-
-			return
+			w.WriteHeader(400)
+			fmt.Fprint(w, "Bad insert")
 		}
 
-		response := token
-		tools.JsonResponse(response, w)
+		result := models.User{}
+		err = users.Find(bson.M{"firstname": "Jeremy"}).Select(bson.M{"Email": 0}).One(&result)
+		if err != nil {
+			w.WriteHeader(404)
+			fmt.Fprint(w, "Bad find")
+		}
+
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, result)
 	})
