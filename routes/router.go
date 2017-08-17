@@ -48,7 +48,21 @@ type PostHandlerFunc func(http.ResponseWriter, PostBody, PathParams)
 
 // Example: url "/api/v1/users/1" and pattern "/api/v1/users/:id"
 // path params = {"id": "1"}
-type PathParams map[string][]byte
+type PathParams map[string]string
+
+// Extract path params from path
+func extractPathParams(pattern *regexp.Regexp, path string) PathParams {
+	match := pattern.FindStringSubmatch(path)
+	result := make(PathParams)
+
+	for i, name := range pattern.SubexpNames() {
+		if i != 0 {
+			result[name] = match[i]
+		}
+	}
+
+	return result
+}
 
 // Get params stands for "query params"
 type GetParams map[string]string
@@ -114,6 +128,21 @@ func readToPostBody(r io.ReadCloser) ([]byte, error) {
 	return body, err
 }
 
+func relativePath(base string, absolute string) (string, error) {
+	baseLen := len(base)
+	absoluteLen := len(absolute)
+
+	if absoluteLen < baseLen {
+		return "", errors.New("absolute len shorter than base len")
+	}
+
+	if absolute[:baseLen] != base {
+		return "", errors.New("absolute path doesn't start with base path")
+	}
+
+	return absolute[baseLen:], nil
+}
+
 func (r *router) handleGet(w http.ResponseWriter, path string, getParams GetParams) {
 	for pattern, handler := range r.getHandlers {
 		if pattern.MatchString(path) {
@@ -132,19 +161,4 @@ func (r *router) handlePost(w http.ResponseWriter, path string, body PostBody) {
 		}
 	}
 	w.WriteHeader(http.StatusNotFound)
-}
-
-func relativePath(base string, absolute string) (string, error) {
-	baseLen := len(base)
-	absoluteLen := len(absolute)
-
-	if absoluteLen < baseLen {
-		return "", errors.New("absolute len shorter than base len")
-	}
-
-	if absolute[:baseLen] != base {
-		return "", errors.New("absolute path doesn't start with base path")
-	}
-
-	return absolute[baseLen:], nil
 }

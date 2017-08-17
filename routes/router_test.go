@@ -1,6 +1,10 @@
 package routes
 
-import "testing"
+import (
+	"reflect"
+	"regexp"
+	"testing"
+)
 
 func TestRouter_SetRootPath(t *testing.T) {
 	router := router{}
@@ -28,6 +32,17 @@ func TestRelativePath(t *testing.T) {
 	}
 
 	if relPath != "/users" {
+		t.Fail()
+	}
+}
+
+func TestExtractPathParams(t *testing.T) {
+	pattern := regexp.MustCompile(`/users/(?P<id>\d+)`)
+	pathParams := extractPathParams(pattern, "/users/1")
+
+	expectedPathParams := PathParams{"id": "1"}
+
+	if !reflect.DeepEqual(pathParams, expectedPathParams) {
 		t.Fail()
 	}
 }
