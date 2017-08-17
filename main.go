@@ -22,16 +22,6 @@ func rsaInit() {
 	}
 }
 
-func startRouter() (mux http.Handler) {
-	mux, err := routes.NewRouter()
-
-	if err != nil {
-		log.Panic("can not create router: ", err)
-	}
-
-	return
-}
-
 func raii(handler func()) {
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -53,7 +43,7 @@ func main() {
 	db.Connection.DropDataBase(configs.ConfigInfo.Mongo)
 	db.FillDataBase()
 
-	mux := startRouter()
+	mux := routes.NewRouter()
 
 	fmt.Printf("Server started on port %d...\n", configs.ConfigInfo.Server.Port)
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(configs.ConfigInfo.Server.Port), mux))

@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func NewRouter() (http.Handler, error) {
+func NewRouter() http.Handler {
 	const apiRoot = "/api/v1"
 
 	mux := http.NewServeMux()
@@ -15,5 +15,5 @@ func NewRouter() (http.Handler, error) {
 		mux.HandleFunc(fmt.Sprintf("%s%s", apiRoot, r.Pattern), r.HandlerFunc)
 	}
 
-	return handlers.Logger(mux), nil
+	return handlers.Logger(mux)
 }
