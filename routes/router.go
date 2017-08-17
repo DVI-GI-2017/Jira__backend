@@ -12,6 +12,8 @@ import (
 
 func NewRouter(rootPath string) (*router, error) {
 	r := &router{}
+	r.getHandlers = make(map[*regexp.Regexp]GetHandlerFunc)
+	r.postHandlers = make(map[*regexp.Regexp]PostHandlerFunc)
 
 	err := r.SetRootPath(rootPath)
 	if err != nil {
@@ -21,13 +23,11 @@ func NewRouter(rootPath string) (*router, error) {
 	return r, nil
 }
 
-type Pattern *regexp.Regexp
-
 type router struct {
 	root *url.URL
 
-	getHandlers  map[Pattern]GetHandlerFunc
-	postHandlers map[Pattern]PostHandlerFunc
+	getHandlers  map[*regexp.Regexp]GetHandlerFunc
+	postHandlers map[*regexp.Regexp]PostHandlerFunc
 }
 
 // Set router root path, other paths will be relative to it
@@ -63,7 +63,7 @@ func (r *router) Get(pattern string, handler GetHandlerFunc) error {
 		return err
 	}
 
-	r.getHandlers[Pattern(compiledPattern)] = handler
+	r.getHandlers[compiledPattern] = handler
 
 	return nil
 }
@@ -115,10 +115,23 @@ func readToPostBody(r io.ReadCloser) ([]byte, error) {
 }
 
 func (r *router) handleGet(w http.ResponseWriter, path string, getParams GetParams) {
-
+	for pattern, handler := range r.getHandlers {
+		if pattern.MatchString(path) {
+			fmt.Fprintf(w, "pattern: %+v, handler: %+v", pattern, handler)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func (r *router) handlePost(w http.ResponseWriter, path string, body PostBody) {
+	for pattern, handler := range r.postHandlers {
+		if pattern.MatchString(path) {
+			fmt.Fprintf(w, "pattern: %+v, handler: %+v", pattern, handler)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func relativePath(base string, absolute string) (string, error) {
