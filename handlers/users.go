@@ -1,24 +1,12 @@
 package handlers
 
 import (
-	"net/http"
+	"Jira__backend/tools"
 	"github.com/DVI-GI-2017/Jira__backend/db"
-	"encoding/json"
-	"fmt"
-	"log"
+	"net/http"
 )
 
 var AllUsers = GetOnly(
 	func(w http.ResponseWriter, _ *http.Request) {
-		err := json.NewEncoder(w).Encode(db.FakeUsers)
-
-		if err != nil {
-			fmt.Fprint(w, "Something happened...")
-			log.Printf("%v", err)
-
-			w.WriteHeader(http.StatusBadRequest)
-		}
-
-		w.WriteHeader(http.StatusOK)
-	},
-)
+		tools.JsonResponse(db.FakeUsers, w)
+	})

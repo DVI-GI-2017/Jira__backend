@@ -2,10 +2,10 @@ package auth
 
 import (
 	"fmt"
-	"time"
-	"net/http"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
+	"net/http"
+	"time"
 )
 
 type Token struct {
@@ -41,6 +41,8 @@ func ValidateToken(h http.HandlerFunc) http.HandlerFunc {
 		if err == nil {
 			if token.Valid {
 				h(w, r)
+
+				return
 			} else {
 				w.WriteHeader(http.StatusUnauthorized)
 				fmt.Fprintln(w, "Bad token")
