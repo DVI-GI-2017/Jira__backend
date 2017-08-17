@@ -70,7 +70,7 @@ type GetParams map[string]string
 // Type for http post body
 type PostBody []byte // Byte array with request body
 
-// Add new get handler
+// Add new GET handler
 func (r *router) Get(pattern string, handler GetHandlerFunc) error {
 	compiledPattern, err := regexp.Compile(pattern)
 	if err != nil {
@@ -78,6 +78,18 @@ func (r *router) Get(pattern string, handler GetHandlerFunc) error {
 	}
 
 	r.getHandlers[compiledPattern] = handler
+
+	return nil
+}
+
+// Add new POST handler
+func (r *router) Post(pattern string, handler PostHandlerFunc) error {
+	compiledPattern, err := regexp.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	r.postHandlers[compiledPattern] = handler
 
 	return nil
 }
@@ -146,7 +158,7 @@ func relativePath(base string, absolute string) (string, error) {
 func (r *router) handleGet(w http.ResponseWriter, path string, getParams GetParams) {
 	for pattern, handler := range r.getHandlers {
 		if pattern.MatchString(path) {
-			fmt.Fprintf(w, "pattern: %+v, handler: %+v", pattern, handler)
+			handler(w, getParams, extractPathParams(pattern, path))
 			return
 		}
 	}
@@ -156,7 +168,7 @@ func (r *router) handleGet(w http.ResponseWriter, path string, getParams GetPara
 func (r *router) handlePost(w http.ResponseWriter, path string, body PostBody) {
 	for pattern, handler := range r.postHandlers {
 		if pattern.MatchString(path) {
-			fmt.Fprintf(w, "pattern: %+v, handler: %+v", pattern, handler)
+			handler(w, body, extractPathParams(pattern, path))
 			return
 		}
 	}
