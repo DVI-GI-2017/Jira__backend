@@ -10,8 +10,8 @@ import (
 type router struct {
 	root *url.URL
 
-	getHandlers  map[string]GetHandler
-	postHandlers map[string]PostHandler
+	getHandlers  map[string]GetHandlerFunc
+	postHandlers map[string]PostHandlerFunc
 }
 
 func NewRouter(rootPath string) (*router, error) {
@@ -44,7 +44,7 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	case http.MethodGet:
 		if route, ok := r.getHandlers[path]; ok {
-			route.HandleGet(&w, valuesToGetParams(req.URL.Query()), nil)
+			route(&w, valuesToGetParams(req.URL.Query()), nil)
 		}
 		http.NotFound(w, req)
 	case http.MethodPost:
@@ -56,7 +56,7 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				log.Panicf("can not read request body: %v", err)
 			}
 
-			route.HandlePost(&w, RequestBody(body), nil)
+			route(&w, PostBody(body), nil)
 		}
 		http.NotFound(w, req)
 
@@ -66,18 +66,12 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-type GetParams map[string]string
+type GetHandlerFunc func(*http.ResponseWriter, GetParams, PathParams)
+type PostHandlerFunc func(*http.ResponseWriter, PostBody, PathParams)
+
 type PathParams map[string][]byte
-
-type GetHandler interface {
-	HandleGet(*http.ResponseWriter, GetParams, PathParams)
-}
-
-type RequestBody []byte // Byte array with request body
-
-type PostHandler interface {
-	HandlePost(*http.ResponseWriter, RequestBody, PathParams)
-}
+type GetParams map[string]string
+type PostBody []byte // Byte array with request body
 
 func valuesToGetParams(values url.Values) GetParams {
 	var params map[string]string
