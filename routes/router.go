@@ -2,18 +2,58 @@ package routes
 
 import (
 	"fmt"
-	"github.com/DVI-GI-2017/Jira__backend/handlers"
 	"net/http"
+	"net/url"
 )
 
-func NewRouter() http.Handler {
-	const apiRoot = "/api/v1"
+type router struct {
+	root *url.URL
 
-	mux := http.NewServeMux()
+	getRoutes  map[string]Route
+	postRoutes map[string]Route
+}
 
-	for _, r := range routeList {
-		mux.HandleFunc(fmt.Sprintf("%s%s", apiRoot, r.Pattern), r.HandlerFunc)
+func NewRouter(rootPath string) (*router, error) {
+	r := &router{}
+
+	err := r.SetRootPath(rootPath)
+	if err != nil {
+		return r, err
 	}
 
-	return handlers.Logger(mux)
+	return r, nil
+}
+
+func (r *router) SetRootPath(path string) error {
+	newRoot, err := url.Parse(path)
+	if err != nil {
+		return fmt.Errorf("invalid path format %s: %v", path, err)
+	}
+
+	r.root = newRoot
+
+	return nil
+}
+
+func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	path := req.URL.Path
+	method := req.Method
+
+	switch method {
+
+	case http.MethodGet:
+		if route, ok := r.getRoutes[path]; ok {
+			route.HandlerFunc(w, req)
+		}
+		http.NotFound(w, req)
+	case http.MethodPost:
+		if route, ok := r.postRoutes[path]; ok {
+			route.HandlerFunc(w, req)
+		}
+		http.NotFound(w, req)
+
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		fmt.Fprintf(w, "method not allowed: %s", method)
+	}
 }
