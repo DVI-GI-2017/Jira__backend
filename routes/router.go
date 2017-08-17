@@ -46,7 +46,7 @@ func (r *router) SetRootPath(path string) error {
 type GetHandlerFunc func(http.ResponseWriter, GetParams, PathParams)
 type PostHandlerFunc func(http.ResponseWriter, PostBody, PathParams)
 
-// Example: url "/api/v1/users/1" and pattern "/api/v1/users/:id"
+// Example: url "/api/v1/users/1" and pattern `/api/v1/users/(?P<id>\d+)`
 // path params = {"id": "1"}
 type PathParams map[string]string
 
