@@ -1,9 +1,11 @@
 package routes
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 )
 
 func NewRouter(rootPath string) (*router, error) {
@@ -17,7 +19,7 @@ func NewRouter(rootPath string) (*router, error) {
 	return r, nil
 }
 
-type Pattern string
+type Pattern *regexp.Regexp
 
 type router struct {
 	root *url.URL
@@ -64,12 +66,12 @@ type PostBody []byte // Byte array with request body
 
 // Add new get handler
 func (r *router) Get(pattern string, handler GetHandlerFunc) error {
-	fullPattern, err := r.root.Parse(pattern)
+	compiledPattern, err := regexp.Compile(pattern)
 	if err != nil {
 		return err
 	}
 
-	r.getHandlers[Pattern(fullPattern.Path)] = handler
+	r.getHandlers[Pattern(compiledPattern)] = handler
 
 	return nil
 }
@@ -95,4 +97,19 @@ func (r *router) handlePost(w http.ResponseWriter, req *http.Request) {
 
 func (r *router) handleGet(w http.ResponseWriter, req *http.Request) {
 
+}
+
+func relativePath(base string, absolute string) (string, error) {
+	baseLen := len(base)
+	absoluteLen := len(absolute)
+
+	if absoluteLen < baseLen {
+		return "", errors.New("absolute len shorter than base len")
+	}
+
+	if absolute[:baseLen] != base {
+		return "", errors.New("absolute path doesn't start with base path")
+	}
+
+	return absolute[baseLen:], nil
 }

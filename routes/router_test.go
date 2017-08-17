@@ -17,3 +17,17 @@ func TestRouter_SetRootPath(t *testing.T) {
 		t.Errorf("%s", router.root)
 	}
 }
+
+func TestRelativePath(t *testing.T) {
+	const basePath = "/api/v1"
+	const absolutePath = "/api/v1/users"
+
+	relPath, err := relativePath(basePath, absolutePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if relPath != "/users" {
+		t.Fail()
+	}
+}
