@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/DVI-GI-2017/Jira__backend/auth"
-	"github.com/DVI-GI-2017/Jira__backend/controllers"
+	"github.com/DVI-GI-2017/Jira__backend/services"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"log"
 	"net/http"
@@ -23,7 +23,7 @@ var RegisterUser = PostOnly(
 			return
 		}
 
-		if _, err := controllers.CheckUser(&credentials); err == nil {
+		if _, err := services.GetUserByEmailAndPassword(credentials.Email, credentials.Password); err == nil {
 			w.WriteHeader(http.StatusConflict)
 
 			fmt.Fprint(w, "User with this email already exists.")
@@ -31,7 +31,7 @@ var RegisterUser = PostOnly(
 			return
 		}
 
-		err := controllers.AddUser(&credentials)
+		err := services.AddUser(&credentials)
 
 		if err != nil {
 			fmt.Fprint(w, "Error insert")
