@@ -32,7 +32,7 @@ func raii(handler func()) {
 	}()
 }
 
-func main() {
+func init() {
 	rsaInit()
 
 	configs.ParseFromFile("config.json")
@@ -42,7 +42,9 @@ func main() {
 	raii(db.Connection.CloseConnection)
 	db.Connection.DropDataBase(configs.ConfigInfo.Mongo)
 	db.FillDataBase()
+}
 
+func main() {
 	mux := routes.NewRouter()
 
 	fmt.Printf("Server started on port %d...\n", configs.ConfigInfo.Server.Port)
