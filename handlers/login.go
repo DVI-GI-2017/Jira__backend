@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/DVI-GI-2017/Jira__backend/auth"
+	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"github.com/DVI-GI-2017/Jira__backend/services"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 )
@@ -77,4 +78,28 @@ func Login(w http.ResponseWriter, body []byte, _ map[string]string) {
 	}
 
 	tools.JsonResponse(token, w)
+}
+
+func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
+	var user auth.Credentials
+
+	if err := json.Unmarshal(body, &user); err != nil {
+		w.WriteHeader(http.StatusForbidden)
+
+		fmt.Fprint(w, "Error in request!")
+		log.Printf("%v", err)
+
+		return
+	}
+
+	fmt.Println(user.Email)
+
+	pool.Queue <- &pool.Job{
+		JobId: 1,
+		Email: user.Email,
+	}
+
+	result := <-pool.Results
+
+	tools.JsonResponse(result, w)
 }

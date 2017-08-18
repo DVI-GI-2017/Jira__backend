@@ -12,6 +12,7 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
+	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
 )
 
@@ -34,6 +35,7 @@ func raii(handler func()) {
 }
 
 func init() {
+	pool.InitWorkers()
 	rsaInit()
 
 	configs.ParseFromFile("config.json")

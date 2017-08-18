@@ -22,12 +22,12 @@ type JobResult struct {
 	ResultType interface{}
 }
 
-var queue = make(chan *Job, 512)
-var results = make(chan *JobResult, 512)
+var Queue = make(chan *Job, 512)
+var Results = make(chan *JobResult, 512)
 
 func InitWorkers() {
 	for id := 0; id < runtime.NumCPU(); id++ {
-		go worker(id, queue, results)
+		go worker(id, Queue, Results)
 	}
 }
 
@@ -76,7 +76,7 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 func connect(workerId int, session *mgo.Session) *mgo.Collection {
 	for {
 		// Open a DB connection
-		log.Printf("Worker %d: Connecting to %s", workerId, fmt.Sprintf("mongodb://%s/%s", *host, *db))
+		log.Printf("Worker %d: Connecting to", workerId)
 		s, err := mgo.Dial("mongodb://localhost:27017/worker-test")
 		if err != nil {
 			log.Printf("Worker %d: Unable to connect to database (%s)", workerId, err)
