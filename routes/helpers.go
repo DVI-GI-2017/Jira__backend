@@ -2,7 +2,6 @@ package routes
 
 import (
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -42,16 +41,7 @@ func extractPathParams(pattern *regexp.Regexp, path string) PathParams {
 	return result
 }
 
-// Read from reader to byte buffer
-func readToPostBody(r io.ReadCloser) ([]byte, error) {
-	const capacity = 100
-	body := make([]byte, 0, capacity)
-
-	_, err := r.Read(body)
-
-	return body, err
-}
-
+// Return path relative to "base"
 func relativePath(base string, absolute string) (string, error) {
 	baseLen := len(base)
 	absoluteLen := len(absolute)
