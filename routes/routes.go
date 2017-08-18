@@ -32,7 +32,12 @@ var routeList = RouteList{
 	},
 	Route{
 		Name: "All projects",
-		Pattern: "/projects/:id",
+		Pattern: "/project",
 		HandlerFunc: auth.ValidateToken(handlers.Projects),
+	},
+	Route{
+		Name: "Project by id",
+		Pattern: "/project/:id",
+		HandlerFunc: auth.ValidateToken(handlers.Project),
 	},
 }
