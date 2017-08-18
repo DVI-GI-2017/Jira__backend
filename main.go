@@ -49,9 +49,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("can not create router: %v", err)
 	}
-	router.Get("/users",
-		func(w http.ResponseWriter, getParams routes.GetParams, pathParams routes.PathParams) {},
-	)
 
 	port := configs.ConfigInfo.Server.Port
 

@@ -1,9 +1,7 @@
 package routes
 
 import (
-	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -12,8 +10,8 @@ import (
 
 func NewRouter(rootPath string) (*router, error) {
 	r := &router{}
-	r.getHandlers = make(map[*regexp.Regexp]GetHandlerFunc)
-	r.postHandlers = make(map[*regexp.Regexp]PostHandlerFunc)
+	r.getHandlers = make(map[*regexp.Regexp]getHandlerFunc)
+	r.postHandlers = make(map[*regexp.Regexp]postHandlerFunc)
 
 	err := r.SetRootPath(rootPath)
 	if err != nil {
@@ -26,8 +24,8 @@ func NewRouter(rootPath string) (*router, error) {
 type router struct {
 	root *url.URL
 
-	getHandlers  map[*regexp.Regexp]GetHandlerFunc
-	postHandlers map[*regexp.Regexp]PostHandlerFunc
+	getHandlers  map[*regexp.Regexp]getHandlerFunc
+	postHandlers map[*regexp.Regexp]postHandlerFunc
 }
 
 // Set router root path, other paths will be relative to it
@@ -38,58 +36,6 @@ func (r *router) SetRootPath(path string) error {
 	}
 
 	r.root = newRoot
-
-	return nil
-}
-
-//Helper types for different http method handlers
-type GetHandlerFunc func(http.ResponseWriter, GetParams, PathParams)
-type PostHandlerFunc func(http.ResponseWriter, PostBody, PathParams)
-
-// Example: url "/api/v1/users/1" and pattern `/api/v1/users/(?P<id>\d+)`
-// path params = {"id": "1"}
-type PathParams map[string]string
-
-// Extract path params from path
-func extractPathParams(pattern *regexp.Regexp, path string) PathParams {
-	match := pattern.FindStringSubmatch(path)
-	result := make(PathParams)
-
-	for i, name := range pattern.SubexpNames() {
-		if i != 0 {
-			result[name] = match[i]
-		}
-	}
-
-	return result
-}
-
-// Get params stands for "query params"
-type GetParams map[string]string
-
-// Type for http post body
-type PostBody []byte // Byte array with request body
-
-// Add new GET handler
-func (r *router) Get(pattern string, handler GetHandlerFunc) error {
-	compiledPattern, err := regexp.Compile(pattern)
-	if err != nil {
-		return err
-	}
-
-	r.getHandlers[compiledPattern] = handler
-
-	return nil
-}
-
-// Add new POST handler
-func (r *router) Post(pattern string, handler PostHandlerFunc) error {
-	compiledPattern, err := regexp.Compile(pattern)
-	if err != nil {
-		return err
-	}
-
-	r.postHandlers[compiledPattern] = handler
 
 	return nil
 }
@@ -120,42 +66,7 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// Converts url.Url.Query() from "Values" (map[string][]string)
-// to "GetParams" (map[string]string)
-func valuesToGetParams(values url.Values) GetParams {
-	var params map[string]string
-	for key := range values {
-		params[key] = values.Get(key)
-	}
-	return params
-}
-
-// Read from reader to byte buffer
-func readToPostBody(r io.ReadCloser) ([]byte, error) {
-	const capacity = 100
-	body := make([]byte, 0, capacity)
-
-	_, err := r.Read(body)
-
-	return body, err
-}
-
-func relativePath(base string, absolute string) (string, error) {
-	baseLen := len(base)
-	absoluteLen := len(absolute)
-
-	if absoluteLen < baseLen {
-		return "", errors.New("absolute len shorter than base len")
-	}
-
-	if absolute[:baseLen] != base {
-		return "", errors.New("absolute path doesn't start with base path")
-	}
-
-	return absolute[baseLen:], nil
-}
-
-func (r *router) handleGet(w http.ResponseWriter, path string, getParams GetParams) {
+func (r *router) handleGet(w http.ResponseWriter, path string, getParams getParams) {
 	for pattern, handler := range r.getHandlers {
 		if pattern.MatchString(path) {
 			handler(w, getParams, extractPathParams(pattern, path))
@@ -165,7 +76,7 @@ func (r *router) handleGet(w http.ResponseWriter, path string, getParams GetPara
 	w.WriteHeader(http.StatusNotFound)
 }
 
-func (r *router) handlePost(w http.ResponseWriter, path string, body PostBody) {
+func (r *router) handlePost(w http.ResponseWriter, path string, body postBody) {
 	for pattern, handler := range r.postHandlers {
 		if pattern.MatchString(path) {
 			handler(w, body, extractPathParams(pattern, path))
@@ -173,4 +84,28 @@ func (r *router) handlePost(w http.ResponseWriter, path string, body PostBody) {
 		}
 	}
 	w.WriteHeader(http.StatusNotFound)
+}
+
+// Add new GET handler
+func (r *router) Get(pattern string, handler getHandlerFunc) error {
+	compiledPattern, err := regexp.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	r.getHandlers[compiledPattern] = handler
+
+	return nil
+}
+
+// Add new POST handler
+func (r *router) Post(pattern string, handler postHandlerFunc) error {
+	compiledPattern, err := regexp.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	r.postHandlers[compiledPattern] = handler
+
+	return nil
 }
