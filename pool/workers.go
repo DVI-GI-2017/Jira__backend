@@ -1,8 +1,8 @@
 package pool
 
 import (
-	"Jira__backend/models"
 	"fmt"
+	"github.com/DVI-GI-2017/Jira__backend/auth"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io"
@@ -12,7 +12,7 @@ import (
 
 type Job struct {
 	JobId int
-	Email string
+	User  *auth.Credentials
 }
 
 type JobResult struct {
@@ -38,10 +38,9 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	for job := range queue {
 
 		// Perform the database query
-		err := users.Insert(models.User{
-			FirstName: fmt.Sprintf("User %d", "Vasya"),
-			Email:     fmt.Sprintf("user-%s@example.com", job.Email),
-		})
+		err := users.Insert(job.User)
+
+		fmt.Println(err)
 
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
 			// Our job hasn't completed because the database is no longer connected
@@ -54,14 +53,9 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 			continue
 		}
 
-		user := new(models.User)
-		userid := fmt.Sprintf("User %s", job.Email)
+		user := new(auth.Credentials)
 
-		err = users.Find(bson.M{
-			"$and": []interface{}{
-				bson.M{"email": userid},
-			},
-		}).One(&user)
+		err = users.Find(bson.M{"email": job.User.Email}).One(&user)
 
 		// Send our results back
 		results <- &JobResult{

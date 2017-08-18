@@ -96,7 +96,7 @@ func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
 
 	pool.Queue <- &pool.Job{
 		JobId: 1,
-		Email: user.Email,
+		User:  &user,
 	}
 
 	result := <-pool.Results
