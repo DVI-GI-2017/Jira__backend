@@ -11,6 +11,7 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/auth"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/db"
+	"github.com/DVI-GI-2017/Jira__backend/handlers"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
 )
 
@@ -55,5 +56,5 @@ func main() {
 
 	fmt.Printf("Server started on port %d...\n", port)
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), router))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), handlers.Logger(router)))
 }
