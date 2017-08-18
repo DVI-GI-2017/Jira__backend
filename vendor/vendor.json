@@ -9,6 +9,12 @@
 			"revisionTime": "2017-06-08T00:51:49Z"
 		},
 		{
+			"checksumSHA1": "iT7rn+3ksvdLous1NOWlMJqI49s=",
+			"path": "github.com/go-swagger/go-swagger",
+			"revision": "a5175e9846582001edec88a4e3a434963e350605",
+			"revisionTime": "2017-08-17T03:58:28Z"
+		},
+		{
 			"path": "github.com/gopkg.in/mgo.v2",
 			"revision": ""
 		},
