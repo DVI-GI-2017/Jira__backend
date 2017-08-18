@@ -2,20 +2,18 @@ package routes
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 )
-
-// Get params stands for "query params"
-type getParams map[string]string
 
 // Type for http post body
 type postBody []byte // Byte array with request body
 
-// Example: url "/api/v1/users/1" and pattern `/api/v1/users/(?P<id>\d+)`
-// path params = {"id": "1"}
-type PathParams map[string]string
+// Get params stands for "query params"
+type getParams map[string]string
 
 // Converts url.Url.Query() from "Values" (map[string][]string)
 // to "getParams" (map[string]string)
@@ -26,6 +24,10 @@ func valuesToGetParams(values url.Values) getParams {
 	}
 	return params
 }
+
+// Example: url "/api/v1/users/1" and pattern `/api/v1/users/(?P<id>\d+)`
+// path params = {"id": "1"}
+type PathParams map[string]string
 
 // Extract path params from path
 func extractPathParams(pattern *regexp.Regexp, path string) PathParams {
@@ -39,6 +41,18 @@ func extractPathParams(pattern *regexp.Regexp, path string) PathParams {
 	}
 
 	return result
+}
+
+// Converts patterns like "/users/:id" to "/users/(?P<id>\d+)"
+func convertSimplePatternToRegexp(pattern string) string {
+	parts := strings.Split(pattern, "/")
+	for i, part := range parts {
+		if len(part) != 0 && part[0] == ':' {
+			parts[i] = fmt.Sprintf(`(?P<%s>\d+)`, part[1:])
+		}
+	}
+
+	return strings.Join(parts, "/")
 }
 
 // Return path relative to "base"

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 )
 
 func NewRouter(rootPath string) (*router, error) {
@@ -91,6 +92,10 @@ func (r *router) handlePost(w http.ResponseWriter, path string, body postBody) {
 func (r *router) Get(pattern string,
 	handler func(http.ResponseWriter, map[string]string, map[string]string)) error {
 
+	if strings.Contains(pattern, ":") {
+		pattern = convertSimplePatternToRegexp(pattern)
+	}
+
 	compiledPattern, err := regexp.Compile(pattern)
 	if err != nil {
 		return err
@@ -106,6 +111,10 @@ func (r *router) Get(pattern string,
 // Add new POST handler
 func (r *router) Post(pattern string,
 	handler func(http.ResponseWriter, []byte, map[string]string)) error {
+
+	if strings.Contains(pattern, ":") {
+		pattern = convertSimplePatternToRegexp(pattern)
+	}
 
 	compiledPattern, err := regexp.Compile(pattern)
 	if err != nil {
