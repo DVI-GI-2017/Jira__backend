@@ -103,3 +103,27 @@ func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
 
 	tools.JsonResponse(result, w)
 }
+
+func Test1(w http.ResponseWriter, body []byte, _ map[string]string) {
+	var user auth.Credentials
+
+	if err := json.Unmarshal(body, &user); err != nil {
+		w.WriteHeader(http.StatusForbidden)
+
+		fmt.Fprint(w, "Error in request!")
+		log.Printf("%v", err)
+
+		return
+	}
+
+	fmt.Println(user.Email)
+
+	pool.Queue <- &pool.Job{
+		JobId: 1,
+		User:  &user,
+	}
+
+	result := <-pool.Results
+
+	tools.JsonResponse(result, w)
+}

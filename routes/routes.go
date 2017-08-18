@@ -24,4 +24,10 @@ func InitRouter(r *router) {
 	if err != nil {
 		log.Panicf("can not init route '%s': %v", test, err)
 	}
+
+	const test1 = "/test1"
+	err = r.Post(test1, handlers.Test1)
+	if err != nil {
+		log.Panicf("can not init route '%s': %v", test1, err)
+	}
 }
