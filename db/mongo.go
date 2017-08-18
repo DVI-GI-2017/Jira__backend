@@ -2,6 +2,9 @@ package db
 
 import (
 	"fmt"
+
+	"log"
+
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2"
@@ -16,14 +19,14 @@ type MongoConnection struct {
 
 var Connection *MongoConnection
 
-func NewDBConnection(mongo *configs.Mongo) (conn *MongoConnection) {
-	conn = new(MongoConnection)
+func NewDBConnection(mongo *configs.Mongo) (*MongoConnection, error) {
+	conn := new(MongoConnection)
 
 	if err := conn.createConnection(mongo); err != nil {
-		fmt.Errorf("open error: %s", err)
+		return conn, fmt.Errorf("open error: %s", err)
 	}
 
-	return
+	return conn, nil
 }
 
 func (c *MongoConnection) DropDataBase(mongo *configs.Mongo) (err error) {
@@ -78,7 +81,11 @@ func (c *MongoConnection) CloseConnection() {
 }
 
 func StartDB() {
-	Connection = NewDBConnection(configs.ConfigInfo.Mongo)
+	newConnection, err := NewDBConnection(configs.ConfigInfo.Mongo)
+	if err != nil || newConnection == nil {
+		log.Panicf("can not start db: %s", err)
+	}
+	Connection = newConnection
 }
 
 func FillDataBase() {

@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/DVI-GI-2017/Jira__backend/auth"
-	"github.com/DVI-GI-2017/Jira__backend/configs"
-	"github.com/DVI-GI-2017/Jira__backend/db"
-	"github.com/DVI-GI-2017/Jira__backend/routes"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
+
+	"github.com/DVI-GI-2017/Jira__backend/auth"
+	"github.com/DVI-GI-2017/Jira__backend/configs"
+	"github.com/DVI-GI-2017/Jira__backend/db"
+	"github.com/DVI-GI-2017/Jira__backend/handlers"
+	"github.com/DVI-GI-2017/Jira__backend/routes"
 )
 
 func rsaInit() {
@@ -45,8 +46,15 @@ func init() {
 }
 
 func main() {
-	mux := routes.NewRouter()
+	router, err := routes.NewRouter("/api/v1")
+	if err != nil {
+		log.Fatalf("can not create router: %v", err)
+	}
+	routes.InitRouter(router)
 
-	fmt.Printf("Server started on port %d...\n", configs.ConfigInfo.Server.Port)
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(configs.ConfigInfo.Server.Port), mux))
+	port := configs.ConfigInfo.Server.Port
+
+	fmt.Printf("Server started on port %d...\n", port)
+
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), handlers.Logger(router)))
 }
