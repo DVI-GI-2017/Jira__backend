@@ -1,0 +1,10 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		"github.com/gorilla/mux",
+		"gopkg.in/mgo.v2",
+		"github.com/dgrijalva/jwt-go"
+	],
+	"rootPath": "github.com/DVI-GI-2017/Jira__backend"
+}
