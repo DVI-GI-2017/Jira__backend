@@ -30,4 +30,9 @@ var routeList = RouteList{
 		Pattern: "/users",
 		HandlerFunc: auth.ValidateToken(handlers.AllUsers),
 	},
+	Route{
+		Name: "All projects",
+		Pattern: "/projects/:id",
+		HandlerFunc: auth.ValidateToken(handlers.Projects),
+	},
 }

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"Jira__backend/tools"
+	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"net/http"
 )

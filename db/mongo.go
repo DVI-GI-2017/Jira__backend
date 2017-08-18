@@ -8,6 +8,7 @@ import (
 )
 
 const UserCollection = "users"
+const ProjectCollection = "project"
 
 type MongoConnection struct {
 	originalSession *mgo.Session
