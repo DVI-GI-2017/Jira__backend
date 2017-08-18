@@ -6,4 +6,5 @@ import (
 
 func InitRouter(r *router) {
 	r.Post("/signup", handlers.RegisterUser)
+	r.Post("/signin", handlers.Login)
 }
