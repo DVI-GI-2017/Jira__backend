@@ -3,46 +3,46 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/DVI-GI-2017/Jira__backend/auth"
 	"github.com/DVI-GI-2017/Jira__backend/services"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
-	"log"
-	"net/http"
 )
 
-var RegisterUser = PostOnly(
-	func(w http.ResponseWriter, r *http.Request) {
-		var credentials auth.Credentials
+func RegisterUser(w http.ResponseWriter, body []byte, _ map[string]string) {
+	var credentials auth.Credentials
 
-		if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+	if err := json.Unmarshal(body, &credentials); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 
-			fmt.Fprint(w, "Invalid registration data format!")
-			log.Printf("%v", err)
+		fmt.Fprint(w, "Invalid registration data format!")
+		log.Printf("%v", err)
 
-			return
-		}
+		return
+	}
 
-		if _, err := services.GetUserByEmailAndPassword(credentials.Email, credentials.Password); err == nil {
-			w.WriteHeader(http.StatusConflict)
+	if _, err := services.GetUserByEmailAndPassword(credentials.Email, credentials.Password); err == nil {
+		w.WriteHeader(http.StatusConflict)
 
-			fmt.Fprint(w, "User with this email already exists!")
-			log.Printf("%v", err)
+		fmt.Fprint(w, "User with this email already exists!")
+		log.Printf("%v", err)
 
-			return
-		}
+		return
+	}
 
-		err := services.AddUser(&credentials)
+	err := services.AddUser(&credentials)
 
-		if err != nil {
-			fmt.Fprint(w, "Error insert")
-			w.WriteHeader(http.StatusBadGateway)
+	if err != nil {
+		fmt.Fprint(w, "Error insert")
+		w.WriteHeader(http.StatusBadGateway)
 
-			return
-		}
+		return
+	}
 
-		tools.JsonResponse(credentials, w)
-	})
+	tools.JsonResponse(credentials, w)
+}
 
 var Login = PostOnly(
 	func(w http.ResponseWriter, r *http.Request) {

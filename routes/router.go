@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -53,7 +54,7 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	case http.MethodGet:
 		r.handleGet(w, relPath, valuesToGetParams(req.URL.Query()))
 	case http.MethodPost:
-		body, err := readToPostBody(req.Body)
+		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Panicf("invalid body: %v", err)
@@ -87,25 +88,33 @@ func (r *router) handlePost(w http.ResponseWriter, path string, body postBody) {
 }
 
 // Add new GET handler
-func (r *router) Get(pattern string, handler getHandlerFunc) error {
+func (r *router) Get(pattern string,
+	handler func(http.ResponseWriter, map[string]string, map[string]string)) error {
+
 	compiledPattern, err := regexp.Compile(pattern)
 	if err != nil {
 		return err
 	}
 
-	r.getHandlers[compiledPattern] = handler
+	r.getHandlers[compiledPattern] = func(writer http.ResponseWriter, params getParams, params2 PathParams) {
+		handler(writer, params, params2)
+	}
 
 	return nil
 }
 
 // Add new POST handler
-func (r *router) Post(pattern string, handler postHandlerFunc) error {
+func (r *router) Post(pattern string,
+	handler func(http.ResponseWriter, []byte, map[string]string)) error {
+
 	compiledPattern, err := regexp.Compile(pattern)
 	if err != nil {
 		return err
 	}
 
-	r.postHandlers[compiledPattern] = handler
+	r.postHandlers[compiledPattern] = func(writer http.ResponseWriter, body postBody, params PathParams) {
+		handler(writer, body, params)
+	}
 
 	return nil
 }
