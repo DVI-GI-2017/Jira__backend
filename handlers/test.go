@@ -25,6 +25,11 @@ func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
 	action, err := pool.NewAction("Insert and Find")
 	if err != nil {
 		log.Printf("%v", err)
+
+		w.WriteHeader(http.StatusBadGateway)
+		fmt.Fprintln(w, "Repeat, please!")
+
+		return
 	}
 
 	pool.Queue <- &pool.Job{
