@@ -1,10 +1,10 @@
 package models
 
 import (
-	"encoding/json"
-	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"time"
+	//"encoding/json"
+	//"fmt"
 )
 
 type User struct {
@@ -22,12 +22,5 @@ type User struct {
 type Users []User
 
 func (u *User) CopyMethod(user interface{}) {
-	jsonModel, err := json.Marshal(user)
-	if err != nil {
-		fmt.Errorf("parse error: %s", err)
 
-		return
-	}
-
-	json.Unmarshal(jsonModel, u)
 }

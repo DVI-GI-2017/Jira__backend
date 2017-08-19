@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
-	"github.com/DVI-GI-2017/Jira__backend/models"
+	//"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -84,15 +84,12 @@ func (c *MongoConnection) Insert(collection string, model interface{}) (result i
 func (c *MongoConnection) Find(collection string, model interface{}) (result interface{}, err error) {
 	result = tools.GetModel(tools.GetType(model))
 
-	user := models.User{}
-	user.CopyMethod(model)
+	tools.Model2Model(model, result)
+	fmt.Println(result)
 
-	top := tools.ParseModel(&user)
+	top := tools.ParseModel(result)
 
-	fmt.Println("data:")
-	fmt.Println(model)
-	fmt.Println(user)
-	fmt.Println(top)
+	fmt.Println(result)
 
 	var finder []interface{}
 
@@ -106,8 +103,7 @@ func (c *MongoConnection) Find(collection string, model interface{}) (result int
 		"$and": finder,
 	}).One(&result)
 
-	fmt.Print(result)
-	fmt.Printf("\n")
+	fmt.Println(result)
 
 	return
 }
