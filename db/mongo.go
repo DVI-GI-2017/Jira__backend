@@ -8,6 +8,7 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2"
+	"io"
 )
 
 const (
@@ -76,14 +77,14 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 	return nil
 }
 
-func (c *MongoConnection) Insert(collection string) {
-	if c.originalSession != nil {
-		fmt.Println("Closing local mongo server....")
+func (c *MongoConnection) Insert(collection string, model interface{}) (result interface{}, err error) {
+	dataBase := c.GetCollection(collection)
 
-		c.originalSession.Close()
-
-		fmt.Println("Mongo server is closed....")
+	if err := dataBase.Insert(model); err != nil {
+		return model, err
 	}
+
+	return model, nil
 }
 
 func (c *MongoConnection) CloseConnection() {
