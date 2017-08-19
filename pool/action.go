@@ -2,8 +2,6 @@ package pool
 
 import (
 	"errors"
-	"github.com/DVI-GI-2017/Jira__backend/db"
-	"github.com/DVI-GI-2017/Jira__backend/services"
 )
 
 var typesActionList = [...]string{
