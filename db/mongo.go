@@ -75,9 +75,7 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 }
 
 func (c *MongoConnection) Insert(collection string, model interface{}) (result interface{}, err error) {
-	dataBase := c.GetCollection(collection)
-
-	if err := dataBase.Insert(model); err != nil {
+	if err := c.GetCollection(collection).Insert(model); err != nil {
 		return model, err
 	}
 
