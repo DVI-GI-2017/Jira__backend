@@ -81,5 +81,3 @@ func connect(workerId int, session *mgo.Session) *mgo.Collection {
 		return s.DB("worker-test").C("users")
 	}
 }
-
-// test: for i in {1..15}; do echo '{"email": "test", "password": "password"}' | curl -d @- http://localhost:3000/api/v1/test; done
