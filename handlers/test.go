@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/DVI-GI-2017/Jira__backend/models"
+	"github.com/DVI-GI-2017/Jira__backend/auth"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"log"
@@ -11,7 +11,7 @@ import (
 )
 
 func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
-	var user models.User
+	var user auth.Credentials
 
 	if err := json.Unmarshal(body, &user); err != nil {
 		w.WriteHeader(http.StatusForbidden)
