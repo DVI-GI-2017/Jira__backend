@@ -9,27 +9,9 @@ import (
 var typesActionList = [...]string{
 	"Insert", "Find", "Insert and Find",
 }
-var handlersKeys = [...]string{
-	"GetUser",
-}
-
-var findersHandler map[string]FinderHandler
-
-type FinderHandler func(*db.MongoConnection, interface{}) (interface{}, error)
 
 type Action struct {
-	Type    string
-	Finders map[string]FinderHandler
-}
-
-func InitFinderHnadlers() {
-	for _, value := range handlersKeys {
-		switch value {
-		case "GetUser":
-			findersHandler[value] = services.GetUserByEmailAndPassword
-			break
-		}
-	}
+	Type string
 }
 
 func NewAction(actionType string) (*Action, error) {
