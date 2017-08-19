@@ -83,27 +83,11 @@ func (c *MongoConnection) Insert(collection string, model interface{}) (result i
 
 func (c *MongoConnection) Find(collection string, model interface{}) (result interface{}, err error) {
 	result = tools.GetModel(tools.GetType(model))
-
 	tools.Model2Model(model, result)
-	fmt.Println(result)
-
-	top := tools.ParseModel(result)
-
-	fmt.Println(result)
-
-	var finder []interface{}
-
-	for key, value := range top {
-		finder = append(finder, bson.M{
-			key: value,
-		})
-	}
 
 	err = c.GetCollection(collection).Find(bson.M{
-		"$and": finder,
+		"$and": setFinderInterface(tools.ParseModel(result)),
 	}).One(&result)
-
-	fmt.Println(result)
 
 	return
 }
@@ -118,15 +102,12 @@ func (c *MongoConnection) CloseConnection() {
 	}
 }
 
-//func FillDataBase() {
-//
-//	users := Connection.GetCollection(UserCollection)
-//
-//	for _, user := range FakeUsers {
-//		err := users.Insert(&user)
-//		if err != nil {
-//			fmt.Println("Bad insert")
-//			break
-//		}
-//	}
-//}
+func setFinderInterface(mapModel map[string]string) (finder []interface{}) {
+	for key, value := range mapModel {
+		finder = append(finder, bson.M{
+			key: value,
+		})
+	}
+
+	return
+}
