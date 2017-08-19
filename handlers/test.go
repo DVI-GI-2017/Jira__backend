@@ -22,11 +22,9 @@ func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
 		return
 	}
 
-	fmt.Println(user.Email)
-
 	pool.Queue <- &pool.Job{
 		JobId: 1,
-		User:  &user,
+		Data:  user,
 	}
 
 	result := <-pool.Results

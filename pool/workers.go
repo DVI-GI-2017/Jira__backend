@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/DVI-GI-2017/Jira__backend/auth"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	//"gopkg.in/mgo.v2/bson"
 	"io"
 	"log"
 	"runtime"
@@ -12,7 +12,7 @@ import (
 
 type Job struct {
 	JobId int
-	User  *auth.Credentials
+	Data  interface{}
 }
 
 type JobResult struct {
@@ -37,15 +37,12 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 
 	for job := range queue {
 
-		// Perform the database query
-		err := users.Insert(job.User)
+		err := users.Insert(job.Data)
 
-		fmt.Println(err)
+		fmt.Println("Data:")
+		fmt.Println(job.Data)
 
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
-			// Our job hasn't completed because the database is no longer connected
-			// Put our job back onto the queue (in another go routine to avoid blocking if queue buffer is full)
-			// Then reconnect the database and continue processing
 			go func(job *Job, queue chan *Job) {
 				queue <- job
 			}(job, queue)
@@ -55,7 +52,7 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 
 		user := new(auth.Credentials)
 
-		err = users.Find(bson.M{"email": job.User.Email}).One(&user)
+		//err = users.Find(bson.M{"email": job.Data.Email}).One(&user)
 
 		// Send our results back
 		results <- &JobResult{
