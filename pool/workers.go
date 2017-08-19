@@ -33,8 +33,12 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	var session *mgo.Session
 	users := connect(id, session)
 
+	// create connection
+	// get db
+
 	for job := range queue {
 
+		// get db
 		fmt.Println("Data:")
 		fmt.Println(job)
 		err := users.Insert(job.ModelType)

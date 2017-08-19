@@ -10,8 +10,10 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-const UserCollection = "users"
-const ProjectCollection = "project"
+const (
+	UserCollection    = "users"
+	ProjectCollection = "project"
+)
 
 type MongoConnection struct {
 	originalSession *mgo.Session
@@ -40,8 +42,12 @@ func (c *MongoConnection) DropDataBase(mongo *configs.Mongo) (err error) {
 	return nil
 }
 
-func (c *MongoConnection) GetCollection(dbName string, collectionName string) (collection *mgo.Collection) {
-	return c.originalSession.DB(dbName).C(collectionName)
+func (c *MongoConnection) GetDB() (collection *mgo.Database) {
+	return c.originalSession.DB(configs.ConfigInfo.Mongo.Db)
+}
+
+func (c *MongoConnection) GetCollection(collectionName string) (collection *mgo.Collection) {
+	return c.originalSession.DB(configs.ConfigInfo.Mongo.Db).C(collectionName)
 }
 
 func (c *MongoConnection) SetIndex(collection *mgo.Collection, index *tools.DBIndex) (err error) {
@@ -68,6 +74,16 @@ func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 	c.originalSession.SetMode(mgo.Monotonic, true)
 
 	return nil
+}
+
+func (c *MongoConnection) Insert(collection string) {
+	if c.originalSession != nil {
+		fmt.Println("Closing local mongo server....")
+
+		c.originalSession.Close()
+
+		fmt.Println("Mongo server is closed....")
+	}
 }
 
 func (c *MongoConnection) CloseConnection() {
