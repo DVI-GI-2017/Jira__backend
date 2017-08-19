@@ -2,27 +2,25 @@ package db
 
 import (
 	"fmt"
-
-	"log"
-
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
-const UserCollection = "users"
-const ProjectCollection = "project"
+const (
+	UserCollection    = "users"
+	ProjectCollection = "project"
+)
 
 type MongoConnection struct {
-	originalSession *mgo.Session
+	OriginalSession *mgo.Session
 }
 
-var Connection *MongoConnection
-
-func NewDBConnection(mongo *configs.Mongo) (*MongoConnection, error) {
+func NewDBConnection() (*MongoConnection, error) {
 	conn := new(MongoConnection)
 
-	if err := conn.createConnection(mongo); err != nil {
+	if err := conn.createConnection(configs.ConfigInfo.Mongo); err != nil {
 		return conn, fmt.Errorf("open error: %s", err)
 	}
 
@@ -31,7 +29,7 @@ func NewDBConnection(mongo *configs.Mongo) (*MongoConnection, error) {
 
 func (c *MongoConnection) DropDataBase(mongo *configs.Mongo) (err error) {
 	if mongo.Drop {
-		err = c.originalSession.DB(mongo.Db).DropDatabase()
+		err = c.OriginalSession.DB(mongo.Db).DropDatabase()
 		if err != nil {
 			return
 		}
@@ -40,8 +38,12 @@ func (c *MongoConnection) DropDataBase(mongo *configs.Mongo) (err error) {
 	return nil
 }
 
-func (c *MongoConnection) GetCollection(dbName string, collectionName string) (collection *mgo.Collection) {
-	return c.originalSession.DB(dbName).C(collectionName)
+func (c *MongoConnection) GetDB() (collection *mgo.Database) {
+	return c.OriginalSession.DB(configs.ConfigInfo.Mongo.Db)
+}
+
+func (c *MongoConnection) GetCollection(collectionName string) (collection *mgo.Collection) {
+	return c.OriginalSession.DB(configs.ConfigInfo.Mongo.Db).C(collectionName)
 }
 
 func (c *MongoConnection) SetIndex(collection *mgo.Collection, index *tools.DBIndex) (err error) {
@@ -59,43 +61,52 @@ func (c *MongoConnection) SetIndex(collection *mgo.Collection, index *tools.DBIn
 func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 	fmt.Println("Connecting to local mongo server....")
 
-	c.originalSession, err = mgo.Dial(mongo.URL())
+	c.OriginalSession, err = mgo.Dial(mongo.URL())
 
 	if err != nil {
 		return
 	}
 
-	c.originalSession.SetMode(mgo.Monotonic, true)
+	c.OriginalSession.SetMode(mgo.Monotonic, true)
 
 	return nil
 }
 
+func (c *MongoConnection) Insert(collection string, model interface{}) (result interface{}, err error) {
+	if err := c.GetCollection(collection).Insert(model); err != nil {
+		return model, err
+	}
+
+	return model, nil
+}
+
+func (c *MongoConnection) Find(collection string, model interface{}) (result interface{}, err error) {
+	result = tools.GetModel(tools.GetType(model))
+	tools.Model2Model(model, result)
+
+	err = c.GetCollection(collection).Find(bson.M{
+		"$and": setFinderInterface(tools.ParseModel(result)),
+	}).One(&result)
+
+	return
+}
+
 func (c *MongoConnection) CloseConnection() {
-	if c.originalSession != nil {
+	if c.OriginalSession != nil {
 		fmt.Println("Closing local mongo server....")
 
-		c.originalSession.Close()
+		c.OriginalSession.Close()
 
 		fmt.Println("Mongo server is closed....")
 	}
 }
 
-func StartDB() {
-	newConnection, err := NewDBConnection(configs.ConfigInfo.Mongo)
-	if err != nil || newConnection == nil {
-		log.Panicf("can not start db: %s", err)
+func setFinderInterface(mapModel map[string]string) (finder []interface{}) {
+	for key, value := range mapModel {
+		finder = append(finder, bson.M{
+			key: value,
+		})
 	}
-	Connection = newConnection
-}
 
-func FillDataBase() {
-	users := Connection.GetCollection(configs.ConfigInfo.Mongo.Db, UserCollection)
-
-	for _, user := range FakeUsers {
-		err := users.Insert(&user)
-		if err != nil {
-			fmt.Println("Bad insert")
-			break
-		}
-	}
+	return
 }
