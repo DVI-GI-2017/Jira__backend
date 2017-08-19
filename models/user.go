@@ -3,8 +3,6 @@ package models
 import (
 	"gopkg.in/mgo.v2/bson"
 	"time"
-	//"encoding/json"
-	//"fmt"
 )
 
 type User struct {
@@ -20,7 +18,3 @@ type User struct {
 }
 
 type Users []User
-
-func (u *User) CopyMethod(user interface{}) {
-
-}
