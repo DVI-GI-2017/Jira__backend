@@ -16,6 +16,15 @@ type Action struct {
 	Finders map[string]FinderHandler
 }
 
+func InitFinderHnadlers() {
+	for _, value := range handlersKeys{
+		switch value {
+		case "GetUser":
+			break
+		}
+	}
+}
+
 func NewAction(actionType string) (*Action, error) {
 	if checkActionType(actionType) {
 		return &Action{

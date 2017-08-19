@@ -7,7 +7,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func GetUserByEmailAndPassword(email string, password string) (result models.User, err error) {
+func GetUserByEmailAndPassword1(email string, password string) (result models.User, err error) {
 	users := db.Connection.GetCollection(db.UserCollection)
 
 	result = models.User{}
@@ -26,4 +26,15 @@ func AddUser(user *auth.Credentials) (err error) {
 	err = users.Insert(user)
 
 	return
+}
+
+func GetUserByEmailAndPassword(mongo *db.MongoConnection, user auth.Credentials) (result models.User, err error) {
+	users := mongo.GetCollection("users")
+
+	result = models.User{}
+	err = users.Find(bson.M{
+		"$and": user,
+	}).One(&result)
+
+	return result, err
 }

@@ -82,6 +82,16 @@ func (c *MongoConnection) Insert(collection string, model interface{}) (result i
 	return model, nil
 }
 
+func (c *MongoConnection) Find(collection string, model interface{}) (result interface{}, err error) {
+	result = tools.GetModel(tools.GetType(model))
+
+	if err := c.GetCollection(collection).Find(result).One; err != nil {
+		return
+	}
+
+	return model, nil
+}
+
 func (c *MongoConnection) CloseConnection() {
 	if c.originalSession != nil {
 		fmt.Println("Closing local mongo server....")
