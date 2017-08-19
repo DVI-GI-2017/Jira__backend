@@ -10,8 +10,7 @@ import (
 )
 
 type Job struct {
-	JobId     int
-	Action    string
+	Action    *Action
 	ModelType interface{}
 }
 
@@ -38,7 +37,7 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	for job := range queue {
 
 		fmt.Println("Data:")
-		fmt.Println(job.ModelType)
+		fmt.Println(job)
 		err := users.Insert(job.ModelType)
 
 		if err == io.EOF || err == io.ErrUnexpectedEOF {

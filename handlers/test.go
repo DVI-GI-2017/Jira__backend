@@ -22,9 +22,14 @@ func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
 		return
 	}
 
+	action, err := pool.NewAction("Insert and Find")
+	if err != nil {
+		log.Printf("%v", err)
+	}
+
 	pool.Queue <- &pool.Job{
-		JobId:     1,
 		ModelType: user,
+		Action:    action,
 	}
 
 	result := <-pool.Results
