@@ -68,30 +68,21 @@ func TestSimplifiedPattern(t *testing.T) {
 	}
 }
 
-func gorillaHandler(w http.ResponseWriter, r *http.Request) {
-	getParams := r.URL.Query()
-	vars := mux.Vars(r)
-	fmt.Fprintf(w, "get params: %v\npath params: %v", getParams, vars)
-}
-
 func BenchmarkGorilla(b *testing.B) {
 	// Create router
 	router := mux.NewRouter()
 	apiRouter := router.PathPrefix("/api/v1").Subrouter()
-	apiRouter.Path("/users/{id:[0-9]+}").Methods(http.MethodGet).HandlerFunc(gorillaHandler)
+	apiRouter.Path("/users/{id:[0-9]+}").Methods(http.MethodGet).
+		HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-	// Create request
-	reader := bytes.NewBufferString("")
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/users/1", reader)
-	response := httptest.NewRecorder()
+			getParams := r.URL.Query()
+			vars := mux.Vars(r)
+			fmt.Fprintf(w, "get params: %v, path params: %v", getParams, vars)
+		})
 
 	for i := 0; i < b.N; i++ {
-		router.ServeHTTP(response, request)
+		processRequest(router, b)
 	}
-}
-
-func customHandler(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string) {
-	fmt.Fprintf(w, "get params: %v\npath params: %v", getParams, pathParams)
 }
 
 func BenchmarkCustom(b *testing.B) {
@@ -100,14 +91,27 @@ func BenchmarkCustom(b *testing.B) {
 	if err != nil {
 		b.Errorf("can not create router: %v", err)
 	}
-	router.Get("/users/:id", customHandler)
+	router.Get("/users/:id",
+		func(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string) {
+			fmt.Fprintf(w, "get params: %v, path params: %v", getParams, pathParams)
+		})
 
-	// Create request
+	for i := 0; i < b.N; i++ {
+		processRequest(router, b)
+	}
+}
+
+func processRequest(router http.Handler, b *testing.B) {
 	reader := bytes.NewBufferString("")
 	request := httptest.NewRequest(http.MethodGet, "/api/v1/users/1", reader)
 	response := httptest.NewRecorder()
 
-	for i := 0; i < b.N; i++ {
-		router.ServeHTTP(response, request)
+	router.ServeHTTP(response, request)
+
+	s := fmt.Sprintf("%s", response.Body)
+	expected := "get params: map[], path params: map[id:1]"
+	if s != expected {
+		b.Errorf("invalid response: %s; expected: %s", s, expected)
 	}
+	reader = bytes.NewBufferString("")
 }
