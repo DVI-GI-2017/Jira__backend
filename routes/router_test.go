@@ -4,6 +4,16 @@ import (
 	"reflect"
 	"regexp"
 	"testing"
+
+	"net/http"
+
+	"fmt"
+
+	"net/http/httptest"
+
+	"bytes"
+
+	"github.com/gorilla/mux"
 )
 
 func TestRouter_SetRootPath(t *testing.T) {
@@ -56,4 +66,52 @@ func TestSimplifiedPattern(t *testing.T) {
 	if !reflect.DeepEqual(pathParams, expectedPathParams) {
 		t.Fail()
 	}
+}
+
+func BenchmarkGorilla(b *testing.B) {
+	// Create router
+	router := mux.NewRouter()
+	apiRouter := router.PathPrefix("/api/v1").Subrouter()
+	apiRouter.Path("/users/{id:[0-9]+}").Methods(http.MethodGet).
+		HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			getParams := r.URL.Query()
+			vars := mux.Vars(r)
+			fmt.Fprintf(w, "get params: %v, path params: %v", getParams, vars)
+		})
+
+	for i := 0; i < b.N; i++ {
+		processRequest(router, b)
+	}
+}
+
+func BenchmarkCustom(b *testing.B) {
+	// Create router
+	router, err := NewRouter("/api/v1")
+	if err != nil {
+		b.Errorf("can not create router: %v", err)
+	}
+	router.Get("/users/:id",
+		func(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string) {
+			fmt.Fprintf(w, "get params: %v, path params: %v", getParams, pathParams)
+		})
+
+	for i := 0; i < b.N; i++ {
+		processRequest(router, b)
+	}
+}
+
+func processRequest(router http.Handler, b *testing.B) {
+	reader := bytes.NewBufferString("")
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/users/1", reader)
+	response := httptest.NewRecorder()
+
+	router.ServeHTTP(response, request)
+
+	s := fmt.Sprintf("%s", response.Body)
+	expected := "get params: map[], path params: map[id:1]"
+	if s != expected {
+		b.Errorf("invalid response: %s; expected: %s", s, expected)
+	}
+	reader = bytes.NewBufferString("")
 }
