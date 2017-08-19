@@ -28,13 +28,6 @@ func AddUser(user *auth.Credentials) (err error) {
 	return
 }
 
-func GetUserByEmailAndPassword(mongo *db.MongoConnection, user auth.Credentials) (result models.User, err error) {
-	users := mongo.GetCollection("users")
-
-	result = models.User{}
-	err = users.Find(bson.M{
-		"$and": user,
-	}).One(&result)
-
-	return result, err
+func GetUserByEmailAndPassword(mongo *db.MongoConnection, user auth.Credentials) (result interface{}, err error) {
+	return mongo.Find("users", user)
 }
