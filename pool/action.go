@@ -1,6 +1,10 @@
 package pool
 
-import "errors"
+import (
+	"errors"
+	"github.com/DVI-GI-2017/Jira__backend/db"
+	"github.com/DVI-GI-2017/Jira__backend/services"
+)
 
 var typesActionList = [...]string{
 	"Insert", "Find", "Insert and Find",
@@ -9,7 +13,9 @@ var handlersKeys = [...]string{
 	"GetUser",
 }
 
-type FinderHandler func(model interface{}) interface{}
+var findersHandler map[string]FinderHandler
+
+type FinderHandler func(*db.MongoConnection, interface{}) (interface{}, error)
 
 type Action struct {
 	Type    string
@@ -17,9 +23,10 @@ type Action struct {
 }
 
 func InitFinderHnadlers() {
-	for _, value := range handlersKeys{
+	for _, value := range handlersKeys {
 		switch value {
 		case "GetUser":
+			findersHandler[value] = services.GetUserByEmailAndPassword
 			break
 		}
 	}

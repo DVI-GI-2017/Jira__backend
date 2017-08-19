@@ -1,9 +1,9 @@
 package pool
 
 import (
-	"fmt"
+	"github.com/DVI-GI-2017/Jira__backend/configs"
+	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"gopkg.in/mgo.v2"
 	"io"
 	"log"
 	"runtime"
@@ -30,24 +30,14 @@ func InitWorkers() {
 }
 
 func worker(id int, queue chan *Job, results chan<- *JobResult) {
-	var session *mgo.Session
-	users := connect(id, session)
-
-	// create connection
-	// get db
+	mongo := connect(id)
 
 	for job := range queue {
-
-		// get db
-		fmt.Println("Data:")
-		fmt.Println(job)
-		err := users.Insert(job.ModelType)
-
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
 			go func(job *Job, queue chan *Job) {
 				queue <- job
 			}(job, queue)
-			users = connect(id, session)
+			mongo = connect(id)
 			continue
 		}
 
@@ -63,15 +53,17 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	}
 }
 
-func connect(workerId int, session *mgo.Session) *mgo.Collection {
+func connect(workerId int) *db.MongoConnection {
 	for {
-		log.Printf("Worker %d: Connecting to", workerId)
-		s, err := mgo.Dial("mongodb://localhost:27017/worker-test")
-		if err != nil {
-			log.Printf("Worker %d: Unable to connect to database (%s)", workerId, err)
+		log.Printf("Worker %d: Connecting to db", workerId)
+
+		newConnection, err := db.NewDBConnection(configs.ConfigInfo.Mongo)
+		if err != nil || newConnection == nil {
+			log.Panicf("can not start db: %s", err)
+
 			continue
 		}
 
-		return s.DB("worker-test").C("users")
+		return newConnection
 	}
 }
