@@ -30,17 +30,19 @@ func InitWorkers() {
 }
 
 func worker(id int, queue chan *Job, results chan<- *JobResult) {
-	mongo := connect(id)
+	mongo := connect()
 
 	for job := range queue {
 		conn := new(db.MongoConnection)
 		conn.OriginalSession = mongo
+
 		result, err := services.GetUserByEmailAndPassword(conn, job.ModelType)
+
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
 			go func(job *Job, queue chan *Job) {
 				queue <- job
 			}(job, queue)
-			mongo = connect(id)
+			mongo = connect()
 			continue
 		}
 
@@ -52,19 +54,15 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	}
 }
 
-func connect(workerId int) *mgo.Session {
+func connect() *mgo.Session {
 
 	for {
-		// Open a DB connection
 		s, err := mgo.Dial("mongodb://localhost:27017/worker-test")
 		if err != nil {
 			log.Printf("Worker: Unable to connect to database (%s)", err)
 			continue
 		}
 
-		// Connect to the DB collection
 		return s
-
 	}
-
 }

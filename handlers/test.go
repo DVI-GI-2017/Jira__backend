@@ -39,7 +39,7 @@ func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
 
 	result := <-pool.Results
 
-	tools.JsonResponse(result, w)
+	tools.JsonResponse(result.ResultType, w)
 }
 
 // test: for i in {1..15}; do echo '{"email": "test", "password": "password"}' | curl -d @- http://localhost:3000/api/v1/test; done
