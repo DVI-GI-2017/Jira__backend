@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
+	//"os"
+	//"os/signal"
+	//"syscall"
 
 	"github.com/DVI-GI-2017/Jira__backend/auth"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
@@ -25,13 +25,13 @@ func rsaInit() {
 }
 
 func raii(handler func()) {
-	c := make(chan os.Signal, 2)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		handler()
-		os.Exit(0)
-	}()
+	//c := make(chan os.Signal, 2)
+	//signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	//go func() {
+	//	<-c
+	//	handler()
+	//	os.Exit(0)
+	//}()
 }
 
 func init() {
@@ -40,7 +40,7 @@ func init() {
 
 	configs.ParseFromFile("config.json")
 
-	db.StartDB()
+	//db.StartDB()
 
 	raii(db.Connection.CloseConnection)
 	db.Connection.DropDataBase(configs.ConfigInfo.Mongo)

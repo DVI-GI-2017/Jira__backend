@@ -22,7 +22,7 @@ func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
 		return
 	}
 
-	action, err := pool.NewAction("Insert and Find")
+	action, err := pool.NewAction("Insert")
 	if err != nil {
 		log.Printf("%v", err)
 

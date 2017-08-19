@@ -3,7 +3,7 @@ package pool
 import (
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/db"
-	"github.com/DVI-GI-2017/Jira__backend/models"
+	"github.com/DVI-GI-2017/Jira__backend/services"
 	"io"
 	"log"
 	"runtime"
@@ -33,6 +33,7 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	mongo := connect(id)
 
 	for job := range queue {
+		result, err := services.GetUserByEmailAndPassword(mongo, job.ModelType)
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
 			go func(job *Job, queue chan *Job) {
 				queue <- job
@@ -41,14 +42,10 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 			continue
 		}
 
-		user := new(models.User)
-
-		err = users.Find(nil).One(&user)
-
 		results <- &JobResult{
 			WorkerId:   id,
 			Error:      err,
-			ResultType: user,
+			ResultType: result,
 		}
 	}
 }
