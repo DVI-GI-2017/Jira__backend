@@ -6,7 +6,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"log"
 )
 
 const (
@@ -18,12 +17,10 @@ type MongoConnection struct {
 	OriginalSession *mgo.Session
 }
 
-var Connection *MongoConnection
-
-func NewDBConnection(mongo *configs.Mongo) (*MongoConnection, error) {
+func NewDBConnection() (*MongoConnection, error) {
 	conn := new(MongoConnection)
 
-	if err := conn.createConnection(mongo); err != nil {
+	if err := conn.createConnection(configs.ConfigInfo.Mongo); err != nil {
 		return conn, fmt.Errorf("open error: %s", err)
 	}
 
@@ -90,7 +87,7 @@ func (c *MongoConnection) Find(collection string, model interface{}) (result int
 	fmt.Printf("\n")
 
 	err = c.GetCollection(collection).Find(bson.M{
-		"$and": model,
+		"$and": []interface{}{},
 	}).One(&result)
 
 	fmt.Print(result)
@@ -109,22 +106,15 @@ func (c *MongoConnection) CloseConnection() {
 	}
 }
 
-func StartDB() {
-	newConnection, err := NewDBConnection(configs.ConfigInfo.Mongo)
-	if err != nil || newConnection == nil {
-		log.Panicf("can not start db: %s", err)
-	}
-	Connection = newConnection
-}
-
-func FillDataBase() {
-	users := Connection.GetCollection(UserCollection)
-
-	for _, user := range FakeUsers {
-		err := users.Insert(&user)
-		if err != nil {
-			fmt.Println("Bad insert")
-			break
-		}
-	}
-}
+//func FillDataBase() {
+//
+//	users := Connection.GetCollection(UserCollection)
+//
+//	for _, user := range FakeUsers {
+//		err := users.Insert(&user)
+//		if err != nil {
+//			fmt.Println("Bad insert")
+//			break
+//		}
+//	}
+//}

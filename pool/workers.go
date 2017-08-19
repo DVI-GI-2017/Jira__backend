@@ -55,7 +55,6 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 func connect(workerId int) *mgo.Session {
 
 	for {
-
 		// Open a DB connection
 		s, err := mgo.Dial("mongodb://localhost:27017/worker-test")
 		if err != nil {

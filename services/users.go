@@ -25,6 +25,10 @@ import (
 //	return
 //}
 
+func Insert(mongo *db.MongoConnection, user interface{}) (result interface{}, err error) {
+	return
+}
+
 func GetUserByEmailAndPassword(mongo *db.MongoConnection, user interface{}) (result interface{}, err error) {
 	return mongo.Find("users", user)
 }

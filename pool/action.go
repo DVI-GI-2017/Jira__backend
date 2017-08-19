@@ -4,8 +4,14 @@ import (
 	"errors"
 )
 
+const (
+	Insert        = "Insert"
+	Find          = "Find"
+	InsertAndFind = "Insert and Find"
+)
+
 var typesActionList = [...]string{
-	"Insert", "Find", "Insert and Find",
+	Insert, Find, InsertAndFind,
 }
 
 type Action struct {
