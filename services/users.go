@@ -9,7 +9,7 @@ import (
 )
 
 func GetUserByEmailAndPassword(email string, password string) (result models.User, err error) {
-	users := db.Connection.GetCollection(configs.ConfigInfo.Mongo.Db, db.UserCollection)
+	users := db.Connection.GetCollection(db.UserCollection)
 
 	result = models.User{}
 	err = users.Find(bson.M{
@@ -23,7 +23,7 @@ func GetUserByEmailAndPassword(email string, password string) (result models.Use
 }
 
 func AddUser(user *auth.Credentials) (err error) {
-	users := db.Connection.GetCollection(configs.ConfigInfo.Mongo.Db, db.UserCollection)
+	users := db.Connection.GetCollection(db.UserCollection)
 	err = users.Insert(user)
 
 	return
