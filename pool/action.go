@@ -2,16 +2,22 @@ package pool
 
 import "errors"
 
-var typesList = [...]string{
+var typesActionList = [...]string{
 	"Insert", "Find", "Insert and Find",
 }
+var handlersKeys = [...]string{
+	"GetUser",
+}
+
+type FinderHandler func(model interface{}) interface{}
 
 type Action struct {
-	Type string
+	Type    string
+	Finders map[string]FinderHandler
 }
 
 func NewAction(actionType string) (*Action, error) {
-	if checkType(actionType) {
+	if checkActionType(actionType) {
 		return &Action{
 			Type: actionType,
 		}, nil
@@ -20,8 +26,8 @@ func NewAction(actionType string) (*Action, error) {
 	}
 }
 
-func checkType(actionType string) bool {
-	for _, value := range typesList {
+func checkActionType(actionType string) bool {
+	for _, value := range typesActionList {
 		if value == actionType {
 			return true
 		}
