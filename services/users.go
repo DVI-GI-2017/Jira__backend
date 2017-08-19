@@ -32,3 +32,7 @@ func Insert(mongo *db.MongoConnection, user interface{}) (result interface{}, er
 func GetUserByEmailAndPassword(mongo *db.MongoConnection, user interface{}) (result interface{}, err error) {
 	return mongo.Find("users", user)
 }
+
+func NullHandler(mongo *db.MongoConnection, user interface{}) (result interface{}, err error) {
+	return nil, nil
+}
