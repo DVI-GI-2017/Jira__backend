@@ -3,7 +3,6 @@ package pool
 import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/services"
-	"gopkg.in/mgo.v2"
 	"io"
 	"log"
 	"runtime"
@@ -33,16 +32,15 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	mongo := connect()
 
 	for job := range queue {
-		conn := new(db.MongoConnection)
-		conn.OriginalSession = mongo
-
-		result, err := services.GetUserByEmailAndPassword(conn, job.ModelType)
+		result, err := services.GetUserByEmailAndPassword(mongo, job.ModelType)
 
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
 			go func(job *Job, queue chan *Job) {
 				queue <- job
 			}(job, queue)
+
 			mongo = connect()
+
 			continue
 		}
 
@@ -54,15 +52,14 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	}
 }
 
-func connect() *mgo.Session {
-
+func connect() *db.MongoConnection {
 	for {
-		s, err := mgo.Dial("mongodb://localhost:27017/worker-test")
+		mongo, err := db.NewDBConnection()
 		if err != nil {
 			log.Printf("Worker: Unable to connect to database (%s)", err)
 			continue
 		}
 
-		return s
+		return mongo
 	}
 }
