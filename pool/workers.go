@@ -15,7 +15,6 @@ type Job struct {
 }
 
 type JobResult struct {
-	JobId      int
 	WorkerId   int
 	Error      error
 	ResultType interface{}
@@ -54,7 +53,6 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 
 		// Send our results back
 		results <- &JobResult{
-			JobId:      job.JobId,
 			WorkerId:   id,
 			Error:      err,
 			ResultType: user,
