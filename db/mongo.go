@@ -83,8 +83,10 @@ func (c *MongoConnection) Insert(collection string, model interface{}) (result i
 func (c *MongoConnection) Find(collection string, model interface{}) (result interface{}, err error) {
 	result = tools.GetModel(tools.GetType(model))
 
-	fmt.Print(tools.GetType(model))
-	fmt.Printf("\n")
+	var top map[string]string = tools.ParseModel(model)
+
+	fmt.Println("data:")
+	fmt.Println(top)
 
 	err = c.GetCollection(collection).Find(bson.M{
 		"$and": []interface{}{},
