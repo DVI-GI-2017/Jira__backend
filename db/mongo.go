@@ -3,7 +3,6 @@ package db
 import (
 	"fmt"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
-	//"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
