@@ -2,17 +2,17 @@ package pool
 
 import (
 	"fmt"
-	"github.com/DVI-GI-2017/Jira__backend/auth"
+	"github.com/DVI-GI-2017/Jira__backend/models"
 	"gopkg.in/mgo.v2"
-	//"gopkg.in/mgo.v2/bson"
 	"io"
 	"log"
 	"runtime"
 )
 
 type Job struct {
-	JobId int
-	Data  interface{}
+	JobId     int
+	Action    string
+	ModelType interface{}
 }
 
 type JobResult struct {
@@ -37,10 +37,9 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 
 	for job := range queue {
 
-		err := users.Insert(job.Data)
-
 		fmt.Println("Data:")
-		fmt.Println(job.Data)
+		fmt.Println(job.ModelType)
+		err := users.Insert(job.ModelType)
 
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
 			go func(job *Job, queue chan *Job) {
@@ -50,9 +49,9 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 			continue
 		}
 
-		user := new(auth.Credentials)
+		user := new(models.User)
 
-		//err = users.Find(bson.M{"email": job.Data.Email}).One(&user)
+		err = users.Find(nil).One(&user)
 
 		// Send our results back
 		results <- &JobResult{
