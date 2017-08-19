@@ -15,7 +15,7 @@ const (
 )
 
 type MongoConnection struct {
-	originalSession *mgo.Session
+	OriginalSession *mgo.Session
 }
 
 var Connection *MongoConnection
@@ -32,7 +32,7 @@ func NewDBConnection(mongo *configs.Mongo) (*MongoConnection, error) {
 
 func (c *MongoConnection) DropDataBase(mongo *configs.Mongo) (err error) {
 	if mongo.Drop {
-		err = c.originalSession.DB(mongo.Db).DropDatabase()
+		err = c.OriginalSession.DB(mongo.Db).DropDatabase()
 		if err != nil {
 			return
 		}
@@ -42,11 +42,11 @@ func (c *MongoConnection) DropDataBase(mongo *configs.Mongo) (err error) {
 }
 
 func (c *MongoConnection) GetDB() (collection *mgo.Database) {
-	return c.originalSession.DB(configs.ConfigInfo.Mongo.Db)
+	return c.OriginalSession.DB(configs.ConfigInfo.Mongo.Db)
 }
 
 func (c *MongoConnection) GetCollection(collectionName string) (collection *mgo.Collection) {
-	return c.originalSession.DB(configs.ConfigInfo.Mongo.Db).C(collectionName)
+	return c.OriginalSession.DB(configs.ConfigInfo.Mongo.Db).C(collectionName)
 }
 
 func (c *MongoConnection) SetIndex(collection *mgo.Collection, index *tools.DBIndex) (err error) {
@@ -64,13 +64,13 @@ func (c *MongoConnection) SetIndex(collection *mgo.Collection, index *tools.DBIn
 func (c *MongoConnection) createConnection(mongo *configs.Mongo) (err error) {
 	fmt.Println("Connecting to local mongo server....")
 
-	c.originalSession, err = mgo.Dial(mongo.URL())
+	c.OriginalSession, err = mgo.Dial(mongo.URL())
 
 	if err != nil {
 		return
 	}
 
-	c.originalSession.SetMode(mgo.Monotonic, true)
+	c.OriginalSession.SetMode(mgo.Monotonic, true)
 
 	return nil
 }
@@ -86,18 +86,24 @@ func (c *MongoConnection) Insert(collection string, model interface{}) (result i
 func (c *MongoConnection) Find(collection string, model interface{}) (result interface{}, err error) {
 	result = tools.GetModel(tools.GetType(model))
 
+	fmt.Print(tools.GetType(model))
+	fmt.Printf("\n")
+
 	err = c.GetCollection(collection).Find(bson.M{
 		"$and": model,
 	}).One(&result)
+
+	fmt.Print(result)
+	fmt.Printf("\n")
 
 	return
 }
 
 func (c *MongoConnection) CloseConnection() {
-	if c.originalSession != nil {
+	if c.OriginalSession != nil {
 		fmt.Println("Closing local mongo server....")
 
-		c.originalSession.Close()
+		c.OriginalSession.Close()
 
 		fmt.Println("Mongo server is closed....")
 	}
