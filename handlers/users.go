@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
-	"net/http"
 )
 
-var AllUsers = func(w http.ResponseWriter, _ *http.Request) {
+func AllUsers(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string) {
 	tools.JsonResponse(db.FakeUsers, w)
 }

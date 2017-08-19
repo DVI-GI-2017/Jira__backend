@@ -90,7 +90,7 @@ func (r *router) handlePost(w http.ResponseWriter, path string, body postBody) {
 
 // Add new GET handler
 func (r *router) Get(pattern string,
-	handler func(http.ResponseWriter, map[string]string, map[string]string)) error {
+	handler func(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string)) error {
 
 	if strings.Contains(pattern, ":") {
 		pattern = convertSimplePatternToRegexp(pattern)
@@ -110,7 +110,7 @@ func (r *router) Get(pattern string,
 
 // Add new POST handler
 func (r *router) Post(pattern string,
-	handler func(http.ResponseWriter, []byte, map[string]string)) error {
+	handler func(w http.ResponseWriter, body []byte, pathParams map[string]string)) error {
 
 	if strings.Contains(pattern, ":") {
 		pattern = convertSimplePatternToRegexp(pattern)
@@ -123,6 +123,33 @@ func (r *router) Post(pattern string,
 
 	r.postHandlers[compiledPattern] = func(writer http.ResponseWriter, body postBody, params PathParams) {
 		handler(writer, body, params)
+	}
+
+	return nil
+}
+
+func (r *router) Resource(resource string,
+	create func(w http.ResponseWriter, body []byte, pathParams map[string]string),
+	update func(w http.ResponseWriter, body []byte, pathParams map[string]string),
+	receiveAll func(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string),
+	receiveOne func(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string)) error {
+
+	resourceById := fmt.Sprintf("%s/:id", resource)
+
+	if err := r.Post(resource, create); err != nil {
+		return fmt.Errorf("can not init 'create' route: %v", err)
+	}
+
+	if err := r.Get(resource, receiveAll); err != nil {
+		return fmt.Errorf("can not init 'receive all' route: %v", err)
+	}
+
+	if err := r.Get(resourceById, receiveOne); err != nil {
+		return fmt.Errorf("can not init 'receive one' route: %v", err)
+	}
+
+	if err := r.Post(resourceById, update); err != nil {
+		return fmt.Errorf("can not init 'update' route: %v", err)
 	}
 
 	return nil
