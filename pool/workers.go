@@ -51,7 +51,6 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 
 		err = users.Find(nil).One(&user)
 
-		// Send our results back
 		results <- &JobResult{
 			WorkerId:   id,
 			Error:      err,
@@ -62,7 +61,6 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 
 func connect(workerId int, session *mgo.Session) *mgo.Collection {
 	for {
-		// Open a DB connection
 		log.Printf("Worker %d: Connecting to", workerId)
 		s, err := mgo.Dial("mongodb://localhost:27017/worker-test")
 		if err != nil {
@@ -70,7 +68,6 @@ func connect(workerId int, session *mgo.Session) *mgo.Collection {
 			continue
 		}
 
-		// Connect to the DB collection
 		return s.DB("worker-test").C("users")
 	}
 }
