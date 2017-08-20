@@ -7,7 +7,6 @@ branches:
   only:
   - master
   - develop
-  - feature-travis-ci
 
 before_install:
   - go get -u github.com/gorilla/mux
