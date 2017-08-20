@@ -31,6 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("can not create router: %v", err)
 	}
+
 	routes.InitRouter(router)
 
 	port := configs.ConfigInfo.Server.Port

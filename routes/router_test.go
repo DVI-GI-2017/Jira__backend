@@ -1,19 +1,14 @@
 package routes
 
 import (
+	"bytes"
+	"fmt"
+	"github.com/gorilla/mux"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"regexp"
 	"testing"
-
-	"net/http"
-
-	"fmt"
-
-	"net/http/httptest"
-
-	"bytes"
-
-	"github.com/gorilla/mux"
 )
 
 func TestRouter_SetRootPath(t *testing.T) {
