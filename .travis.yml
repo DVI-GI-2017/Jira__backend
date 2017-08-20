@@ -13,8 +13,3 @@ before_install:
   - go get -u github.com/gorilla/mux
   - go get -u github.com/dgrijalva/jwt-go
   - go get -u gopkg.in/mgo.v2
-
-install: make get-deps
-
-script:
-  - go test -v ./...
