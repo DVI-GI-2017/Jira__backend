@@ -3,17 +3,21 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"log"
 	"net/http"
+
+	"github.com/DVI-GI-2017/Jira__backend/models"
+	"github.com/DVI-GI-2017/Jira__backend/params"
+	"github.com/DVI-GI-2017/Jira__backend/pool"
+	"github.com/DVI-GI-2017/Jira__backend/tools"
 )
 
-func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
+func Test(w http.ResponseWriter, req *http.Request) {
 	var user models.User
 
-	if err := json.Unmarshal(body, &user); err != nil {
+	parameters := params.ExtractParams(req)
+
+	if err := json.Unmarshal(parameters.Body, &user); err != nil {
 		w.WriteHeader(http.StatusForbidden)
 
 		fmt.Fprint(w, "Error in request!")

@@ -7,6 +7,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 )
 
-func AllUsers(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string) {
+func AllUsers(w http.ResponseWriter, _ *http.Request) {
 	tools.JsonResponse(db.FakeUsers, w)
 }
