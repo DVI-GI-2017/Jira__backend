@@ -7,7 +7,6 @@ branches:
   only:
   - master
   - develop
-  - fix-travis-ci-vendoring
 
 deploy:
   provider: heroku
