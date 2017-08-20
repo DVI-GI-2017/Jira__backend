@@ -82,11 +82,12 @@ func (c *MongoConnection) Insert(collection string, model interface{}) (result i
 
 func (c *MongoConnection) Find(collection string, model interface{}) (result interface{}, err error) {
 	result = tools.GetModel(tools.GetType(model))
-	tools.Model2Model(model, result)
 
-	err = c.GetCollection(collection).Find(bson.M{
-		"$and": setFinderInterface(tools.ParseModel(result)),
-	}).One(&result)
+	err = c.GetCollection(collection).Find(model).One(result)
+
+	if err != nil {
+		tools.SetParam2Model(result, "IsAuth", false)
+	}
 
 	return
 }
