@@ -2,18 +2,20 @@ package pool
 
 import (
 	"errors"
+
 	"github.com/DVI-GI-2017/Jira__backend/db"
-	"github.com/DVI-GI-2017/Jira__backend/services"
+	"github.com/DVI-GI-2017/Jira__backend/services/users"
 )
 
 const (
-	Insert        = "Insert"
-	Find          = "Find"
-	InsertAndFind = "Insert and Find"
+	InsertUser = "InsertUser"
+	FindUser   = "FindUser"
+	AllUsers   = "AllUsers"
+	UpdateUser = "UpdateUser"
 )
 
 var typesActionList = [...]string{
-	Insert, Find, InsertAndFind,
+	InsertUser, FindUser, UpdateUser,
 }
 
 type Action struct {
@@ -44,13 +46,20 @@ type ServiceFunc func(*db.MongoConnection, interface{}) (interface{}, error)
 
 func GetServiceByAction(action *Action) (ServiceFunc, error) {
 	switch action.Type {
-	case Insert:
-		return services.Insert, nil
-	case Find:
-		return services.GetUserByEmailAndPassword, nil
-	case InsertAndFind:
+	case InsertUser:
+		return users.Insert, nil
+	case FindUser:
+		return users.GetUserByEmailAndPassword, nil
+	case AllUsers:
+		return users.All, nil
+	case UpdateUser:
 		break
 	}
 
-	return services.NullHandler, errors.New("Can't find handler!")
+	return NullHandler, errors.New("Can't find handler!")
+}
+
+// Helper handler for case when handler not found.
+func NullHandler(_ *db.MongoConnection, _ interface{}) (result interface{}, err error) {
+	return nil, nil
 }

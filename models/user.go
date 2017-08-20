@@ -1,8 +1,9 @@
 package models
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 type User struct {
@@ -12,10 +13,10 @@ type User struct {
 	FirstName string        `json:"first_name"`
 	LastName  string        `json:"last_name"`
 	Bio       string        `json:"bio"`
-	Tasks     Tasks         `json:"tasks"`
+	Tasks     TasksList   `json:"tasks"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt time.Time     `json:"updated_at"`
 	IsAuth    bool          `json:"is_auth"`
 }
 
-type Users []User
+type UsersList []User

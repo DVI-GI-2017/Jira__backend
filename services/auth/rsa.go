@@ -1,8 +1,9 @@
 package auth
 
 import (
-	"io/ioutil"
 	"crypto/rsa"
+	"io/ioutil"
+
 	"github.com/dgrijalva/jwt-go"
 )
 

@@ -6,19 +6,19 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/DVI-GI-2017/Jira__backend/auth"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/params"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
+	"github.com/DVI-GI-2017/Jira__backend/services/auth"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 )
 
 func RegisterUser(w http.ResponseWriter, req *http.Request) {
-	var user models.User
+	var credentials models.Credentials
 
 	parameters := params.ExtractParams(req)
 
-	if err := json.Unmarshal(parameters.Body, &user); err != nil {
+	if err := json.Unmarshal(parameters.Body, &credentials); err != nil {
 		w.WriteHeader(http.StatusForbidden)
 
 		fmt.Fprint(w, "Error in request!")
@@ -27,7 +27,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	action, err := pool.NewAction(pool.Find)
+	action, err := pool.NewAction(pool.FindUser)
 	if err != nil {
 		log.Printf("%v", err)
 
@@ -38,14 +38,14 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 	}
 
 	pool.Queue <- &pool.Job{
-		ModelType: user,
+		ModelType: credentials,
 		Action:    action,
 	}
 
 	result := <-pool.Results
 
 	if value := tools.GetValueFromModel(result.ResultType, "Email"); value == "" {
-		action, err = pool.NewAction(pool.Insert)
+		action, err = pool.NewAction(pool.InsertUser)
 		if err != nil {
 			log.Printf("%v", err)
 
@@ -56,7 +56,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		}
 
 		pool.Queue <- &pool.Job{
-			ModelType: user,
+			ModelType: credentials,
 			Action:    action,
 		}
 
@@ -70,11 +70,11 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 }
 
 func Login(w http.ResponseWriter, req *http.Request) {
-	var user models.User
+	var credentials models.Credentials
 
 	parameters := params.ExtractParams(req)
 
-	if err := json.Unmarshal(parameters.Body, &user); err != nil {
+	if err := json.Unmarshal(parameters.Body, &credentials); err != nil {
 		w.WriteHeader(http.StatusForbidden)
 
 		fmt.Fprint(w, "Error in request!")
@@ -83,7 +83,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	action, err := pool.NewAction(pool.Find)
+	action, err := pool.NewAction(pool.FindUser)
 	if err != nil {
 		log.Printf("%v", err)
 
@@ -94,7 +94,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	}
 
 	pool.Queue <- &pool.Job{
-		ModelType: user,
+		ModelType: credentials,
 		Action:    action,
 	}
 
