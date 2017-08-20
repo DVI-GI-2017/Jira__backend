@@ -12,3 +12,10 @@ before_install:
   - go get -u github.com/gorilla/mux
   - go get -u github.com/dgrijalva/jwt-go
   - go get -u gopkg.in/mgo.v2
+
+deploy:
+  provider: heroku
+  api_key:
+    secure: $HEROKU_KEY
+  app: jira-clone
+  skip_cleanup: true
