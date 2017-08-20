@@ -32,7 +32,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		log.Printf("%v", err)
 
 		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprintln(w, "Repeat, please!")
+		fmt.Fprintln(w, "Repeat request, please!")
 
 		return
 	}
@@ -66,7 +66,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 		log.Printf("%v", err)
 
 		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprintln(w, "Repeat, please!")
+		fmt.Fprintln(w, "Repeat request, please!")
 
 		return
 	}
@@ -79,8 +79,8 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	result := <-pool.Results
 
 	if result.Error != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprintln(w, "Unauthorized!")
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintln(w, "User not found!")
 	} else {
 		token, err := auth.NewToken()
 		if err != nil {
