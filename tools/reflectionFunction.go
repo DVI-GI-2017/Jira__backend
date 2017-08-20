@@ -6,27 +6,27 @@ import (
 	"strconv"
 )
 
-func GetValueFromModel(model interface{}, key string) (interface{}, bool) {
+func GetValueFromModel(model interface{}, key string) interface{} {
 	s := reflect.ValueOf(model)
 	if s.Kind() == reflect.Ptr {
 		s = s.Elem()
 	}
 	if s.Kind() != reflect.Struct {
-		return "", false
+		return ""
 	}
 	f := s.FieldByName(key)
 	if !f.IsValid() {
-		return "", false
+		return ""
 	}
 	switch f.Kind() {
 	case reflect.String:
-		return f.Interface().(string), true
+		return f.Interface().(string)
 	case reflect.Bool:
-		return f.Interface().(bool), true
+		return f.Interface().(bool)
 	case reflect.Int:
-		return strconv.FormatInt(f.Int(), 10), true
+		return strconv.FormatInt(f.Int(), 10)
 	default:
-		return "", false
+		return ""
 	}
 }
 

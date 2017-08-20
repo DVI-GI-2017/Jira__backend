@@ -39,9 +39,10 @@ func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
 
 	result := <-pool.Results
 
-	fmt.Println(tools.GetValueFromModel(result, "IsAuth"))
-
-	tools.JsonResponse(result.ResultType, w)
+	if value := tools.GetValueFromModel(result, "IsAuth"); value != false {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprintln(w, "Unauthorized!")
+	} else {
+		tools.JsonResponse(result.ResultType, w)
+	}
 }
-
-// test: for i in {1..15}; do echo '{"email": "test", "password": "password"}' | curl -d @- http://localhost:3000/api/v1/test; done
