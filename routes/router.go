@@ -1,19 +1,21 @@
 package routes
 
 import (
+	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/DVI-GI-2017/Jira__backend/params"
 )
 
 func NewRouter(rootPath string) (*router, error) {
 	r := &router{}
-	r.getHandlers = make(map[*regexp.Regexp]getHandlerFunc)
-	r.postHandlers = make(map[*regexp.Regexp]postHandlerFunc)
+	r.getHandlers = make(map[*regexp.Regexp]http.HandlerFunc)
+	r.postHandlers = make(map[*regexp.Regexp]http.HandlerFunc)
 
 	err := r.SetRootPath(rootPath)
 	if err != nil {
@@ -26,8 +28,8 @@ func NewRouter(rootPath string) (*router, error) {
 type router struct {
 	root *url.URL
 
-	getHandlers  map[*regexp.Regexp]getHandlerFunc
-	postHandlers map[*regexp.Regexp]postHandlerFunc
+	getHandlers  map[*regexp.Regexp]http.HandlerFunc
+	postHandlers map[*regexp.Regexp]http.HandlerFunc
 }
 
 // Set router root path, other paths will be relative to it
@@ -53,35 +55,50 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	switch method {
 
 	case http.MethodGet:
-		r.handleGet(w, relPath, valuesToGetParams(req.URL.Query()))
+		r.handleGet(w, req, relPath)
 	case http.MethodPost:
-		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Panicf("invalid body: %v", err)
 		}
 
-		r.handlePost(w, relPath, body)
+		r.handlePost(w, req, relPath)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		fmt.Fprintf(w, "method not allowed: %s", method)
 	}
 }
 
-func (r *router) handleGet(w http.ResponseWriter, path string, getParams getParams) {
+func (r *router) handleGet(w http.ResponseWriter, req *http.Request, path string) {
 	for pattern, handler := range r.getHandlers {
 		if pattern.MatchString(path) {
-			handler(w, getParams, extractPathParams(pattern, path))
+			parameters, err := params.NewParams(req, pattern, path)
+			if err != nil {
+				fmt.Printf("error while parsing params: %v", err)
+				return
+			}
+
+			req = req.WithContext(context.WithValue(req.Context(), "params", parameters))
+
+			handler(w, req)
 			return
 		}
 	}
 	w.WriteHeader(http.StatusNotFound)
 }
 
-func (r *router) handlePost(w http.ResponseWriter, path string, body postBody) {
+func (r *router) handlePost(w http.ResponseWriter, req *http.Request, path string) {
 	for pattern, handler := range r.postHandlers {
 		if pattern.MatchString(path) {
-			handler(w, body, extractPathParams(pattern, path))
+			parameters, err := params.NewParams(req, pattern, path)
+			if err != nil {
+				fmt.Printf("error while parsing params: %v", err)
+				return
+			}
+
+			req = req.WithContext(context.WithValue(req.Context(), "params", parameters))
+
+			handler(w, req)
 			return
 		}
 	}
@@ -89,8 +106,7 @@ func (r *router) handlePost(w http.ResponseWriter, path string, body postBody) {
 }
 
 // Add new GET handler
-func (r *router) Get(pattern string,
-	handler func(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string)) error {
+func (r *router) Get(pattern string, handler http.HandlerFunc) error {
 
 	if strings.Contains(pattern, ":") {
 		pattern = convertSimplePatternToRegexp(pattern)
@@ -101,16 +117,13 @@ func (r *router) Get(pattern string,
 		return err
 	}
 
-	r.getHandlers[compiledPattern] = func(writer http.ResponseWriter, params getParams, params2 PathParams) {
-		handler(writer, params, params2)
-	}
+	r.getHandlers[compiledPattern] = handler
 
 	return nil
 }
 
 // Add new POST handler
-func (r *router) Post(pattern string,
-	handler func(w http.ResponseWriter, body []byte, pathParams map[string]string)) error {
+func (r *router) Post(pattern string, handler http.HandlerFunc) error {
 
 	if strings.Contains(pattern, ":") {
 		pattern = convertSimplePatternToRegexp(pattern)
@@ -121,18 +134,12 @@ func (r *router) Post(pattern string,
 		return err
 	}
 
-	r.postHandlers[compiledPattern] = func(writer http.ResponseWriter, body postBody, params PathParams) {
-		handler(writer, body, params)
-	}
+	r.postHandlers[compiledPattern] = handler
 
 	return nil
 }
 
-func (r *router) Resource(resource string,
-	create func(w http.ResponseWriter, body []byte, pathParams map[string]string),
-	update func(w http.ResponseWriter, body []byte, pathParams map[string]string),
-	receiveAll func(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string),
-	receiveOne func(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string)) error {
+func (r *router) Resource(resource string, create, update, receiveAll, receiveOne http.HandlerFunc) error {
 
 	resourceById := fmt.Sprintf("%s/:id", resource)
 

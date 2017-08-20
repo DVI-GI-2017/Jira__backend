@@ -13,6 +13,7 @@ import (
 
 	"bytes"
 
+	"github.com/DVI-GI-2017/Jira__backend/params"
 	"github.com/gorilla/mux"
 )
 
@@ -48,9 +49,9 @@ func TestRelativePath(t *testing.T) {
 
 func TestExtractPathParams(t *testing.T) {
 	pattern := regexp.MustCompile(`/users/(?P<id>\d+)`)
-	pathParams := extractPathParams(pattern, "/users/1")
+	pathParams := params.ExtractPathParams(pattern, "/users/1")
 
-	expectedPathParams := PathParams{"id": "1"}
+	expectedPathParams := params.PathParams{"id": "1"}
 
 	if !reflect.DeepEqual(pathParams, expectedPathParams) {
 		t.Fail()
@@ -59,9 +60,9 @@ func TestExtractPathParams(t *testing.T) {
 
 func TestSimplifiedPattern(t *testing.T) {
 	pattern := regexp.MustCompile(convertSimplePatternToRegexp("/users/:id"))
-	pathParams := extractPathParams(pattern, "/users/1")
+	pathParams := params.ExtractPathParams(pattern, "/users/1")
 
-	expectedPathParams := PathParams{"id": "1"}
+	expectedPathParams := params.PathParams{"id": "1"}
 
 	if !reflect.DeepEqual(pathParams, expectedPathParams) {
 		t.Fail()
@@ -75,10 +76,10 @@ func BenchmarkGorilla(b *testing.B) {
 	apiRouter.Path("/users/{id:[0-9]+}").Methods(http.MethodGet).
 		HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-			getParams := r.URL.Query()
-			vars := mux.Vars(r)
-			fmt.Fprintf(w, "get params: %v, path params: %v", getParams, vars)
-		})
+		getParams := r.URL.Query()
+		vars := mux.Vars(r)
+		fmt.Fprintf(w, "get params: %v, path params: %v", getParams, vars)
+	})
 
 	for i := 0; i < b.N; i++ {
 		processRequest(router, b)
@@ -92,8 +93,9 @@ func BenchmarkCustom(b *testing.B) {
 		b.Errorf("can not create router: %v", err)
 	}
 	router.Get("/users/:id",
-		func(w http.ResponseWriter, getParams map[string]string, pathParams map[string]string) {
-			fmt.Fprintf(w, "get params: %v, path params: %v", getParams, pathParams)
+		func(w http.ResponseWriter, req *http.Request) {
+			parameters := params.ExtractParams(req)
+			fmt.Fprintf(w, "get params: %v, path params: %v", parameters.Query, parameters.PathParams)
 		})
 
 	for i := 0; i < b.N; i++ {

@@ -1,6 +1,6 @@
 package tools
 
-import "Jira__backend/models"
+import "github.com/DVI-GI-2017/Jira__backend/models"
 
 const (
 	User        = "User"
