@@ -3,18 +3,22 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/DVI-GI-2017/Jira__backend/auth"
-	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"log"
 	"net/http"
+
+	"github.com/DVI-GI-2017/Jira__backend/auth"
+	"github.com/DVI-GI-2017/Jira__backend/models"
+	"github.com/DVI-GI-2017/Jira__backend/params"
+	"github.com/DVI-GI-2017/Jira__backend/pool"
+	"github.com/DVI-GI-2017/Jira__backend/tools"
 )
 
-func RegisterUser(w http.ResponseWriter, body []byte, _ map[string]string) {
+func RegisterUser(w http.ResponseWriter, req *http.Request) {
 	var user models.User
 
-	if err := json.Unmarshal(body, &user); err != nil {
+	parameters := params.ExtractParams(req)
+
+	if err := json.Unmarshal(parameters.Body, &user); err != nil {
 		w.WriteHeader(http.StatusForbidden)
 
 		fmt.Fprint(w, "Error in request!")
@@ -43,10 +47,12 @@ func RegisterUser(w http.ResponseWriter, body []byte, _ map[string]string) {
 	tools.JsonResponse(result.ResultType, w)
 }
 
-func Login(w http.ResponseWriter, body []byte, _ map[string]string) {
+func Login(w http.ResponseWriter, req *http.Request) {
 	var user models.User
 
-	if err := json.Unmarshal(body, &user); err != nil {
+	parameters := params.ExtractParams(req)
+
+	if err := json.Unmarshal(parameters.Body, &user); err != nil {
 		w.WriteHeader(http.StatusForbidden)
 
 		fmt.Fprint(w, "Error in request!")
