@@ -70,17 +70,22 @@ func Login(w http.ResponseWriter, body []byte, _ map[string]string) {
 		Action:    action,
 	}
 
-	<-pool.Results
+	result := <-pool.Results
 
-	token, err := auth.NewToken()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	if value := tools.GetValueFromModel(result, "IsAuth"); value != false {
+		token, err := auth.NewToken()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 
-		fmt.Fprintln(w, "Error while signing the token!")
-		log.Printf("%v", err)
+			fmt.Fprintln(w, "Error while signing the token!")
+			log.Printf("%v", err)
 
-		return
+			return
+		}
+
+		tools.JsonResponse(token, w)
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprintln(w, "Unauthorized!")
 	}
-
-	tools.JsonResponse(token, w)
 }

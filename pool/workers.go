@@ -46,10 +46,6 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 			continue
 		}
 
-		if err.Error() == "not found" &&
-			strings.ToLower(tools.GetType(job.ModelType)) == "user" {
-		}
-
 		results <- &JobResult{
 			WorkerId:   id,
 			Error:      err,
