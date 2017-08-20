@@ -39,6 +39,8 @@ func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
 
 	result := <-pool.Results
 
+	fmt.Println(tools.GetValueFromModel(result, "IsAuth"))
+
 	tools.JsonResponse(result.ResultType, w)
 }
 

@@ -6,6 +6,30 @@ import (
 	"strconv"
 )
 
+func GetValueFromModel(model interface{}, key string) (interface{}, bool) {
+	s := reflect.ValueOf(model)
+	if s.Kind() == reflect.Ptr {
+		s = s.Elem()
+	}
+	if s.Kind() != reflect.Struct {
+		return "", false
+	}
+	f := s.FieldByName(key)
+	if !f.IsValid() {
+		return "", false
+	}
+	switch f.Kind() {
+	case reflect.String:
+		return f.Interface().(string), true
+	case reflect.Bool:
+		return f.Interface().(bool), true
+	case reflect.Int:
+		return strconv.FormatInt(f.Int(), 10), true
+	default:
+		return "", false
+	}
+}
+
 func GetType(modelType interface{}) string {
 	if t := reflect.TypeOf(modelType); t.Kind() == reflect.Ptr {
 		return t.Elem().Name()
@@ -47,19 +71,29 @@ func ParseModel(model interface{}) (values ParseModelMap) {
 }
 
 func SetParam2Model(model interface{}, key string, param interface{}) error {
-	field := reflect.ValueOf(&model).Elem().FieldByName(key)
+	s := reflect.ValueOf(model)
+	if s.Kind() == reflect.Ptr {
+		s = s.Elem()
+	}
+	if s.Kind() != reflect.Struct {
+		return errors.New("Not struct")
+	}
+	f := s.FieldByName(key)
+	if !f.IsValid() {
+		return errors.New("Not valid")
+	}
 
-	switch field.Kind() {
-	case reflect.Int:
-		field.SetInt(param.(int64))
+	switch f.Kind() {
+	case reflect.String:
+		f.SetString(param.(string))
 		return nil
 	case reflect.Bool:
-		field.SetBool(param.(bool))
+		f.SetBool(param.(bool))
 		return nil
-	case reflect.String:
-		field.SetString(param.(string))
+	case reflect.Int:
+		f.SetInt(param.(int64))
 		return nil
 	default:
-		return errors.New("Can't set param in model!")
+		return nil
 	}
 }

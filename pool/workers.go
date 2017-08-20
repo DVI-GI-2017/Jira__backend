@@ -1,7 +1,6 @@
 package pool
 
 import (
-	"fmt"
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"io"
