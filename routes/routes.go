@@ -18,6 +18,12 @@ func InitRouter(r *router) {
 		log.Panicf("can not init route '%s': %v", signin, err)
 	}
 
+	const users = "/users"
+	err = r.Get(users, handlers.AllUsers)
+	if err != nil {
+		log.Panicf("can not init route '%s': %v", users, err)
+	}
+
 	const test = "/test"
 	err = r.Post(test, handlers.Test)
 	if err != nil {
