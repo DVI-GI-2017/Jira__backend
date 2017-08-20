@@ -18,4 +18,7 @@ deploy:
   api_key:
     secure: b9ec777b-f764-4ff1-abc5-55ef220ecdef
   app: jira-clone
+  on:
+      repo: DVI-GI-2017/Jira__backend
+      branch: develop
   skip_cleanup: true
