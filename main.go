@@ -9,6 +9,8 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/routes"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 )
 
 func rsaInit() {
@@ -17,6 +19,16 @@ func rsaInit() {
 	if err != nil {
 		log.Panic("can not init rsa keys: ", err)
 	}
+}
+
+func initPort() (port string) {
+	port = os.Getenv("PORT")
+
+	if port == "" {
+		port = strconv.Itoa(configs.ConfigInfo.Server.Port)
+	}
+
+	return
 }
 
 func init() {
@@ -33,10 +45,9 @@ func main() {
 	}
 
 	routes.InitRouter(router)
+	port := initPort()
 
-	port := configs.ConfigInfo.Server.Port
+	fmt.Printf("Server started on port %s...\n", port)
 
-	fmt.Printf("Server started on port %d...\n", port)
-
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), handlers.Logger(router)))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), handlers.Logger(router)))
 }
