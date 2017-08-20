@@ -27,7 +27,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	action, err := pool.NewAction(pool.Insert)
+	action, err := pool.NewAction(pool.Find)
 	if err != nil {
 		log.Printf("%v", err)
 
@@ -44,7 +44,29 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 
 	result := <-pool.Results
 
-	tools.JsonResponse(result.ResultType, w)
+	if value := tools.GetValueFromModel(result.ResultType, "Email"); value == "" {
+		action, err = pool.NewAction(pool.Insert)
+		if err != nil {
+			log.Printf("%v", err)
+
+			w.WriteHeader(http.StatusBadGateway)
+			fmt.Fprintln(w, "Repeat request, please!")
+
+			return
+		}
+
+		pool.Queue <- &pool.Job{
+			ModelType: user,
+			Action:    action,
+		}
+
+		result = <-pool.Results
+
+		tools.JsonResponse(result.ResultType, w)
+	} else {
+		w.WriteHeader(http.StatusConflict)
+		fmt.Fprint(w, "User with this email already exists!")
+	}
 }
 
 func Login(w http.ResponseWriter, req *http.Request) {
