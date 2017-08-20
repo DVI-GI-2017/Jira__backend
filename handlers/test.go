@@ -39,7 +39,7 @@ func Test(w http.ResponseWriter, body []byte, _ map[string]string) {
 
 	result := <-pool.Results
 
-	if value := tools.GetValueFromModel(result, "IsAuth"); value != false {
+	if value := tools.GetValueFromModel(result, "IsAuth"); value == false {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprintln(w, "Unauthorized!")
 	} else {

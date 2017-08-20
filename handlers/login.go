@@ -72,7 +72,10 @@ func Login(w http.ResponseWriter, body []byte, _ map[string]string) {
 
 	result := <-pool.Results
 
-	if value := tools.GetValueFromModel(result, "IsAuth"); value != false {
+	if result.Error != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprintln(w, "Unauthorized!")
+	} else {
 		token, err := auth.NewToken()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -84,8 +87,5 @@ func Login(w http.ResponseWriter, body []byte, _ map[string]string) {
 		}
 
 		tools.JsonResponse(token, w)
-	} else {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprintln(w, "Unauthorized!")
 	}
 }
