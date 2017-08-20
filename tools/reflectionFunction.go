@@ -1,9 +1,18 @@
 package tools
 
 import (
+	"errors"
 	"reflect"
 	"strconv"
 )
+
+func GetType(modelType interface{}) string {
+	if t := reflect.TypeOf(modelType); t.Kind() == reflect.Ptr {
+		return t.Elem().Name()
+	} else {
+		return t.Name()
+	}
+}
 
 type ParseModelMap map[string]string
 
@@ -35,4 +44,22 @@ func ParseModel(model interface{}) (values ParseModelMap) {
 		values[typ.Field(i).Name] = v
 	}
 	return
+}
+
+func SetParam2Model(model interface{}, key string, param interface{}) error {
+	field := reflect.ValueOf(&model).Elem().FieldByName(key)
+
+	switch field.Kind() {
+	case reflect.Int:
+		field.SetInt(param.(int64))
+		return nil
+	case reflect.Bool:
+		field.SetBool(param.(bool))
+		return nil
+	case reflect.String:
+		field.SetString(param.(string))
+		return nil
+	default:
+		return errors.New("Can't set param in model!")
+	}
 }

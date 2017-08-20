@@ -1,10 +1,13 @@
 package pool
 
 import (
+	"fmt"
 	"github.com/DVI-GI-2017/Jira__backend/db"
+	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"io"
 	"log"
 	"runtime"
+	"strings"
 )
 
 type Job struct {
@@ -42,6 +45,10 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 			mongo = connect()
 
 			continue
+		}
+
+		if err.Error() == "not found" &&
+			strings.ToLower(tools.GetType(job.ModelType)) == "user" {
 		}
 
 		results <- &JobResult{

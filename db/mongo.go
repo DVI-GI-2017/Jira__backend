@@ -88,6 +88,10 @@ func (c *MongoConnection) Find(collection string, model interface{}) (result int
 		"$and": setFinderInterface(tools.ParseModel(result)),
 	}).One(&result)
 
+	if err != nil {
+		tools.SetParam2Model(result, "IsAuth", false)
+	}
+
 	return
 }
 

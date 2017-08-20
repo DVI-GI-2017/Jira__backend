@@ -15,6 +15,7 @@ type User struct {
 	Tasks     Tasks         `json:"tasks"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt time.Time     `json:"updated_at"`
+	IsAuth    bool          `json:"is_auth"`
 }
 
 type Users []User
