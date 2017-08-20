@@ -1,0 +1,19 @@
+language: go
+
+go:
+  - 1.8
+
+branches:
+  only:
+  - master
+  - develop
+  - feature-travis-ci
+
+before_install:
+  - go get -u github.com/gorilla
+  - go get -u github.com/dgrijalva/jwt-go
+  - go get -u gopkg.in/mgo.v2
+
+
+script:
+  - go test -v ./...
