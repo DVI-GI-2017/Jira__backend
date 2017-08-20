@@ -2,15 +2,11 @@ package db
 
 import (
 	"fmt"
+
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-)
-
-const (
-	UserCollection    = "users"
-	ProjectCollection = "project"
 )
 
 type MongoConnection struct {
@@ -89,6 +85,11 @@ func (c *MongoConnection) Find(collection string, model interface{}) (result int
 		tools.SetParam2Model(result, "IsAuth", false)
 	}
 
+	return
+}
+
+func (c *MongoConnection) FindAll(collection string) (result []interface{}, err error) {
+	err = c.GetCollection(collection).Find(nil).All(result)
 	return
 }
 
