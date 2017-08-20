@@ -1,7 +1,6 @@
 #### Task manager [Jira]
 
-[![Build Status](https://travis-ci.org/DVI-GI-2017/Jira__backend.svg?branch=master)](https://travis-ci.org/DVI-GI-2017/Jira__backend)
-
+[![Build Status](https://travis-ci.org/DVI-GI-2017/Jira__backend.svg?branch=develop)](https://travis-ci.org/DVI-GI-2017/Jira__backend)
 #### Технологии
 - Golang для написания логики,
 
