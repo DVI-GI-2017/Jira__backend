@@ -76,10 +76,10 @@ func BenchmarkGorilla(b *testing.B) {
 	apiRouter.Path("/users/{id:[0-9]+}").Methods(http.MethodGet).
 		HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		getParams := r.URL.Query()
-		vars := mux.Vars(r)
-		fmt.Fprintf(w, "get params: %v, path params: %v", getParams, vars)
-	})
+			getParams := r.URL.Query()
+			vars := mux.Vars(r)
+			fmt.Fprintf(w, "get params: %v, path params: %v", getParams, vars)
+		})
 
 	for i := 0; i < b.N; i++ {
 		processRequest(router, b)

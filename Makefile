@@ -1,4 +1,9 @@
-.PHONY: all build vendor test lint
+.PHONY: all test
 
-all:
-	go test -v ./...
+all: test bench
+
+test:
+	cd ./routes && go test
+
+bench:
+	cd ./routes && go test -bench=.
