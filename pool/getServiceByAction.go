@@ -11,7 +11,7 @@ type ServiceFunc func(*db.MongoConnection, interface{}) (interface{}, error)
 func GetServiceByAction(action *Action) (ServiceFunc, error) {
 	switch action.Type {
 	case Insert:
-		break
+		return services.Insert, nil
 	case Find:
 		return services.GetUserByEmailAndPassword, nil
 	case InsertAndFind:

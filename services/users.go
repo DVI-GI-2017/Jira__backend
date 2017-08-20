@@ -5,7 +5,7 @@ import (
 )
 
 func Insert(mongo *db.MongoConnection, user interface{}) (result interface{}, err error) {
-	return
+	return mongo.Insert("users", user)
 }
 
 func GetUserByEmailAndPassword(mongo *db.MongoConnection, user interface{}) (result interface{}, err error) {
