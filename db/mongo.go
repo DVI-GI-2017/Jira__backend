@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DVI-GI-2017/Jira__backend/configs"
+	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -77,7 +78,7 @@ func (c *MongoConnection) Insert(collection string, model interface{}) (result i
 }
 
 func (c *MongoConnection) Find(collection string, model interface{}) (result interface{}, err error) {
-	result = tools.GetModel(tools.GetType(model))
+	result = models.GetModel(tools.GetType(model))
 
 	err = c.GetCollection(collection).Find(model).One(result)
 
