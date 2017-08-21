@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	Id        bson.ObjectId `json:"_id" bson:"_id"`
+	Id        bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	Email     string        `json:"email"`
 	Password  string        `json:"password"`
 	FirstName string        `json:"first_name"`
@@ -16,7 +16,6 @@ type User struct {
 	Tasks     TasksList     `json:"tasks"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt time.Time     `json:"updated_at"`
-	IsAuth    bool          `json:"is_auth"`
 }
 
 type UsersList []User
