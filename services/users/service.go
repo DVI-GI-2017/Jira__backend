@@ -6,7 +6,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const collection = "Users"
+const collection = "users"
 
 func CheckExistence(mongo *mgo.Database, credentials *models.User) (bool, error) {
 	c, err := mongo.C(collection).Find(bson.M{"email": credentials.Email}).Count()

@@ -1,6 +1,9 @@
 package configs
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 type Mongo struct {
 	Server string `json:"server"`
@@ -10,6 +13,12 @@ type Mongo struct {
 	Drop   bool   `json:"drop"`
 }
 
-func (m *Mongo) URL() string {
-	return fmt.Sprintf("%s://%s:%d", m.Server, m.Host, m.Port)
+func (m *Mongo) URL() (url string) {
+	url = os.Getenv("MONGO_PROD")
+
+	if url == "" {
+		url = fmt.Sprintf("%s://%s:%d", m.Server, m.Host, m.Port)
+	}
+
+	return
 }

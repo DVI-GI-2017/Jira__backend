@@ -18,6 +18,8 @@ func AllUsers(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		fmt.Fprint(w, "Can not return all users!")
 		log.Printf("Can not return all users: %v", err)
+
+		return
 	}
 
 	tools.JsonResponse(users.(models.UsersList), w)
