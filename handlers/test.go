@@ -50,3 +50,6 @@ func Test(w http.ResponseWriter, req *http.Request) {
 		tools.JsonResponse(result.Result, w)
 	}
 }
+
+func NullHandler(_ http.ResponseWriter, _ *http.Request) {
+}
