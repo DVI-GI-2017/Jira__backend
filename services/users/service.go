@@ -35,3 +35,10 @@ func FindUserById(mongo *mgo.Database, id bson.ObjectId) (*models.User, error) {
 	err := mongo.C(collection).FindId(id).One(user)
 	return user, err
 }
+
+func FindUser(mongo *mgo.Database, email string) (*models.User, error) {
+	user := new(models.User)
+	err := mongo.C(collection).Find(email).One(user)
+
+	return user, err
+}

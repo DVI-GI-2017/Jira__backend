@@ -18,7 +18,9 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 
 	taskInfo := new(models.Task)
 
-	err := json.Unmarshal(body, taskInfo)
+	fmt.Println(body)
+	fmt.Println(taskInfo)
+	err := json.Unmarshal(body, &taskInfo)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 
@@ -28,7 +30,7 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	exists, err := pool.DispatchAction(pool.CheckProjectExists, taskInfo)
+	exists, err := pool.DispatchAction(pool.CheckTaskExists, taskInfo)
 	if exists.(bool) {
 		w.WriteHeader(http.StatusConflict)
 		fmt.Fprintf(w, "Task with title: %s already exists!", taskInfo.Title)
