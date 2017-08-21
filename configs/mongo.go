@@ -3,12 +3,11 @@ package configs
 import "fmt"
 
 type Mongo struct {
-	Server      string `json:"server"`
-	Host        string `json:"host"`
-	Port        int    `json:"port"`
-	Db          string `json:"db"`
-	Drop        bool   `json:"drop"`
-	Connections int    `json:"connections"`
+	Server string `json:"server"`
+	Host   string `json:"host"`
+	Port   int    `json:"port"`
+	DB     string `json:"db"`
+	Drop   bool   `json:"drop"`
 }
 
 func (m *Mongo) URL() string {

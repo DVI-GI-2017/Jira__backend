@@ -3,8 +3,8 @@ package pool
 import (
 	"errors"
 
-	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/services/users"
+	"gopkg.in/mgo.v2"
 )
 
 const (
@@ -42,7 +42,7 @@ func checkActionType(actionType string) bool {
 	return false
 }
 
-type ServiceFunc func(*db.MongoConnection, interface{}) (interface{}, error)
+type ServiceFunc func(*mgo.Database, interface{}) (interface{}, error)
 
 func GetServiceByAction(action *Action) (ServiceFunc, error) {
 	switch action.Type {
@@ -60,6 +60,6 @@ func GetServiceByAction(action *Action) (ServiceFunc, error) {
 }
 
 // Helper handler for case when handler not found.
-func NullHandler(_ *db.MongoConnection, _ interface{}) (result interface{}, err error) {
+func NullHandler(_ *mgo.Database, _ interface{}) (result interface{}, err error) {
 	return nil, nil
 }
