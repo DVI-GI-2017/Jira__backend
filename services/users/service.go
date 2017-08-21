@@ -22,8 +22,10 @@ func Insert(mongo *mgo.Database, user interface{}) (result interface{}, err erro
 	return user, mongo.C(collection).Insert(user)
 }
 
-func All(mongo *mgo.Database, _ interface{}) (result interface{}, err error) {
-	result = new(models.UsersList)
+func All(mongo *mgo.Database) (result models.UsersList, err error) {
+	const defaultSize = 100
+	result = make(models.UsersList, defaultSize)
+
 	err = mongo.C(collection).Find(bson.M{}).All(result)
 	return
 }
