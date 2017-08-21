@@ -12,8 +12,6 @@ const (
 
 	LabelType      = "Label"
 	LabelsListType = "LabelsList"
-
-	CredentialsType = "Credentials"
 )
 
 func GetModel(modelName string) interface{} {
@@ -37,9 +35,6 @@ func GetModel(modelName string) interface{} {
 		return new(Project)
 	case ProjectsListType:
 		return new(ProjectsList)
-
-	case CredentialsType:
-		return new(Credentials)
 
 	default:
 		return nil

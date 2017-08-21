@@ -7,10 +7,10 @@ import (
 )
 
 type Project struct {
-	Id          bson.ObjectId `json:"_id" bson:"_id,omitempty"`
+	Id          bson.ObjectId `json:"_id" bson:"omitempty"`
 	Title       string        `json:"title" bson:"title"`
 	Description string        `json:"description" bson:"description"`
-	Tasks       TasksList     `json:"tasks" bson:"tasks" bson:"_id,omitempty"`
+	Tasks       TasksList     `json:"tasks" bson:"tasks"`
 	CreatedAt   time.Time     `json:"created_at" bson:"created_at"`
 	UpdatedAt   time.Time     `json:"updated_at" bson:"updated_at"`
 }

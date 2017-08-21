@@ -8,12 +8,12 @@ import (
 
 const collection = "Users"
 
-func CheckExistence(mongo *mgo.Database, credentials *models.Credentials) (bool, error) {
+func CheckExistence(mongo *mgo.Database, credentials *models.User) (bool, error) {
 	c, err := mongo.C(collection).Find(bson.M{"Email": credentials.Email}).Count()
 	return c != 0, err
 }
 
-func CheckCredentials(mongo *mgo.Database, credentials *models.Credentials) (bool, error) {
+func CheckCredentials(mongo *mgo.Database, credentials *models.User) (bool, error) {
 	c, err := mongo.C(collection).Find(credentials).Count()
 	return c != 0, err
 }

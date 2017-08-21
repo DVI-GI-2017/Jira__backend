@@ -58,12 +58,12 @@ func GetServiceByAction(action *Action) (ServiceFunc, error) {
 
 	case CheckUserExists:
 		return func(mongo *mgo.Database, credentials interface{}) (interface{}, error) {
-			return users.CheckExistence(mongo, credentials.(*models.Credentials))
+			return users.CheckExistence(mongo, credentials.(*models.User))
 		}, nil
 
 	case CheckUserCredentials:
 		return func(mongo *mgo.Database, credentials interface{}) (interface{}, error) {
-			return users.CheckCredentials(mongo, credentials.(*models.Credentials))
+			return users.CheckCredentials(mongo, credentials.(*models.User))
 		}, nil
 
 	case AllUsers:

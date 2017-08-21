@@ -14,7 +14,7 @@ import (
 )
 
 func RegisterUser(w http.ResponseWriter, req *http.Request) {
-	credentials := new(models.Credentials)
+	credentials := new(models.User)
 
 	parameters := params.ExtractParams(req)
 
@@ -54,7 +54,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 }
 
 func Login(w http.ResponseWriter, req *http.Request) {
-	credentials := new(models.Credentials)
+	credentials := new(models.User)
 
 	parameters := params.ExtractParams(req)
 
