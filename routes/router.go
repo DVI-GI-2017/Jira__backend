@@ -3,7 +3,6 @@ package routes
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -46,67 +45,44 @@ func (r *router) SetRootPath(path string) error {
 }
 
 func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	method := req.Method
-
 	relPath, err := relativePath(r.root.Path, req.URL.Path)
 	if err != nil {
 		http.NotFound(w, req)
 	}
 
-	switch method {
+	r.handleRequest(w, req, relPath)
+}
 
-	case http.MethodGet:
-		r.handleGet(w, req, relPath)
-	case http.MethodPost:
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			log.Panicf("invalid body: %v", err)
+func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path string) {
+
+	if routeMap, ok := r.routes[req.Method]; ok {
+		for pattern, route := range routeMap {
+			if pattern.MatchString(path) {
+				parameters, err := params.NewParams(req, pattern, path)
+
+				if err != nil {
+					fmt.Printf("error while parsing params: %v", err)
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+
+				req = req.WithContext(context.WithValue(req.Context(), "params", parameters))
+				route.Handler(w, req)
+
+				return
+			}
 		}
 
-		r.handlePost(w, req, relPath)
-	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "method not allowed: %s", method)
+		fmt.Fprintf(w, "Method: %s not allowed on path: %s", req.Method, req.URL.Path)
+
+		return
 	}
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	fmt.Fprintf(w, "Method: %s not supported", req.Method)
 }
 
-func (r *router) handleGet(w http.ResponseWriter, req *http.Request, path string) {
-	for pattern, route := range r.routes[http.MethodGet] {
-		if pattern.MatchString(path) {
-			parameters, err := params.NewParams(req, pattern, path)
-			if err != nil {
-				fmt.Printf("error while parsing params: %v", err)
-				return
-			}
-
-			req = req.WithContext(context.WithValue(req.Context(), "params", parameters))
-
-			route.Handler(w, req)
-			return
-		}
-	}
-	w.WriteHeader(http.StatusNotFound)
-}
-
-func (r *router) handlePost(w http.ResponseWriter, req *http.Request, path string) {
-	for pattern, route := range r.routes[http.MethodPost] {
-		if pattern.MatchString(path) {
-			parameters, err := params.NewParams(req, pattern, path)
-			if err != nil {
-				fmt.Printf("error while parsing params: %v", err)
-				return
-			}
-
-			req = req.WithContext(context.WithValue(req.Context(), "params", parameters))
-
-			route.Handler(w, req)
-			return
-		}
-	}
-	w.WriteHeader(http.StatusNotFound)
-}
-
-func (r *router) Route(route Route) error {
+func (r *router) Add(route Route) error {
 	pattern := route.Pattern
 	if strings.Contains(pattern, ":") {
 		pattern = convertSimplePatternToRegexp(pattern)

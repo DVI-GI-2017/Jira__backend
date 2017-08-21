@@ -42,7 +42,7 @@ func TestRouterCreate(t *testing.T) {
 
 func TestRouterResolve(t *testing.T) {
 	router, _ := NewRouter("/api/v1")
-	router.Route(Route{"Simple test",
+	router.Add(Route{"Simple test",
 		"/users/:id",
 		http.MethodGet,
 		func(w http.ResponseWriter, req *http.Request) {
@@ -142,7 +142,7 @@ func BenchmarkCustom(b *testing.B) {
 		b.Errorf("can not create router: %v", err)
 	}
 
-	err = router.Route(Route{
+	err = router.Add(Route{
 		Name:    "User by id",
 		Pattern: "/users/:id",
 		Method:  http.MethodGet,

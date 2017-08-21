@@ -14,7 +14,7 @@ type Route struct {
 
 func InitRouter(r *router, routes []Route) {
 	for _, route := range routes {
-		err := r.Route(route)
+		err := r.Add(route)
 		if err != nil {
 			log.Panicf("can not init route %v: %v", route, err)
 		}
