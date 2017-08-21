@@ -1,17 +1,17 @@
 package routes
 
 import (
-	"reflect"
-	"regexp"
 	"testing"
 
 	"net/http"
 
 	"fmt"
 
+	"bytes"
 	"net/http/httptest"
 
-	"bytes"
+	"reflect"
+	"regexp"
 
 	"github.com/DVI-GI-2017/Jira__backend/params"
 	"github.com/gorilla/mux"
@@ -42,9 +42,12 @@ func TestRouterCreate(t *testing.T) {
 
 func TestRouterResolve(t *testing.T) {
 	router, _ := NewRouter("/api/v1")
-	router.Get("/users/:id", func(w http.ResponseWriter, req *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})
+	router.Route(Route{"Simple test",
+		"/users/:id",
+		http.MethodGet,
+		func(w http.ResponseWriter, req *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}})
 
 	reader := bytes.NewBufferString("")
 	request := httptest.NewRequest(http.MethodGet, "/api/v1/users/1234feabc1357346781234524", reader)
@@ -57,7 +60,8 @@ func TestRouterResolve(t *testing.T) {
 	}
 }
 
-func TestRelativePath(t *testing.T) {
+func
+TestRelativePath(t *testing.T) {
 	const basePath = "/api/v1"
 	const absolutePath = "/api/v1/users/1234feabc1357346781234524"
 
@@ -71,7 +75,8 @@ func TestRelativePath(t *testing.T) {
 	}
 }
 
-func TestExtractPathParams(t *testing.T) {
+func
+TestExtractPathParams(t *testing.T) {
 	pattern := regexp.MustCompile(`/users/(?P<id>\d+)`)
 	pathParams := params.ExtractPathParams(pattern, "/users/12")
 
@@ -82,7 +87,8 @@ func TestExtractPathParams(t *testing.T) {
 	}
 }
 
-func TestSimplifiedPattern(t *testing.T) {
+func
+TestSimplifiedPattern(t *testing.T) {
 	pattern := regexp.MustCompile(convertSimplePatternToRegexp("/users/:id"))
 	pathParams := params.ExtractPathParams(pattern, "/users/234feabc1357346781234524")
 
@@ -93,7 +99,8 @@ func TestSimplifiedPattern(t *testing.T) {
 	}
 }
 
-func TestGetRelativePath(t *testing.T) {
+func
+TestGetRelativePath(t *testing.T) {
 	const (
 		basePath     = "/api/v1"
 		absolutePath = "/api/v1/users/1234feabc1357346781234524"
@@ -110,17 +117,18 @@ func TestGetRelativePath(t *testing.T) {
 	}
 }
 
-func BenchmarkGorilla(b *testing.B) {
+func
+BenchmarkGorilla(b *testing.B) {
 	// Create router
 	router := mux.NewRouter()
 	apiRouter := router.PathPrefix("/api/v1").Subrouter()
 	apiRouter.Path("/users/{id:[a-f0-9]{24}}").Methods(http.MethodGet).
 		HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-			getParams := r.URL.Query()
-			vars := mux.Vars(r)
-			fmt.Fprintf(w, "get params: %v, path params: %v", getParams, vars)
-		})
+		getParams := r.URL.Query()
+		vars := mux.Vars(r)
+		fmt.Fprintf(w, "get params: %v, path params: %v", getParams, vars)
+	})
 
 	for i := 0; i < b.N; i++ {
 		processRequest(router, b)
@@ -133,7 +141,13 @@ func BenchmarkCustom(b *testing.B) {
 	if err != nil {
 		b.Errorf("can not create router: %v", err)
 	}
-	err = router.Get("/users/:id", customHandler)
+
+	err = router.Route(Route{
+		Name:    "User by id",
+		Pattern: "/users/:id",
+		Method:  http.MethodGet,
+		Handler: customHandler,
+	})
 	if err != nil {
 		b.Fatalf("%v", err)
 	}
