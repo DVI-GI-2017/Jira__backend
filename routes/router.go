@@ -44,6 +44,7 @@ func (r *router) SetRootPath(path string) error {
 	return nil
 }
 
+// Implements http.Handler interface
 func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	relPath, err := relativePath(r.root.Path, req.URL.Path)
 	if err != nil {
@@ -53,6 +54,7 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	r.handleRequest(w, req, relPath)
 }
 
+// Handles request: iterate over all routes before finds first matching route.
 func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path string) {
 
 	if routeMap, ok := r.routes[req.Method]; ok {
@@ -82,6 +84,7 @@ func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path st
 	fmt.Fprintf(w, "Method: %s not supported", req.Method)
 }
 
+// Add new route.
 func (r *router) Add(route Route) error {
 	pattern := route.Pattern
 	if strings.Contains(pattern, ":") {
