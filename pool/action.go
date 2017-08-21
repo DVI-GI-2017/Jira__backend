@@ -6,7 +6,6 @@ import (
 	"log"
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/services/labels"
 	"github.com/DVI-GI-2017/Jira__backend/services/projects"
 	"github.com/DVI-GI-2017/Jira__backend/services/tasks"
 	"github.com/DVI-GI-2017/Jira__backend/services/users"
@@ -35,10 +34,9 @@ const (
 	FindTaskById    = "FindTaskById"
 
 	// Labels actions
-	CreateLabel      = "CreateLabel"
-	CheckLabelExists = "CheckLabelExists"
-	AllLabels        = "AllLabels"
-	FindLabelById    = "FindLabelById"
+	AddLabelToTask       = "AddLabelToTask"
+	AllLabelsOnTask      = "AllLabelsOnTask"
+	CheckLabelAlreadySet = "CheckLabelAlreadySet"
 )
 
 var typesActionList = [...]string{
@@ -62,10 +60,9 @@ var typesActionList = [...]string{
 	FindTaskById,
 
 	// Labels actions
-	CreateLabel,
-	CheckLabelExists,
-	AllLabels,
-	FindLabelById,
+	AddLabelToTask,
+	CheckLabelAlreadySet,
+	AllLabelsOnTask,
 }
 
 type Action struct {
@@ -157,21 +154,27 @@ func GetServiceByAction(action *Action) (ServiceFunc, error) {
 			return tasks.FindById(mongo, id.(bson.ObjectId))
 		}, nil
 
-	case CreateLabel:
-		return func(mongo *mgo.Database, label interface{}) (interface{}, error) {
-			return labels.Create(mongo, label)
+	case AddLabelToTask:
+		return func(mongo *mgo.Database, data interface{}) (interface{}, error) {
+			dataList := data.([]interface{})
+
+			id := dataList[0].(bson.ObjectId)
+			label := dataList[0].(models.Label)
+
+			return nil, tasks.AddLabelToTask(mongo, id, label)
 		}, nil
-	case CheckLabelExists:
-		return func(mongo *mgo.Database, label interface{}) (interface{}, error) {
-			return labels.CheckExistence(mongo, label.(*models.Label))
+	case CheckLabelAlreadySet:
+		return func(mongo *mgo.Database, data interface{}) (interface{}, error) {
+			dataList := data.([]interface{})
+
+			id := dataList[0].(bson.ObjectId)
+			label := dataList[0].(models.Label)
+
+			return tasks.CheckLabelAlreadySet(mongo, id, label)
 		}, nil
-	case AllLabels:
-		return func(mongo *mgo.Database, _ interface{}) (interface{}, error) {
-			return labels.All(mongo)
-		}, nil
-	case FindLabelById:
+	case AllLabelsOnTask:
 		return func(mongo *mgo.Database, id interface{}) (interface{}, error) {
-			return labels.FindById(mongo, id.(bson.ObjectId))
+			return tasks.AllLabels(mongo, id.(bson.ObjectId))
 		}, nil
 	}
 

@@ -25,8 +25,52 @@ func All(mongo *mgo.Database) (result models.TasksList, err error) {
 	return
 }
 
-func FindById(mongo *mgo.Database, id bson.ObjectId) (*models.TasksList, error) {
-	task := new(models.TasksList)
+func FindById(mongo *mgo.Database, id bson.ObjectId) (*models.Task, error) {
+	task := new(models.Task)
 	err := mongo.C(collection).FindId(id).One(task)
 	return task, err
+}
+
+func CheckLabelAlreadySet(mongo *mgo.Database, id bson.ObjectId, label models.Label) (bool, error) {
+	task, err := FindById(mongo, id)
+
+	if err != nil {
+		return false, err
+	}
+
+	if task.Labels == nil {
+		return false, nil
+	}
+
+	for _, l := range task.Labels {
+		if l == label {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func AddLabelToTask(mongo *mgo.Database, id bson.ObjectId, label models.Label) (error) {
+	task, err := FindById(mongo, id)
+	if err != nil {
+		return err
+	}
+
+	if task.Labels == nil {
+		task.Labels = make(models.LabelsList, 0)
+	}
+
+	task.Labels = append(task.Labels, label)
+
+	return mongo.C(collection).Insert(task)
+}
+
+func AllLabels(mongo *mgo.Database, id bson.ObjectId) (*models.LabelsList, error) {
+	task, err := FindById(mongo, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &task.Labels, nil
 }
