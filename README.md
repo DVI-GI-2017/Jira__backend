@@ -12,11 +12,6 @@
 
 JSON Web Tokens : `dgrijalva/jwt-go` 
 
-```bash
-$ go get github.com/dgrijalva/jwt-go
-$ go get gopkg.in/mgo.v2
-```
-
 #### Генерация ключей
 ```bash
 $ mkdir rsa && cd rsa

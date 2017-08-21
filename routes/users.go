@@ -1,15 +1,23 @@
 package routes
 
 import (
-	"github.com/DVI-GI-2017/Jira__backend/auth"
+	"net/http"
+
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
-	"log"
+	"github.com/DVI-GI-2017/Jira__backend/services/auth"
 )
 
-func usersRoutes(r *router) {
-	const users = "/users"
-	err := r.Get(users, auth.ValidateToken(handlers.AllUsers))
-	if err != nil {
-		log.Panicf("can not init route '%s': %v", users, err)
-	}
+var UsersRoutes = []Route{
+	{
+		Name:    "Get user by id",
+		Pattern: "/users/:id",
+		Method:  http.MethodGet,
+		Handler: auth.ValidateToken(handlers.GetUserById),
+	},
+	{
+		Name:    "All users route",
+		Pattern: "/users",
+		Method:  http.MethodGet,
+		Handler: auth.ValidateToken(handlers.AllUsers),
+	},
 }

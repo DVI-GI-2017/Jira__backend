@@ -1,19 +1,16 @@
 package configs
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
 	"os"
-	"fmt"
-	"encoding/json"
-	"log"
 )
 
 type Config struct {
 	Mongo  *Mongo
 	Server *Server
 }
-
-var ConfigInfo *Config
 
 func FromFile(filename string) (*Config, error) {
 	file, err := os.Open(filename)
@@ -35,14 +32,4 @@ func FromReader(r io.Reader) (*Config, error) {
 	}
 
 	return config, nil
-}
-
-func ParseFromFile(path string) {
-	config, err := FromFile(path)
-
-	if err != nil {
-		log.Panic("bad configs: ", err)
-	}
-
-	ConfigInfo = config
 }

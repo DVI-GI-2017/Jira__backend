@@ -2,18 +2,27 @@ package pool
 
 import (
 	"errors"
-	"github.com/DVI-GI-2017/Jira__backend/db"
-	"github.com/DVI-GI-2017/Jira__backend/services"
+
+	"log"
+
+	"github.com/DVI-GI-2017/Jira__backend/models"
+	"github.com/DVI-GI-2017/Jira__backend/services/users"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
-	Insert        = "Insert"
-	Find          = "Find"
-	InsertAndFind = "Insert and Find"
+	InsertUser           = "InsertUser"
+	CheckUserExists      = "CheckUserExists"
+	CheckUserCredentials = "CheckUserCredentials"
+	FindUserById         = "FindUserById"
+	AllUsers             = "AllUsers"
+	UpdateUser           = "UpdateUser"
 )
 
 var typesActionList = [...]string{
-	Insert, Find, InsertAndFind,
+	InsertUser, FindUserById, CheckUserExists,
+	CheckUserCredentials, AllUsers, UpdateUser,
 }
 
 type Action struct {
@@ -40,17 +49,61 @@ func checkActionType(actionType string) bool {
 	return false
 }
 
-type ServiceFunc func(*db.MongoConnection, interface{}) (interface{}, error)
+type ServiceFunc func(*mgo.Database, interface{}) (interface{}, error)
 
 func GetServiceByAction(action *Action) (ServiceFunc, error) {
 	switch action.Type {
-	case Insert:
-		return services.Insert, nil
-	case Find:
-		return services.GetUserByEmailAndPassword, nil
-	case InsertAndFind:
+	case InsertUser:
+		return users.Insert, nil
+
+	case CheckUserExists:
+		return func(mongo *mgo.Database, credentials interface{}) (interface{}, error) {
+			return users.CheckExistence(mongo, credentials.(*models.Credentials))
+		}, nil
+
+	case CheckUserCredentials:
+		return func(mongo *mgo.Database, credentials interface{}) (interface{}, error) {
+			return users.CheckCredentials(mongo, credentials.(*models.Credentials))
+		}, nil
+
+	case AllUsers:
+		return func(mongo *mgo.Database, _ interface{}) (interface{}, error) {
+			return users.All(mongo)
+		}, nil
+
+	case FindUserById:
+		return func(mongo *mgo.Database, id interface{}) (interface{}, error) {
+			return users.FindUserById(mongo, id.(bson.ObjectId))
+		}, nil
+
+	case UpdateUser:
 		break
 	}
 
-	return services.NullHandler, errors.New("Can't find handler!")
+	return NullHandler, errors.New("Can't find handler!")
+}
+
+// Helper handler for case when handler not found.
+func NullHandler(_ *mgo.Database, _ interface{}) (result interface{}, err error) {
+	return nil, nil
+}
+
+// Creates job with given action and input and returns result.
+func DispatchAction(actionType string, input interface{}) (result interface{}, err error) {
+	action, err := NewAction(actionType)
+	if err != nil {
+		log.Panicf("invalid actionType type: %s", actionType)
+	}
+
+	Queue <- &Job{
+		Input:  input,
+		Action: action,
+	}
+
+	jobResult := <-Results
+
+	result = jobResult.Result
+	err = jobResult.Error
+
+	return
 }

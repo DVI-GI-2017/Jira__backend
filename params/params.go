@@ -46,8 +46,8 @@ func ValuesToGetParams(values url.Values) GetParams {
 	return params
 }
 
-// Example: url "/api/v1/users/1" and pattern `/api/v1/users/(?P<id>\d+)`
-// path params = {"id": "1"}
+// Example: url "/api/v1/users/599a49bacdf43b817eeea57b" and pattern `/api/v1/users/:id`
+// path params = {"id": "599a49bacdf43b817eeea57b"}
 type PathParams map[string]string
 
 // Extract path params from path
