@@ -55,6 +55,8 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 func AllTasks(w http.ResponseWriter, _ *http.Request) {
 	projects, err := pool.DispatchAction(pool.AllTasks, nil)
 	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+
 		fmt.Fprint(w, "Can not return all tasks!")
 		log.Printf("Can not return all tasks: %v", err)
 
@@ -71,6 +73,8 @@ func GetTaskById(w http.ResponseWriter, req *http.Request) {
 		task, err := pool.DispatchAction(pool.FindTaskById, bson.ObjectIdHex(id))
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
+
+			fmt.Fprintln(w, "Can't find task!")
 			log.Printf("Can not find task by id: %v because of: %v", id, err)
 			return
 		}
