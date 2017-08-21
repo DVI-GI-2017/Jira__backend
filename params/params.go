@@ -39,7 +39,7 @@ func ExtractParams(req *http.Request) *Params {
 // Converts url.Url.Query() from "Values" (map[string][]string)
 // to "getParams" (map[string]string)
 func ValuesToGetParams(values url.Values) GetParams {
-	var params map[string]string
+	params := make(map[string]string)
 	for key := range values {
 		params[key] = values.Get(key)
 	}
