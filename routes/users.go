@@ -14,4 +14,10 @@ var UsersRoutes = []Route{
 		Method:  http.MethodGet,
 		Handler: auth.ValidateToken(handlers.AllUsers),
 	},
+	{
+		Name:    "Get user by id",
+		Pattern: "/users/:id",
+		Method:  http.MethodGet,
+		Handler: auth.ValidateToken(handlers.GetUserById),
+	},
 }

@@ -8,21 +8,21 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/services/users"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
 	InsertUser           = "InsertUser"
 	CheckUserExists      = "CheckUserExists"
 	CheckUserCredentials = "CheckUserCredentials"
-	FindUser             = "FindUser"
+	FindUserById         = "FindUserById"
 	AllUsers             = "AllUsers"
 	UpdateUser           = "UpdateUser"
 )
 
 var typesActionList = [...]string{
-	InsertUser, FindUser, CheckUserExists,
-	CheckUserCredentials, FindUser, AllUsers,
-	UpdateUser,
+	InsertUser, FindUserById, CheckUserExists,
+	CheckUserCredentials, AllUsers, UpdateUser,
 }
 
 type Action struct {
@@ -55,18 +55,26 @@ func GetServiceByAction(action *Action) (ServiceFunc, error) {
 	switch action.Type {
 	case InsertUser:
 		return users.Insert, nil
+
 	case CheckUserExists:
 		return func(mongo *mgo.Database, credentials interface{}) (interface{}, error) {
 			return users.CheckExistence(mongo, credentials.(*models.Credentials))
 		}, nil
+
 	case CheckUserCredentials:
 		return func(mongo *mgo.Database, credentials interface{}) (interface{}, error) {
 			return users.CheckCredentials(mongo, credentials.(*models.Credentials))
 		}, nil
-	case FindUser:
-		return users.GetUserByEmailAndPassword, nil
+
 	case AllUsers:
-		return users.All, nil
+		return func(mongo *mgo.Database, _ interface{}) (interface{}, error) {
+			return users.All(mongo)
+		}, nil
+
+	case FindUserById:
+		return func(mongo *mgo.Database, id interface{}) (interface{}, error) {
+			return users.FindUserById(mongo, id.(bson.ObjectId))
+		}, nil
 
 	case UpdateUser:
 		break

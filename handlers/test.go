@@ -26,7 +26,7 @@ func Test(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	action, err := pool.NewAction(pool.FindUser)
+	action, err := pool.NewAction(pool.FindUserById)
 	if err != nil {
 		log.Printf("%v", err)
 

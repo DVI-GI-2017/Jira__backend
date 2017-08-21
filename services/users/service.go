@@ -26,12 +26,11 @@ func All(mongo *mgo.Database) (result models.UsersList, err error) {
 	const defaultSize = 100
 	result = make(models.UsersList, defaultSize)
 
-	err = mongo.C(collection).Find(bson.M{}).All(result)
+	err = mongo.C(collection).Find(bson.M{}).All(&result)
 	return
 }
 
-func GetUserByEmailAndPassword(mongo *mgo.Database, user interface{}) (result interface{}, err error) {
-	result = new(models.User)
-	err = mongo.C(collection).Find(user).One(result)
+func FindUserById(mongo *mgo.Database, id bson.ObjectId) (user *models.User, err error) {
+	err = mongo.C(collection).FindId(id).One(user)
 	return
 }
