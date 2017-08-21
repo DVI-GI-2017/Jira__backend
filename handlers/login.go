@@ -43,6 +43,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 
 	user, err := pool.DispatchAction(pool.InsertUser, credentials)
 	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprint(w, "Can not create your account. Please, try later")
 		log.Printf("can not create user: %v", err)
 

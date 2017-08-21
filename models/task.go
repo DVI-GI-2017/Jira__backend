@@ -7,7 +7,7 @@ import (
 )
 
 type Task struct {
-	Id          bson.ObjectId `json:"_id" bson:"_id"`
+	Id          bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	Title       string        `json:"title" bson:"title"`
 	Description string        `json:"description" bson:"description"`
 	Initiator   *User         `json:"initiator" bson:"initiator"`
