@@ -1,44 +1,82 @@
 package handlers
 
 import (
-//"fmt"
-//"github.com/DVI-GI-2017/Jira__backend/configs"
-//"github.com/DVI-GI-2017/Jira__backend/db"
-//"github.com/DVI-GI-2017/Jira__backend/models"
-//"github.com/DVI-GI-2017/Jira__backend/tools"
-//"gopkg.in/mgo.v2/bson"
-//"net/http"
+	"fmt"
+	"log"
+	"net/http"
+
+	"encoding/json"
+
+	"github.com/DVI-GI-2017/Jira__backend/models"
+	"github.com/DVI-GI-2017/Jira__backend/params"
+	"github.com/DVI-GI-2017/Jira__backend/pool"
+	"github.com/DVI-GI-2017/Jira__backend/tools"
+	"gopkg.in/mgo.v2/bson"
 )
 
-//var Projects = func(w http.ResponseWriter, request *http.Request) {
-//	result := models.Projects{}
-//	project := db.Connection.GetCollection(configs.ConfigInfo.Mongo.Db, db.ProjectCollection)
-//	err := project.Find(nil).All(&result)
-//	if err != nil {
-//		w.WriteHeader(http.StatusNotFound)
-//		fmt.Fprint(w, "Project with id not found!")
-//		return
-//	} else {
-//		tools.JsonResponse(result, w)
-//	}
-//	tools.JsonResponse(db.FakeProjects, w)
-//}
-//
-//var Project = func(w http.ResponseWriter, request *http.Request) {
-//	if !bson.IsObjectIdHex(request.URL.Query().Get(":id")) {
-//		w.WriteHeader(http.StatusNotFound)
-//		fmt.Fprint(w, "Invalid id format!")
-//		return
-//	}
-//	result := models.Project{}
-//	project := db.Connection.GetCollection(configs.ConfigInfo.Mongo.Db, db.ProjectCollection)
-//
-//	err := project.FindId(bson.ObjectIdHex(request.URL.Query().Get(":id"))).One(&result)
-//	if err != nil {
-//		w.WriteHeader(http.StatusNotFound)
-//		fmt.Fprint(w, "Project with id not found!")
-//		return
-//	} else {
-//		tools.JsonResponse(result, w)
-//	}
-//}
+func CreateProject(w http.ResponseWriter, req *http.Request) {
+	body := params.ExtractParams(req).Body
+
+	projectInfo := new(models.Project)
+
+	err := json.Unmarshal(body, projectInfo)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+
+		fmt.Fprint(w, "Error in request!")
+		log.Printf("%v", err)
+
+		return
+	}
+
+	exists, err := pool.DispatchAction(pool.CheckProjectExists, projectInfo)
+	if exists.(bool) {
+		w.WriteHeader(http.StatusConflict)
+		fmt.Fprintf(w, "Project with title: %s already exists!", projectInfo.Title)
+
+		log.Printf("Project with title: %s already exists!", projectInfo.Title)
+
+		return
+	}
+
+	project, err := pool.DispatchAction(pool.CreateProject, projectInfo)
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		fmt.Fprint(w, "Can not create projectInfo. Please, try later")
+		log.Printf("can not create projectInfo: %v", err)
+
+		return
+	}
+
+	tools.JsonResponse(project, w)
+}
+
+func AllProjects(w http.ResponseWriter, _ *http.Request) {
+	projects, err := pool.DispatchAction(pool.AllProjects, nil)
+	if err != nil {
+		fmt.Fprint(w, "Can not return all projects!")
+		log.Printf("Can not return all projects: %v", err)
+
+		return
+	}
+
+	tools.JsonResponse(projects.(models.UsersList), w)
+}
+
+func GetProjectById(w http.ResponseWriter, req *http.Request) {
+	parameters := params.ExtractParams(req).PathParams
+
+	if id, ok := parameters["id"]; ok {
+		user, err := pool.DispatchAction(pool.FindProjectById, bson.ObjectIdHex(id))
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			log.Printf("Can not find user by id: %v because of: %v", id, err)
+			return
+		}
+
+		tools.JsonResponse(user.(*models.Project), w)
+		return
+	}
+
+	http.NotFound(w, req)
+}

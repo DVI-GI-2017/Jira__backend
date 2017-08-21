@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"os/exec"
+
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
 	"github.com/DVI-GI-2017/Jira__backend/services/auth"
-	"log"
-	"net/http"
-	"os/exec"
 )
 
 func rsaInit() {
@@ -49,6 +50,7 @@ func main() {
 	routes.InitRouter(router, routes.LoginRoutes)
 	routes.InitRouter(router, routes.TestRoutes)
 	routes.InitRouter(router, routes.UsersRoutes)
+	routes.InitRouter(router, routes.ProjectRoutes)
 
 	port := config.Server.GetPort()
 
