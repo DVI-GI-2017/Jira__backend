@@ -9,7 +9,7 @@ import (
 const collection = "Users"
 
 func CheckExistence(mongo *mgo.Database, credentials *models.User) (bool, error) {
-	c, err := mongo.C(collection).Find(bson.M{"Email": credentials.Email}).Count()
+	c, err := mongo.C(collection).Find(bson.M{"email": credentials.Email}).Count()
 	return c != 0, err
 }
 
