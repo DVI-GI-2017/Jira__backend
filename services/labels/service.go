@@ -1,4 +1,4 @@
-package projects
+package labels
 
 import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
