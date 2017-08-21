@@ -3,10 +3,11 @@ package routes
 import (
 	"context"
 	"fmt"
-	"github.com/DVI-GI-2017/Jira__backend/params"
 	"net/http"
 	"net/url"
 	"regexp"
+
+	"github.com/DVI-GI-2017/Jira__backend/params"
 )
 
 func NewRouter(rootPath string) (*router, error) {
