@@ -3,12 +3,10 @@ package routes
 import (
 	"context"
 	"fmt"
+	"github.com/DVI-GI-2017/Jira__backend/params"
 	"net/http"
 	"net/url"
 	"regexp"
-	"strings"
-
-	"github.com/DVI-GI-2017/Jira__backend/params"
 )
 
 func NewRouter(rootPath string) (*router, error) {
@@ -87,9 +85,7 @@ func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path st
 // Add new route.
 func (r *router) Add(route Route) error {
 	pattern := route.Pattern
-	if strings.Contains(pattern, ":") {
-		pattern = convertSimplePatternToRegexp(pattern)
-	}
+	pattern = convertSimplePatternToRegexp(pattern)
 
 	compiledPattern, err := regexp.Compile(pattern)
 	if err != nil {
