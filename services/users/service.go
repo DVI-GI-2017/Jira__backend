@@ -26,7 +26,7 @@ func All(mongo *mgo.Database) (result models.UsersList, err error) {
 	const defaultSize = 100
 	result = make(models.UsersList, defaultSize)
 
-	err = mongo.C(collection).Find(bson.M{}).All(&result)
+	err = mongo.C(collection).Find(nil).All(&result)
 	return
 }
 
