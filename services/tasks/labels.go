@@ -26,7 +26,7 @@ func CheckLabelAlreadySet(mongo *mgo.Database, id bson.ObjectId, label models.La
 	return false, nil
 }
 
-func AddLabelToTask(mongo *mgo.Database, id bson.ObjectId, label models.Label) (error) {
+func AddLabelToTask(mongo *mgo.Database, id bson.ObjectId, label models.Label) error {
 	task, err := FindById(mongo, id)
 	if err != nil {
 		return err
@@ -38,7 +38,7 @@ func AddLabelToTask(mongo *mgo.Database, id bson.ObjectId, label models.Label) (
 
 	task.Labels = append(task.Labels, label)
 
-	return mongo.C(collection).Insert(task)
+	return mongo.C(collection).Update(bson.M{"_id": task.Id}, task)
 }
 
 func AllLabels(mongo *mgo.Database, id bson.ObjectId) (*models.LabelsList, error) {

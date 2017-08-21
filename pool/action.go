@@ -159,7 +159,7 @@ func GetServiceByAction(action *Action) (ServiceFunc, error) {
 			dataList := data.([]interface{})
 
 			id := dataList[0].(bson.ObjectId)
-			label := dataList[0].(models.Label)
+			label := dataList[1].(models.Label)
 
 			return nil, tasks.AddLabelToTask(mongo, id, label)
 		}, nil
@@ -168,7 +168,7 @@ func GetServiceByAction(action *Action) (ServiceFunc, error) {
 			dataList := data.([]interface{})
 
 			id := dataList[0].(bson.ObjectId)
-			label := dataList[0].(models.Label)
+			label := dataList[1].(models.Label)
 
 			return tasks.CheckLabelAlreadySet(mongo, id, label)
 		}, nil
