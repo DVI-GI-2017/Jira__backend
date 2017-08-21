@@ -4,7 +4,7 @@ import "gopkg.in/mgo.v2/bson"
 
 type Label struct {
 	Id   bson.ObjectId
-	Name string `json:"name"`
+	Name string `json:"name" bson:"name"`
 }
 
 type LabelsList []Label
