@@ -49,7 +49,7 @@ func (c *MongoConnection) GetCollection(collection string) *mgo.Collection {
 }
 
 // Creates mgo index from custom index type.
-func (c *MongoConnection) CreateIndex(collection *mgo.Collection, index *tools.DBIndex) (err error) {
+func (c *MongoConnection) CreateIndex(collection *mgo.Collection, index *DBIndex) (err error) {
 	err = collection.EnsureIndex(mgo.Index{
 		Key:        index.Key,
 		Unique:     index.Unique,

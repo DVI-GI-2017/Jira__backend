@@ -1,4 +1,4 @@
-package tools
+package db
 
 type DBIndex struct {
 	Key        []string
