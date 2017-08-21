@@ -13,6 +13,11 @@ func CheckExistence(mongo *mgo.Database, credentials *models.Credentials) (bool,
 	return c != 0, err
 }
 
+func CheckCredentials(mongo *mgo.Database, credentials *models.Credentials) (bool, error) {
+	c, err := mongo.C(collection).Find(credentials).Count()
+	return c != 0, err
+}
+
 func Insert(mongo *mgo.Database, user interface{}) (result interface{}, err error) {
 	return user, mongo.C(collection).Insert(user)
 }

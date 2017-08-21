@@ -53,12 +53,12 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 }
 
 func Login(w http.ResponseWriter, req *http.Request) {
-	var credentials models.Credentials
+	credentials := new(models.Credentials)
 
 	parameters := params.ExtractParams(req)
 
-	if err := json.Unmarshal(parameters.Body, &credentials); err != nil {
-		w.WriteHeader(http.StatusForbidden)
+	if err := json.Unmarshal(parameters.Body, credentials); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 
 		fmt.Fprint(w, "Error in request!")
 		log.Printf("%v", err)
@@ -66,37 +66,26 @@ func Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	action, err := pool.NewAction(pool.FindUser)
+	valid, err := pool.DispatchAction(pool.CheckUserCredentials, credentials)
 	if err != nil {
-		log.Printf("%v", err)
+		log.Panicf("%v", err)
+	}
 
-		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprintln(w, "Repeat request, please!")
+	if !valid.(bool) {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintln(w, "User not found!")
+		return
+	}
+
+	token, err := auth.NewToken()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+
+		fmt.Fprintln(w, "Error while signing the token!")
+		log.Printf("%v", err)
 
 		return
 	}
 
-	pool.Queue <- &pool.Job{
-		Input:  credentials,
-		Action: action,
-	}
-
-	result := <-pool.Results
-
-	if result.Error != nil {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintln(w, "User not found!")
-	} else {
-		token, err := auth.NewToken()
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-
-			fmt.Fprintln(w, "Error while signing the token!")
-			log.Printf("%v", err)
-
-			return
-		}
-
-		tools.JsonResponse(token, w)
-	}
+	tools.JsonResponse(token, w)
 }

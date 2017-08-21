@@ -11,15 +11,18 @@ import (
 )
 
 const (
-	InsertUser      = "InsertUser"
-	CheckUserExists = "CheckUserExists"
-	FindUser        = "FindUser"
-	AllUsers        = "AllUsers"
-	UpdateUser      = "UpdateUser"
+	InsertUser           = "InsertUser"
+	CheckUserExists      = "CheckUserExists"
+	CheckUserCredentials = "CheckUserCredentials"
+	FindUser             = "FindUser"
+	AllUsers             = "AllUsers"
+	UpdateUser           = "UpdateUser"
 )
 
 var typesActionList = [...]string{
-	InsertUser, FindUser, CheckUserExists, FindUser, AllUsers, UpdateUser,
+	InsertUser, FindUser, CheckUserExists,
+	CheckUserCredentials, FindUser, AllUsers,
+	UpdateUser,
 }
 
 type Action struct {
@@ -55,6 +58,10 @@ func GetServiceByAction(action *Action) (ServiceFunc, error) {
 	case CheckUserExists:
 		return func(mongo *mgo.Database, credentials interface{}) (interface{}, error) {
 			return users.CheckExistence(mongo, credentials.(*models.Credentials))
+		}, nil
+	case CheckUserCredentials:
+		return func(mongo *mgo.Database, credentials interface{}) (interface{}, error) {
+			return users.CheckCredentials(mongo, credentials.(*models.Credentials))
 		}, nil
 	case FindUser:
 		return users.GetUserByEmailAndPassword, nil
