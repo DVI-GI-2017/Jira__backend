@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"strconv"
 
 	"github.com/DVI-GI-2017/Jira__backend/configs"
+	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
@@ -22,24 +21,19 @@ func rsaInit() {
 	}
 }
 
-func initPort() (port string) {
-	port = os.Getenv("PORT")
-
-	if port == "" {
-		port = strconv.Itoa(configs.ConfigInfo.Server.Port)
-	}
-
-	return
-}
-
 func init() {
-	configs.ParseFromFile("config.json")
-
 	pool.InitWorkers()
 	rsaInit()
 }
 
 func main() {
+	config, err := configs.FromFile("config.json")
+	if err != nil {
+		log.Panicf("can not init config: %v", err)
+	}
+
+	db.InitDB(config.Mongo)
+
 	router, err := routes.NewRouter("/api/v1")
 	if err != nil {
 		log.Fatalf("can not create router: %v", err)
@@ -49,7 +43,7 @@ func main() {
 	routes.InitRouter(router, routes.TestRoutes)
 	routes.InitRouter(router, routes.UsersRoutes)
 
-	port := initPort()
+	port := config.Server.GetPort()
 
 	fmt.Printf("Server started on port %s...\n", port)
 
