@@ -222,13 +222,13 @@ func (r *Router) NewRoute() *Route {
 }
 
 // Handle registers a new route with a matcher for the URL path.
-// See Route.Path() and Route.Handler().
+// See Add.Path() and Add.Handler().
 func (r *Router) Handle(path string, handler http.Handler) *Route {
 	return r.NewRoute().Path(path).Handler(handler)
 }
 
 // HandleFunc registers a new route with a matcher for the URL path.
-// See Route.Path() and Route.HandlerFunc().
+// See Add.Path() and Add.HandlerFunc().
 func (r *Router) HandleFunc(path string, f func(http.ResponseWriter,
 	*http.Request)) *Route {
 	return r.NewRoute().Path(path).HandlerFunc(f)

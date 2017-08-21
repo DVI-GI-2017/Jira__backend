@@ -3,7 +3,6 @@ package routes
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -14,8 +13,10 @@ import (
 
 func NewRouter(rootPath string) (*router, error) {
 	r := &router{}
-	r.getHandlers = make(map[*regexp.Regexp]http.HandlerFunc)
-	r.postHandlers = make(map[*regexp.Regexp]http.HandlerFunc)
+	r.routes = make(map[string]map[*regexp.Regexp]Route)
+
+	r.routes[http.MethodGet] = make(map[*regexp.Regexp]Route)
+	r.routes[http.MethodPost] = make(map[*regexp.Regexp]Route)
 
 	err := r.SetRootPath(rootPath)
 	if err != nil {
@@ -28,8 +29,7 @@ func NewRouter(rootPath string) (*router, error) {
 type router struct {
 	root *url.URL
 
-	getHandlers  map[*regexp.Regexp]http.HandlerFunc
-	postHandlers map[*regexp.Regexp]http.HandlerFunc
+	routes map[string]map[*regexp.Regexp]Route
 }
 
 // Set router root path, other paths will be relative to it
@@ -44,70 +44,49 @@ func (r *router) SetRootPath(path string) error {
 	return nil
 }
 
+// Implements http.Handler interface
 func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	method := req.Method
-
 	relPath, err := relativePath(r.root.Path, req.URL.Path)
 	if err != nil {
 		http.NotFound(w, req)
 	}
 
-	switch method {
+	r.handleRequest(w, req, relPath)
+}
 
-	case http.MethodGet:
-		r.handleGet(w, req, relPath)
-	case http.MethodPost:
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			log.Panicf("invalid body: %v", err)
+// Handles request: iterate over all routes before finds first matching route.
+func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path string) {
+
+	if routeMap, ok := r.routes[req.Method]; ok {
+		for pattern, route := range routeMap {
+			if pattern.MatchString(path) {
+				parameters, err := params.NewParams(req, pattern, path)
+
+				if err != nil {
+					fmt.Printf("error while parsing params: %v", err)
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+
+				req = req.WithContext(context.WithValue(req.Context(), "params", parameters))
+				route.Handler(w, req)
+
+				return
+			}
 		}
 
-		r.handlePost(w, req, relPath)
-	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "method not allowed: %s", method)
+		fmt.Fprintf(w, "Method: %s not allowed on path: %s", req.Method, req.URL.Path)
+
+		return
 	}
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	fmt.Fprintf(w, "Method: %s not supported", req.Method)
 }
 
-func (r *router) handleGet(w http.ResponseWriter, req *http.Request, path string) {
-	for pattern, handler := range r.getHandlers {
-		if pattern.MatchString(path) {
-			parameters, err := params.NewParams(req, pattern, path)
-			if err != nil {
-				fmt.Printf("error while parsing params: %v", err)
-				return
-			}
-
-			req = req.WithContext(context.WithValue(req.Context(), "params", parameters))
-
-			handler(w, req)
-			return
-		}
-	}
-	w.WriteHeader(http.StatusNotFound)
-}
-
-func (r *router) handlePost(w http.ResponseWriter, req *http.Request, path string) {
-	for pattern, handler := range r.postHandlers {
-		if pattern.MatchString(path) {
-			parameters, err := params.NewParams(req, pattern, path)
-			if err != nil {
-				fmt.Printf("error while parsing params: %v", err)
-				return
-			}
-
-			req = req.WithContext(context.WithValue(req.Context(), "params", parameters))
-
-			handler(w, req)
-			return
-		}
-	}
-	w.WriteHeader(http.StatusNotFound)
-}
-
-// Add new GET handler
-func (r *router) Get(pattern string, handler http.HandlerFunc) error {
-
+// Add new route.
+func (r *router) Add(route Route) error {
+	pattern := route.Pattern
 	if strings.Contains(pattern, ":") {
 		pattern = convertSimplePatternToRegexp(pattern)
 	}
@@ -117,47 +96,14 @@ func (r *router) Get(pattern string, handler http.HandlerFunc) error {
 		return err
 	}
 
-	r.getHandlers[compiledPattern] = handler
-
-	return nil
-}
-
-// Add new POST handler
-func (r *router) Post(pattern string, handler http.HandlerFunc) error {
-
-	if strings.Contains(pattern, ":") {
-		pattern = convertSimplePatternToRegexp(pattern)
+	switch route.Method {
+	case http.MethodGet:
+		r.routes[http.MethodGet][compiledPattern] = route
+		return nil
+	case http.MethodPost:
+		r.routes[http.MethodPost][compiledPattern] = route
+		return nil
 	}
 
-	compiledPattern, err := regexp.Compile(pattern)
-	if err != nil {
-		return err
-	}
-
-	r.postHandlers[compiledPattern] = handler
-
-	return nil
-}
-
-func (r *router) Resource(resource string, create, update, receiveAll, receiveOne http.HandlerFunc) error {
-
-	resourceById := fmt.Sprintf("%s/:id", resource)
-
-	if err := r.Post(resource, create); err != nil {
-		return fmt.Errorf("can not init 'create' route: %v", err)
-	}
-
-	if err := r.Get(resource, receiveAll); err != nil {
-		return fmt.Errorf("can not init 'receive all' route: %v", err)
-	}
-
-	if err := r.Get(resourceById, receiveOne); err != nil {
-		return fmt.Errorf("can not init 'receive one' route: %v", err)
-	}
-
-	if err := r.Post(resourceById, update); err != nil {
-		return fmt.Errorf("can not init 'update' route: %v", err)
-	}
-
-	return nil
+	return fmt.Errorf("Error method '%s' not supported.", route.Method)
 }
