@@ -42,3 +42,6 @@ func GetUserById(w http.ResponseWriter, req *http.Request) {
 
 	http.NotFound(w, req)
 }
+
+func NullHandler(_ http.ResponseWriter, _ *http.Request) {
+}
