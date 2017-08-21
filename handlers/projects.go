@@ -42,8 +42,8 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 	project, err := pool.DispatchAction(pool.CreateProject, projectInfo)
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprint(w, "Can not create projectInfo. Please, try later")
-		log.Printf("can not create projectInfo: %v", err)
+		fmt.Fprint(w, "Can not create project. Please, try later")
+		log.Printf("can not create project: %v", err)
 
 		return
 	}
@@ -70,7 +70,7 @@ func GetProjectById(w http.ResponseWriter, req *http.Request) {
 		user, err := pool.DispatchAction(pool.FindProjectById, bson.ObjectIdHex(id))
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
-			log.Printf("Can not find user by id: %v because of: %v", id, err)
+			log.Printf("Can not find task by id: %v because of: %v", id, err)
 			return
 		}
 
