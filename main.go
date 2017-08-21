@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
-
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
 	"github.com/DVI-GI-2017/Jira__backend/services/auth"
+	"log"
+	"net/http"
+	"os/exec"
 )
 
 func rsaInit() {
@@ -22,6 +22,13 @@ func rsaInit() {
 }
 
 func init() {
+	_, err := exec.Command("sh", "-c",
+		"mkdir rsa && cd rsa && "+
+			"openssl genrsa -out app.rsa 1024 && "+
+			"openssl rsa -in app.rsa -pubout > app.rsa.pub").Output()
+	if err != nil {
+		fmt.Println(err)
+	}
 	pool.InitWorkers()
 	rsaInit()
 }
