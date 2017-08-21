@@ -7,7 +7,7 @@ import (
 )
 
 type Project struct {
-	Id          bson.ObjectId
+	Id          bson.ObjectId `json:"_id" bson:"_id"`
 	Title       string    `json:"title" bson:"title"`
 	Description string    `json:"description" bson:"description"`
 	Tasks       TasksList `json:"tasks" bson:"tasks"`

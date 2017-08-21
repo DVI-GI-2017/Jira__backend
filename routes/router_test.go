@@ -60,12 +60,12 @@ func TestExtractPathParams(t *testing.T) {
 
 func TestSimplifiedPattern(t *testing.T) {
 	pattern := regexp.MustCompile(convertSimplePatternToRegexp("/users/:id"))
-	pathParams := params.ExtractPathParams(pattern, "/users/1")
+	pathParams := params.ExtractPathParams(pattern, "/users/599a49bacdf43b817eeea57b")
 
-	expectedPathParams := params.PathParams{"id": "1"}
+	expectedPathParams := params.PathParams{"id": "599a49bacdf43b817eeea57b"}
 
 	if !reflect.DeepEqual(pathParams, expectedPathParams) {
-		t.Fail()
+		t.Fatalf("expected: %v but got: %v", expectedPathParams, pathParams)
 	}
 }
 

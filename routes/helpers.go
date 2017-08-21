@@ -11,11 +11,12 @@ func convertSimplePatternToRegexp(pattern string) string {
 	parts := strings.Split(pattern, "/")
 	for i, part := range parts {
 		if len(part) != 0 && part[0] == ':' {
-			parts[i] = fmt.Sprintf(`(?P<%s>(?:/^[a-f\d]{24}$/i))`, part[1:])
+			parts[i] = fmt.Sprintf(`(?P<%s>[a-f\d]{24})`, part[1:])
 		}
 	}
 
-	return strings.Join(parts, "/")
+	pattern = strings.Join(parts, "/")
+	return pattern
 }
 
 // Return path relative to "base"
@@ -33,5 +34,3 @@ func relativePath(base string, absolute string) (string, error) {
 
 	return absolute[baseLen:], nil
 }
-
-

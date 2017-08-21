@@ -30,7 +30,7 @@ func GetUserById(w http.ResponseWriter, req *http.Request) {
 		user, err := pool.DispatchAction(pool.FindUserById, bson.ObjectIdHex(id))
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
-			log.Printf("Can not find user by id: %v", id)
+			log.Printf("Can not find user by id: %v because of: %v", id, err)
 			return
 		}
 

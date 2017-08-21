@@ -9,15 +9,15 @@ import (
 
 var UsersRoutes = []Route{
 	{
-		Name:    "All users route",
-		Pattern: "/users",
-		Method:  http.MethodGet,
-		Handler: auth.ValidateToken(handlers.AllUsers),
-	},
-	{
 		Name:    "Get user by id",
 		Pattern: "/users/:id",
 		Method:  http.MethodGet,
 		Handler: auth.ValidateToken(handlers.GetUserById),
+	},
+	{
+		Name:    "All users route",
+		Pattern: "/users",
+		Method:  http.MethodGet,
+		Handler: auth.ValidateToken(handlers.AllUsers),
 	},
 }

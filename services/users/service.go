@@ -30,7 +30,8 @@ func All(mongo *mgo.Database) (result models.UsersList, err error) {
 	return
 }
 
-func FindUserById(mongo *mgo.Database, id bson.ObjectId) (user *models.User, err error) {
-	err = mongo.C(collection).FindId(id).One(user)
-	return
+func FindUserById(mongo *mgo.Database, id bson.ObjectId) (*models.User, error) {
+	user := new(models.User)
+	err := mongo.C(collection).FindId(id).One(user)
+	return user, err
 }
