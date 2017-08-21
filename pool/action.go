@@ -7,6 +7,7 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/services/projects"
+	"github.com/DVI-GI-2017/Jira__backend/services/tasks"
 	"github.com/DVI-GI-2017/Jira__backend/services/users"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -25,6 +26,12 @@ const (
 	CheckProjectExists = "CheckProjectExists"
 	AllProjects        = "AllProjects"
 	FindProjectById    = "FindProjectById"
+
+	// Tasks actions
+	CreateTask      = "CreateTask"
+	CheckTaskExists = "CheckTaskExists"
+	AllTasks        = "AllTasks"
+	FindTaskById    = "FindTaskById"
 )
 
 var typesActionList = [...]string{
@@ -40,6 +47,12 @@ var typesActionList = [...]string{
 	CheckProjectExists,
 	AllProjects,
 	FindProjectById,
+
+	// Tasks actions
+	CreateTask,
+	CheckTaskExists,
+	AllTasks,
+	FindTaskById,
 }
 
 type Action struct {
@@ -112,6 +125,23 @@ func GetServiceByAction(action *Action) (ServiceFunc, error) {
 	case FindProjectById:
 		return func(mongo *mgo.Database, id interface{}) (interface{}, error) {
 			return projects.FindById(mongo, id.(bson.ObjectId))
+		}, nil
+
+	case CreateTask:
+		return func(mongo *mgo.Database, task interface{}) (interface{}, error) {
+			return tasks.Create(mongo, task)
+		}, nil
+	case CheckTaskExists:
+		return func(mongo *mgo.Database, task interface{}) (interface{}, error) {
+			return tasks.CheckExistence(mongo, task.(*models.Task))
+		}, nil
+	case AllTasks:
+		return func(mongo *mgo.Database, _ interface{}) (interface{}, error) {
+			return tasks.All(mongo)
+		}, nil
+	case FindTaskById:
+		return func(mongo *mgo.Database, id interface{}) (interface{}, error) {
+			return tasks.FindById(mongo, id.(bson.ObjectId))
 		}, nil
 	}
 
