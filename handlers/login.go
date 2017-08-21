@@ -14,12 +14,12 @@ import (
 )
 
 func RegisterUser(w http.ResponseWriter, req *http.Request) {
-	var credentials models.Credentials
+	credentials := new(models.Credentials)
 
 	parameters := params.ExtractParams(req)
 
-	if err := json.Unmarshal(parameters.Body, &credentials); err != nil {
-		w.WriteHeader(http.StatusForbidden)
+	if err := json.Unmarshal(parameters.Body, credentials); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 
 		fmt.Fprint(w, "Error in request!")
 		log.Printf("%v", err)
@@ -27,46 +27,29 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	action, err := pool.NewAction(pool.FindUser)
+	exists, err := pool.DispatchAction(pool.CheckUserExists, credentials)
 	if err != nil {
-		log.Printf("%v", err)
+		log.Panicf("%v", err)
+	}
 
-		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprintln(w, "Repeat request, please!")
+	if exists.(bool) {
+		w.WriteHeader(http.StatusConflict)
+		fmt.Fprintf(w, "User with email: %s already exists!", credentials.Email)
+
+		log.Printf("User with email: %s already exists!", credentials.Email)
 
 		return
 	}
 
-	pool.Queue <- &pool.Job{
-		ModelType: credentials,
-		Action:    action,
+	user, err := pool.DispatchAction(pool.InsertUser, credentials)
+	if err != nil {
+		fmt.Fprint(w, "Can not create your account. Please, try later")
+		log.Printf("can not create user: %v", err)
+
+		return
 	}
 
-	result := <-pool.Results
-
-	if value := tools.GetValueFromModel(result.ResultType, "Email"); value == "" {
-		action, err = pool.NewAction(pool.InsertUser)
-		if err != nil {
-			log.Printf("%v", err)
-
-			w.WriteHeader(http.StatusBadGateway)
-			fmt.Fprintln(w, "Repeat request, please!")
-
-			return
-		}
-
-		pool.Queue <- &pool.Job{
-			ModelType: credentials,
-			Action:    action,
-		}
-
-		result = <-pool.Results
-
-		tools.JsonResponse(result.ResultType, w)
-	} else {
-		w.WriteHeader(http.StatusConflict)
-		fmt.Fprint(w, "User with this email already exists!")
-	}
+	tools.JsonResponse(user, w)
 }
 
 func Login(w http.ResponseWriter, req *http.Request) {
@@ -94,8 +77,8 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	}
 
 	pool.Queue <- &pool.Job{
-		ModelType: credentials,
-		Action:    action,
+		Input:  credentials,
+		Action: action,
 	}
 
 	result := <-pool.Results

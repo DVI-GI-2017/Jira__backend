@@ -10,7 +10,7 @@ import (
 )
 
 type Token struct {
-	Token string `json:"token"`
+	Token string `json:"token" bson:"token"`
 }
 
 func NewToken() (Token, error) {
@@ -26,7 +26,7 @@ func NewToken() (Token, error) {
 	result, err := token.SignedString(SignKey)
 
 	if err != nil {
-		return Token{result}, fmt.Errorf("can not create signed string: %v", err)
+		return Token{Token: result}, fmt.Errorf("can not create signed string: %v", err)
 	}
 
 	return Token{result}, nil

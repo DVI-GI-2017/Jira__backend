@@ -8,6 +8,11 @@ import (
 
 const collection = "Users"
 
+func CheckExistence(mongo *mgo.Database, credentials *models.Credentials) (bool, error) {
+	c, err := mongo.C(collection).Find(bson.M{"Email": credentials.Email}).Count()
+	return c != 0, err
+}
+
 func Insert(mongo *mgo.Database, user interface{}) (result interface{}, err error) {
 	return user, mongo.C(collection).Insert(user)
 }

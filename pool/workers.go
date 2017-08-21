@@ -8,14 +8,14 @@ import (
 )
 
 type Job struct {
-	Action    *Action
-	ModelType interface{}
+	Action *Action
+	Input  interface{}
 }
 
 type JobResult struct {
 	WorkerId   int
 	Error      error
-	ResultType interface{}
+	Result interface{}
 }
 
 var Queue = make(chan *Job, 512)
@@ -31,7 +31,7 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	for job := range queue {
 		function, _ := GetServiceByAction(job.Action)
 
-		result, err := function(db.GetDB(), job.ModelType)
+		result, err := function(db.GetDB(), job.Input)
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
 			go func(job *Job, queue chan *Job) {
 				queue <- job
@@ -43,7 +43,7 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 		results <- &JobResult{
 			WorkerId:   id,
 			Error:      err,
-			ResultType: result,
+			Result: result,
 		}
 	}
 }

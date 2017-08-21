@@ -15,8 +15,8 @@ func AllUsers(w http.ResponseWriter, _ *http.Request) {
 	action, _ := pool.NewAction(pool.AllUsers)
 
 	pool.Queue <- &pool.Job{
-		ModelType: users,
-		Action:    action,
+		Input:  users,
+		Action: action,
 	}
 
 	result := <-pool.Results
@@ -25,6 +25,6 @@ func AllUsers(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprintln(w, "Unauthorized!")
 	} else {
-		tools.JsonResponse(result.ResultType, w)
+		tools.JsonResponse(result.Result, w)
 	}
 }
