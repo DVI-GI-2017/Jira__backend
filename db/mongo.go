@@ -3,6 +3,8 @@ package db
 import (
 	"fmt"
 
+	"log"
+
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"gopkg.in/mgo.v2"
 )
@@ -12,7 +14,7 @@ var database *mgo.Database
 
 // Initialize global database instance
 func InitDB(mongo *configs.Mongo) error {
-	fmt.Println("Connecting to local mongo server....")
+	log.Println("Connecting to local mongo server....")
 
 	session, err := mgo.Dial(mongo.URL())
 	if err != nil {
