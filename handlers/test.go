@@ -37,8 +37,8 @@ func Test(w http.ResponseWriter, req *http.Request) {
 	}
 
 	pool.Queue <- &pool.Job{
-		ModelType: user,
-		Action:    action,
+		Input:  user,
+		Action: action,
 	}
 
 	result := <-pool.Results
@@ -47,6 +47,6 @@ func Test(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprintln(w, "Unauthorized!")
 	} else {
-		tools.JsonResponse(result.ResultType, w)
+		tools.JsonResponse(result.Result, w)
 	}
 }

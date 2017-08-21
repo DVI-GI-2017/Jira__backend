@@ -13,7 +13,7 @@ type User struct {
 	FirstName string        `json:"first_name"`
 	LastName  string        `json:"last_name"`
 	Bio       string        `json:"bio"`
-	Tasks     TasksList   `json:"tasks"`
+	Tasks     TasksList     `json:"tasks"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt time.Time     `json:"updated_at"`
 	IsAuth    bool          `json:"is_auth"`
