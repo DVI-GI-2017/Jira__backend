@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
 )
 
@@ -32,6 +33,13 @@ func initPort() (port string) {
 }
 
 func init() {
+	out, err := exec.Command("sh", "-c", "mkdir rsa && cd rsa && openssl genrsa -out app.rsa 1024 && openssl rsa -in app.rsa -pubout > app.rsa.pub").Output()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("%s", out)
+
 	configs.ParseFromFile("config.json")
 
 	pool.InitWorkers()
