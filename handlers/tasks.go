@@ -18,7 +18,9 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 
 	taskInfo := new(models.Task)
 
-	err := json.Unmarshal(body, taskInfo)
+	fmt.Println(body)
+	fmt.Println(taskInfo)
+	err := json.Unmarshal(body, &taskInfo)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 
@@ -28,7 +30,7 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	exists, err := pool.DispatchAction(pool.CheckProjectExists, taskInfo)
+	exists, err := pool.DispatchAction(pool.CheckTaskExists, taskInfo)
 	if exists.(bool) {
 		w.WriteHeader(http.StatusConflict)
 		fmt.Fprintf(w, "Task with title: %s already exists!", taskInfo.Title)
@@ -53,13 +55,15 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 func AllTasks(w http.ResponseWriter, _ *http.Request) {
 	projects, err := pool.DispatchAction(pool.AllTasks, nil)
 	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+
 		fmt.Fprint(w, "Can not return all tasks!")
 		log.Printf("Can not return all tasks: %v", err)
 
 		return
 	}
 
-	tools.JsonResponse(projects.(models.UsersList), w)
+	tools.JsonResponse(projects.(models.TasksList), w)
 }
 
 func GetTaskById(w http.ResponseWriter, req *http.Request) {
@@ -69,6 +73,8 @@ func GetTaskById(w http.ResponseWriter, req *http.Request) {
 		task, err := pool.DispatchAction(pool.FindTaskById, bson.ObjectIdHex(id))
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
+
+			fmt.Fprintln(w, "Can't find task!")
 			log.Printf("Can not find task by id: %v because of: %v", id, err)
 			return
 		}
