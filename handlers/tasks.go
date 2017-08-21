@@ -59,7 +59,7 @@ func AllTasks(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	tools.JsonResponse(projects.(models.UsersList), w)
+	tools.JsonResponse(projects.(models.TasksList), w)
 }
 
 func GetTaskById(w http.ResponseWriter, req *http.Request) {
