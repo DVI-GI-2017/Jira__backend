@@ -13,32 +13,7 @@ func CheckLabelAlreadySet(mongo *mgo.Database, id bson.ObjectId, label models.La
 		return false, err
 	}
 
-	if task.Labels == nil {
-		return false, nil
-	}
-
-	for _, l := range task.Labels {
-		if l == label {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
-
-func AddLabelToTask(mongo *mgo.Database, id bson.ObjectId, label models.Label) error {
-	task, err := FindById(mongo, id)
-	if err != nil {
-		return err
-	}
-
-	if task.Labels == nil {
-		task.Labels = make(models.LabelsList, 0)
-	}
-
-	task.Labels = append(task.Labels, label)
-
-	return mongo.C(collection).Update(bson.M{"_id": task.Id}, task)
+	return task.HasLabel(label), nil
 }
 
 func AllLabels(mongo *mgo.Database, id bson.ObjectId) (*models.LabelsList, error) {
@@ -48,4 +23,16 @@ func AllLabels(mongo *mgo.Database, id bson.ObjectId) (*models.LabelsList, error
 	}
 
 	return &task.Labels, nil
+}
+
+func AddLabelToTask(mongo *mgo.Database, id bson.ObjectId, label models.Label) error {
+	task, err := FindById(mongo, id)
+	if err != nil {
+		return err
+	}
+
+	newTask := task.Copy()
+	newTask.AddLabel(label)
+
+	return mongo.C(collection).Update(task, newTask)
 }

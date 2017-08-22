@@ -13,8 +13,13 @@ func CheckExistence(mongo *mgo.Database, task *models.Task) (bool, error) {
 	return c != 0, err
 }
 
-func Create(mongo *mgo.Database, task interface{}) (result interface{}, err error) {
-	return task, mongo.C(collection).Insert(task)
+func Create(mongo *mgo.Database, task interface{}) (interface{}, error) {
+	err := mongo.C(collection).Insert(task)
+	if err != nil {
+		return nil, err
+	}
+	err = mongo.C(collection).Find(task).One(task)
+	return task, err
 }
 
 func All(mongo *mgo.Database) (result models.TasksList, err error) {
@@ -26,7 +31,7 @@ func All(mongo *mgo.Database) (result models.TasksList, err error) {
 }
 
 func FindById(mongo *mgo.Database, id bson.ObjectId) (*models.Task, error) {
-	task := new(models.Task)
+	task := models.NewTask()
 	err := mongo.C(collection).FindId(id).One(task)
 	return task, err
 }
