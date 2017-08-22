@@ -174,23 +174,17 @@ func GetServiceByAction(action *Action) (service ServiceFunc, err error) {
 
 	case AddLabelToTask:
 		service = func(source db.DataSource, data interface{}) (interface{}, error) {
-			dataList := data.([]interface{})
+			taskLabel := data.(models.TaskLabel)
 
-			id := dataList[0].(bson.ObjectId)
-			label := dataList[1].(models.Label)
-
-			return tasks.AddLabelToTask(source, id, label)
+			return tasks.AddLabelToTask(source, taskLabel.TaskId, taskLabel.Label)
 		}
 		return
 
 	case CheckLabelAlreadySet:
 		service = func(source db.DataSource, data interface{}) (interface{}, error) {
-			dataList := data.([]interface{})
+			taskLabel := data.(models.TaskLabel)
 
-			id := dataList[0].(bson.ObjectId)
-			label := dataList[1].(models.Label)
-
-			return tasks.CheckLabelAlreadySet(source, id, label)
+			return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
 		}
 		return
 

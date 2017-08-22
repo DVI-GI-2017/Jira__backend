@@ -24,3 +24,9 @@ func (t *Task) HasLabel(label Label) bool {
 
 	return false
 }
+
+// Helper structure for label associated with task.
+type TaskLabel struct {
+	TaskId bson.ObjectId
+	Label  Label
+}
