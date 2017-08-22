@@ -48,3 +48,19 @@ func FindTaskById(source db.DataSource, id bson.ObjectId) (task models.Task, err
 	}
 	return task, nil
 }
+
+// Updates task and returns new if OK.
+func UpdateTask(source db.DataSource, task_id bson.ObjectId, update interface{}) (models.Task, error) {
+	task, err := FindTaskById(source, task_id)
+	if err != nil {
+		return models.Task{},
+			fmt.Errorf("can not find task with id '%s': %s", task_id.Hex(), err)
+	}
+
+	err = source.C(cTasks).Update(bson.M{"_id": task.Id}, update)
+	if err != nil {
+		return models.Task{}, fmt.Errorf("can not update task: %v", err)
+	}
+
+	return task, err
+}

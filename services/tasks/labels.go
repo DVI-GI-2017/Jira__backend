@@ -39,11 +39,11 @@ func AddLabelToTask(source db.DataSource, task_id bson.ObjectId, label models.La
 
 	labels := append(task.Labels, label)
 
-	err = source.C(cTasks).Update(bson.M{"_id": task_id}, bson.M{"labels": labels})
+	newTask, err := UpdateTask(source, task_id, bson.M{"labels": labels})
 	if err != nil {
 		return models.LabelsList{},
 			fmt.Errorf("can not update labels '%v' on task '%s': %v", labels, task.Id.Hex(), err)
 	}
 
-	return labels, nil
+	return newTask.Labels, nil
 }
