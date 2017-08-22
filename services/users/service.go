@@ -8,17 +8,17 @@ import (
 
 const collectionUsers = "users"
 
-func CheckExistence(source db.DataSource, credentials *models.User) (bool, error) {
+func CheckExistence(source db.DataSource, credentials models.User) (bool, error) {
 	empty, err := source.C(collectionUsers).Find(bson.M{"email": credentials.Email}).IsEmpty()
 	return !empty, err
 }
 
-func CheckCredentials(source db.DataSource, credentials *models.User) (bool, error) {
+func CheckCredentials(source db.DataSource, credentials models.User) (bool, error) {
 	empty, err := source.C(collectionUsers).Find(credentials).IsEmpty()
 	return !empty, err
 }
 
-func CreateUser(source db.DataSource, user interface{}) (result interface{}, err error) {
+func CreateUser(source db.DataSource, user models.User) (result interface{}, err error) {
 	return source.C(collectionUsers).Insert(user)
 }
 

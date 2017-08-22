@@ -25,14 +25,14 @@ func AllLabels(source db.DataSource, id bson.ObjectId) (models.LabelsList, error
 	return task.Labels, nil
 }
 
-func AddLabelToTask(source db.DataSource, id bson.ObjectId, label models.Label) error {
-	task, err := FindById(source, id)
+// Adds label to task and returns new list of labels on this task.
+func AddLabelToTask(source db.DataSource, task_id bson.ObjectId, label models.Label) (models.LabelsList, error) {
+	task, err := FindById(source, task_id)
 	if err != nil {
-		return err
+		return models.LabelsList{}, err
 	}
 
-	newTask := task.Copy()
-	newTask.AddLabel(label)
+	labels := append(task.Labels, label)
 
-	return source.C(collection).Update(task, newTask)
+	return labels, source.C(collectionTasks).Update(task, bson.M{"labels": labels})
 }

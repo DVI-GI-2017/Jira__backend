@@ -6,31 +6,33 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const collection = "tasks"
+const collectionTasks = "tasks"
 
-func CheckExistence(source db.DataSource, task *models.Task) (bool, error) {
-	c, err := source.C(collection).Find(bson.M{"title": task.Title}).Count()
-	return c != 0, err
+func CheckTaskExists(source db.DataSource, task models.Task) (bool, error) {
+	c, err := source.C(collectionTasks).Find(bson.M{"title": task.Title}).IsEmpty()
+	return !c, err
 }
 
-func Create(source db.DataSource, task interface{}) (interface{}, error) {
-	err := source.C(collection).Insert(task)
+func CreateTask(source db.DataSource, task models.Task) (models.Task, error) {
+	newTask, err := source.C(collectionTasks).Insert(task)
 	if err != nil {
-		return nil, err
+		return models.Task{}, err
 	}
-	err = source.C(collection).Find(task).One(task)
-	return task, err
+	return newTask.(models.Task), nil
 }
 
-func All(source db.DataSource) (result models.TasksList, err error) {
-	result = make(models.TasksList, 0)
-
-	err = source.C(collection).Find(bson.M{}).All(&result)
-	return
+func AllTasks(source db.DataSource) (models.TasksList, error) {
+	result, err := source.C(collectionTasks).Find(nil).All()
+	if err != nil {
+		return models.TasksList{}, err
+	}
+	return result.(models.TasksList), nil
 }
 
-func FindById(source db.DataSource, id bson.ObjectId) (*models.Task, error) {
-	task := models.NewTask()
-	err := source.C(collection).FindId(id).One(task)
-	return task, err
+func FindById(source db.DataSource, id bson.ObjectId) (models.Task, error) {
+	result, err := source.C(collectionTasks).FindId(id).One()
+	if err != nil {
+		return models.Task{}, err
+	}
+	return result.(models.Task), nil
 }

@@ -8,12 +8,12 @@ import (
 
 const collection = "projects"
 
-func CheckExistence(source db.DataSource, project *models.Project) (bool, error) {
+func CheckExistence(source db.DataSource, project models.Project) (bool, error) {
 	empty, err := source.C(collection).Find(bson.M{"title": project.Title}).IsEmpty()
 	return !empty, err
 }
 
-func Create(source db.DataSource, project interface{}) (result interface{}, err error) {
+func Create(source db.DataSource, project models.Project) (result interface{}, err error) {
 	return source.C(collection).Insert(project)
 }
 
