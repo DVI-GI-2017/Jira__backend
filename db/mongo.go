@@ -29,6 +29,11 @@ func InitDB(mongo *configs.Mongo) error {
 }
 
 // Returns current db with new session
-func GetDB() *mgo.Database {
+func Copy() *mgo.Database {
 	return database.With(database.Session.Copy())
+}
+
+// Returns current db.
+func Get() *mgo.Database {
+	return database
 }
