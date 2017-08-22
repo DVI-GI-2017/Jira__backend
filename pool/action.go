@@ -102,13 +102,13 @@ func GetServiceByAction(action *Action) (service ServiceFunc, err error) {
 
 	case CheckUserExists:
 		service = func(source db.DataSource, credentials interface{}) (result interface{}, err error) {
-			return users.CheckExistence(source, credentials.(models.User))
+			return users.CheckUserExists(source, credentials.(models.User))
 		}
 		return
 
 	case CheckUserCredentials:
 		service = func(source db.DataSource, credentials interface{}) (interface{}, error) {
-			return users.CheckCredentials(source, credentials.(models.User))
+			return users.CheckUserCredentials(source, credentials.(models.User))
 		}
 		return
 
