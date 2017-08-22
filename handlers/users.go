@@ -1,44 +1,34 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
-
-	"log"
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/params"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Returns all users.
 func AllUsers(w http.ResponseWriter, _ *http.Request) {
 	users, err := pool.DispatchAction(pool.AllUsers, nil)
 	if err != nil {
-		fmt.Fprint(w, "Can not return all users!")
-		log.Printf("Can not return all users: %v", err)
-
+		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
-	tools.JsonResponse(users.(models.UsersList), w)
+	JsonResponse(w, users.(models.UsersList))
 }
 
+// Returns user with given id.
+// Path param: "id" - user id.
 func GetUserById(w http.ResponseWriter, req *http.Request) {
-	parameters := params.ExtractParams(req).PathParams
-
-	if id, ok := parameters["id"]; ok {
-		user, err := pool.DispatchAction(pool.FindUserById, bson.ObjectIdHex(id))
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-			log.Printf("Can not find user by id: %v because of: %v", id, err)
-			return
-		}
-
-		tools.JsonResponse(user.(*models.User), w)
+	id := params.ExtractParams(req).PathParams["id"]
+	user, err := pool.DispatchAction(pool.FindUserById, bson.ObjectIdHex(id))
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
-	http.NotFound(w, req)
+	JsonResponse(w, user.(models.User))
 }
