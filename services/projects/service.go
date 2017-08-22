@@ -31,19 +31,19 @@ func CreateProject(source db.DataSource, project models.Project) (models.Project
 }
 
 // Returns all projects.
-func AllProjects(source db.DataSource) (models.ProjectsList, error) {
-	result, err := source.C(cProjects).Find(bson.M{}).All()
+func AllProjects(source db.DataSource) (result models.ProjectsList, err error) {
+	err = source.C(cProjects).Find(bson.M{}).All(&result)
 	if err != nil {
 		return models.ProjectsList{}, fmt.Errorf("can not retrieve all projects: %v", err)
 	}
-	return result.(models.ProjectsList), nil
+	return result, nil
 }
 
 // Returns task with given id.
-func FindProjectById(mongo db.DataSource, id bson.ObjectId) (models.Project, error) {
-	result, err := mongo.C(cProjects).FindId(id).One()
+func FindProjectById(mongo db.DataSource, id bson.ObjectId) (result models.Project, err error) {
+	err = mongo.C(cProjects).FindId(id).One(&result)
 	if err != nil {
 		return models.Project{}, fmt.Errorf("can not find project with id '%s': %v", id, err)
 	}
-	return result.(models.Project), nil
+	return result, nil
 }

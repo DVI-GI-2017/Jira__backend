@@ -40,19 +40,19 @@ func CreateUser(source db.DataSource, user models.User) (models.User, error) {
 }
 
 // Returns all users.
-func AllUsers(source db.DataSource) (models.UsersList, error) {
-	result, err := source.C(cUsers).Find(nil).All()
+func AllUsers(source db.DataSource) (usersLists models.UsersList, err error) {
+	err = source.C(cUsers).Find(nil).All(&usersLists)
 	if err != nil {
 		return models.UsersList{}, fmt.Errorf("can not retrieve all users: %v", err)
 	}
-	return result.(models.UsersList), nil
+	return usersLists, nil
 }
 
 // Returns user with given id.
-func FindUserById(source db.DataSource, id bson.ObjectId) (models.User, error) {
-	user, err := source.C(cUsers).FindId(id).One()
+func FindUserById(source db.DataSource, id bson.ObjectId) (user models.User, err error) {
+	err = source.C(cUsers).FindId(id).One(&user)
 	if err != nil {
 		return models.User{}, fmt.Errorf("can not find user with id '%s': %v", id, err)
 	}
-	return user.(models.User), nil
+	return user, nil
 }

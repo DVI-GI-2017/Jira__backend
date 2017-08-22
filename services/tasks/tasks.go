@@ -31,19 +31,19 @@ func CreateTask(source db.DataSource, task models.Task) (models.Task, error) {
 }
 
 // Returns all tasks.
-func AllTasks(source db.DataSource) (models.TasksList, error) {
-	result, err := source.C(cTasks).Find(nil).All()
+func AllTasks(source db.DataSource) (tasksLists models.TasksList, err error) {
+	err = source.C(cTasks).Find(nil).All(&tasksLists)
 	if err != nil {
 		return models.TasksList{}, fmt.Errorf("can not retrieve all tasks: %v", err)
 	}
-	return result.(models.TasksList), nil
+	return tasksLists, nil
 }
 
 // Returns task with given id
-func FindTaskById(source db.DataSource, id bson.ObjectId) (models.Task, error) {
-	result, err := source.C(cTasks).FindId(id).One()
+func FindTaskById(source db.DataSource, id bson.ObjectId) (task models.Task, err error) {
+	err = source.C(cTasks).FindId(id).One(&task)
 	if err != nil {
 		return models.Task{}, fmt.Errorf("can not find task with id '%s': %v", id, err)
 	}
-	return result.(models.Task), nil
+	return task, nil
 }

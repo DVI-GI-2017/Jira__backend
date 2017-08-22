@@ -53,7 +53,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 
 	parameters := params.ExtractParams(req)
 
-	if err := json.Unmarshal(parameters.Body, credentials); err != nil {
+	if err := json.Unmarshal(parameters.Body, &credentials); err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
