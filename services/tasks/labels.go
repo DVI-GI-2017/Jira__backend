@@ -16,13 +16,13 @@ func CheckLabelAlreadySet(source db.DataSource, id bson.ObjectId, label models.L
 	return task.HasLabel(label), nil
 }
 
-func AllLabels(source db.DataSource, id bson.ObjectId) (*models.LabelsList, error) {
+func AllLabels(source db.DataSource, id bson.ObjectId) (models.LabelsList, error) {
 	task, err := FindById(source, id)
 	if err != nil {
-		return nil, err
+		return models.LabelsList{}, err
 	}
 
-	return &task.Labels, nil
+	return task.Labels, nil
 }
 
 func AddLabelToTask(source db.DataSource, id bson.ObjectId, label models.Label) error {

@@ -15,7 +15,7 @@ import (
 
 const (
 	//Users actions
-	InsertUser           = "InsertUser"
+	CreateUser           = "CreateUser"
 	CheckUserExists      = "CheckUserExists"
 	CheckUserCredentials = "CheckUserCredentials"
 	FindUserById         = "FindUserById"
@@ -41,7 +41,7 @@ const (
 
 var typesActionList = [...]string{
 	// Users actions
-	InsertUser,
+	CreateUser,
 	CheckUserExists,
 	CheckUserCredentials,
 	FindUserById,
@@ -94,8 +94,8 @@ type ServiceFunc func(*mgo.Database, interface{}) (interface{}, error)
 func GetServiceByAction(action *Action) (ServiceFunc, error) {
 	switch action.Type {
 
-	case InsertUser:
-		return users.Insert, nil
+	case CreateUser:
+		return users.CreateUser, nil
 
 	case CheckUserExists:
 		return func(mongo *mgo.Database, credentials interface{}) (interface{}, error) {
@@ -109,7 +109,7 @@ func GetServiceByAction(action *Action) (ServiceFunc, error) {
 
 	case AllUsers:
 		return func(mongo *mgo.Database, _ interface{}) (interface{}, error) {
-			return users.All(mongo)
+			return users.AllUsers(mongo)
 		}, nil
 
 	case FindUserById:

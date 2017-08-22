@@ -12,6 +12,9 @@ type Collection interface {
 
 	// Inserts object in collection and returns its value
 	Insert(value interface{}) (result interface{}, err error)
+
+	// Finds object with "selector" and update it using "update" object.
+	Update(selector, update interface{}) error
 }
 
 // Wrapper around *mgo.Collection
@@ -36,4 +39,9 @@ func (c MongoCollection) Insert(value interface{}) (result interface{}, err erro
 		return nil, err
 	}
 	return c.Find(value).One()
+}
+
+// Updates collection documents found by selector with "update" document.
+func (c MongoCollection) Update(selector, update interface{}) error {
+	return c.Collection.Update(selector, update)
 }

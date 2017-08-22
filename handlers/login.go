@@ -41,7 +41,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	user, err := pool.DispatchAction(pool.InsertUser, credentials)
+	user, err := pool.DispatchAction(pool.CreateUser, credentials)
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprint(w, "Can not create your account. Please, try later")
