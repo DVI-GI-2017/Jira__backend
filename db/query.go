@@ -15,6 +15,9 @@ type Query interface {
 
 	// Count all objects in query
 	Count() (count int, err error)
+
+	// Returns true if query is empty
+	IsEmpty() (empty bool, err error)
 }
 
 // Wrapper around *mgo.Query
@@ -37,4 +40,10 @@ func (q MongoQuery) One() (result interface{}, err error) {
 // Count objects in query
 func (q MongoQuery) Count() (count int, err error) {
 	return q.Query.Count()
+}
+
+// Returns true if query is empty
+func (q MongoQuery) IsEmpty() (empty bool, err error) {
+	count, err := q.Count()
+	return count == 0, err
 }

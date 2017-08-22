@@ -6,32 +6,34 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const collection = "users"
+const collectionUsers = "users"
 
 func CheckExistence(source db.DataSource, credentials *models.User) (bool, error) {
-	c, err := source.C(collection).Find(bson.M{"email": credentials.Email}).Count()
-	return c != 0, err
+	empty, err := source.C(collectionUsers).Find(bson.M{"email": credentials.Email}).IsEmpty()
+	return !empty, err
 }
 
 func CheckCredentials(source db.DataSource, credentials *models.User) (bool, error) {
-	c, err := source.C(collection).Find(credentials).Count()
-	return c != 0, err
+	empty, err := source.C(collectionUsers).Find(credentials).IsEmpty()
+	return !empty, err
 }
 
-func Insert(source db.DataSource, user interface{}) (result interface{}, err error) {
-	return user, source.C(collection).Insert(user)
+func CreateUser(source db.DataSource, user interface{}) (result interface{}, err error) {
+	return source.C(collectionUsers).Insert(user)
 }
 
-func All(source db.DataSource) (result models.UsersList, err error) {
-	const defaultSize = 100
-	result = make(models.UsersList, defaultSize)
-
-	err = source.C(collection).Find(nil).All(&result)
-	return
+func AllUsers(source db.DataSource) (models.UsersList, error) {
+	result, err := source.C(collectionUsers).Find(nil).All()
+	if err != nil {
+		return models.UsersList{}, err
+	}
+	return result.(models.UsersList), err
 }
 
-func FindUserById(source db.DataSource, id bson.ObjectId) (*models.User, error) {
-	user := new(models.User)
-	err := source.C(collection).FindId(id).One(user)
-	return user, err
+func FindUserById(source db.DataSource, id bson.ObjectId) (models.User, error) {
+	user, err := source.C(collectionUsers).FindId(id).One()
+	if err != nil {
+		return models.User{}, err
+	}
+	return user.(models.User), err
 }
