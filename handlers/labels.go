@@ -41,7 +41,7 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 
 	labels, err := pool.DispatchAction(pool.AddLabelToTask, taskLabel)
 	if err != nil {
-		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 

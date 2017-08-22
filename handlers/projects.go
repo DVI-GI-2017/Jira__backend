@@ -46,7 +46,7 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 func AllProjects(w http.ResponseWriter, _ *http.Request) {
 	projects, err := pool.DispatchAction(pool.AllProjects, nil)
 	if err != nil {
-		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
@@ -60,7 +60,7 @@ func GetProjectById(w http.ResponseWriter, req *http.Request) {
 
 	user, err := pool.DispatchAction(pool.FindProjectById, bson.ObjectIdHex(id))
 	if err != nil {
-		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
