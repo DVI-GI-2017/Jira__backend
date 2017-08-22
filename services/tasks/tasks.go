@@ -43,7 +43,8 @@ func AllTasks(source db.DataSource) (tasksLists models.TasksList, err error) {
 func FindTaskById(source db.DataSource, id bson.ObjectId) (task models.Task, err error) {
 	err = source.C(cTasks).FindId(id).One(&task)
 	if err != nil {
-		return models.Task{}, fmt.Errorf("can not find task with id '%s': %v", id, err)
+		return models.Task{}, fmt.Errorf("can not find task with id '%s': %s",
+			id.Hex(), err)
 	}
 	return task, nil
 }

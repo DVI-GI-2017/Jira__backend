@@ -34,7 +34,7 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if exists.(bool) {
-		JsonErrorResponse(w, fmt.Errorf("label '%v' already set on project '%v'", label, taskId),
+		JsonErrorResponse(w, fmt.Errorf("label '%v' already set on project '%s'", label, taskId.Hex()),
 			http.StatusConflict)
 		return
 	}
