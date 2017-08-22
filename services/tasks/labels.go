@@ -19,6 +19,7 @@ func CheckLabelAlreadySet(source db.DataSource, id bson.ObjectId, label models.L
 	return task.HasLabel(label), nil
 }
 
+// Returns all labels from given task.
 func AllLabels(source db.DataSource, id bson.ObjectId) (models.LabelsList, error) {
 	task, err := FindTaskById(source, id)
 	if err != nil {
