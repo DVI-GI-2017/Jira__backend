@@ -24,6 +24,6 @@ var UsersRoutes = []Route{
 		Name:    "Check current user",
 		Pattern: "/cur-user",
 		Method:  http.MethodGet,
-		Handler: auth.ValidateToken(handlers.NullHandler),
+		Handler: auth.ValidateToken(handlers.JsonNullHandler),
 	},
 }

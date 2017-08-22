@@ -48,7 +48,6 @@ func main() {
 	}
 
 	routes.InitRouter(router, routes.LoginRoutes)
-	routes.InitRouter(router, routes.TestRoutes)
 	routes.InitRouter(router, routes.UsersRoutes)
 	routes.InitRouter(router, routes.ProjectRoutes)
 	routes.InitRouter(router, routes.TasksRoutes)

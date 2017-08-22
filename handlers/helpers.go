@@ -34,3 +34,9 @@ func JsonErrorResponse(w http.ResponseWriter, err error, code int) {
 	w.WriteHeader(code)
 	w.Write(result)
 }
+
+// Sets content type json and status OK
+func JsonNullHandler(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set(contentType, jsonContentType)
+	w.WriteHeader(http.StatusOK)
+}
