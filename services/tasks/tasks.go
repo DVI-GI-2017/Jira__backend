@@ -21,11 +21,13 @@ func CheckTaskExists(source db.DataSource, task models.Task) (bool, error) {
 
 // Creates task and returns it.
 func CreateTask(source db.DataSource, task models.Task) (models.Task, error) {
-	newTask, err := source.C(cTasks).Insert(task)
+	task.Id = bson.NewObjectId()
+
+	err := source.C(cTasks).Insert(task)
 	if err != nil {
 		return models.Task{}, fmt.Errorf("can not create task '%v': %v", task, err)
 	}
-	return newTask.(models.Task), nil
+	return task, nil
 }
 
 // Returns all tasks.

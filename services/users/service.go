@@ -30,11 +30,13 @@ func CheckUserCredentials(source db.DataSource, credentials models.User) (bool, 
 
 // Creates user and returns it.
 func CreateUser(source db.DataSource, user models.User) (models.User, error) {
-	result, err := source.C(cUsers).Insert(user)
+	user.Id = bson.NewObjectId()
+
+	err := source.C(cUsers).Insert(user)
 	if err != nil {
 		return models.User{}, fmt.Errorf("can not create user '%v': %v", user, err)
 	}
-	return result.(models.User), nil
+	return user, nil
 }
 
 // Returns all users.

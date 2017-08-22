@@ -10,8 +10,8 @@ type Collection interface {
 	// Returns Query that build atop of given query spec.
 	Find(query interface{}) Query
 
-	// Inserts object in collection and returns its value
-	Insert(value interface{}) (result interface{}, err error)
+	// Inserts object.
+	Insert(value interface{}) error
 
 	// Finds object with "selector" and update it using "update" object.
 	Update(selector, update interface{}) error
@@ -32,13 +32,9 @@ func (c MongoCollection) Find(query interface{}) Query {
 	return MongoQuery{c.Collection.Find(query)}
 }
 
-// Inserts value in query and returns its value
-func (c MongoCollection) Insert(value interface{}) (result interface{}, err error) {
-	err = c.Collection.Insert(value)
-	if err != nil {
-		return nil, err
-	}
-	return c.Find(value).One()
+// Inserts value in collection.
+func (c MongoCollection) Insert(value interface{}) error {
+	return c.Collection.Insert(value)
 }
 
 // Updates collection documents found by selector with "update" document.

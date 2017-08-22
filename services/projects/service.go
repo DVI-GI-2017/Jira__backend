@@ -21,11 +21,13 @@ func CheckProjectExists(source db.DataSource, project models.Project) (bool, err
 
 // Creates project and returns it.
 func CreateProject(source db.DataSource, project models.Project) (models.Project, error) {
-	result, err := source.C(cProjects).Insert(project)
+	project.Id = bson.NewObjectId()
+
+	err := source.C(cProjects).Insert(project)
 	if err != nil {
 		return models.Project{}, fmt.Errorf("can not create project '%v': %v", project, err)
 	}
-	return result.(models.Project), nil
+	return project, nil
 }
 
 // Returns all projects.
