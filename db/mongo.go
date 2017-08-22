@@ -9,31 +9,64 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-// Wrapper around mgo.Session
-var database *mgo.Database
+// Wrapper around *mgo.Session.
+type MongoSession struct {
+	*mgo.Session
+}
 
-// Initialize global database instance
-func InitDB(mongo *configs.Mongo) error {
+// Override DB method of mgo.Session to return wrapper around *mgo.DataSource.
+func (s MongoSession) DB(name string) DataSource {
+	return &MongoDatabase{Database: s.Session.DB(name)}
+}
+
+// Wrapper around *mgo.DataSource.
+type MongoDatabase struct {
+	*mgo.Database
+}
+
+// Override C method of mgo.DataSource to return wrapper around *mgo.Collection
+func (d MongoDatabase) C(name string) Collection {
+	return &MongoCollection{Collection: d.Database.C(name)}
+}
+
+// Wrapper around *mgo.Collection
+type MongoCollection struct {
+	*mgo.Collection
+}
+
+// Default defaultDB
+var defaultDB DataSource
+
+// Initialize global defaultDB instance
+func InitDB(mongo *configs.Mongo) {
 	log.Println("Connecting to local mongo server....")
 
-	session, err := mgo.Dial(mongo.URL())
+	session, err := NewMongoSession(mongo.URL())
 	if err != nil {
-		return fmt.Errorf("can not connect to database: %v", err)
+		log.Panicf("can not connect to mongo server: %v", err)
 	}
 
-	session.SetMode(mgo.Monotonic, true)
-
-	database = session.DB(mongo.DB)
-
-	return nil
+	defaultDB = session.DB(mongo.DB)
 }
 
-// Returns current db with new session
-func Copy() *mgo.Database {
-	return database.With(database.Session.Copy())
+// Creates new mongo session
+func NewMongoSession(mgoURI string) (Session, error) {
+	mgoSession, err := mgo.Dial(mgoURI)
+	if err != nil {
+		return nil, fmt.Errorf("can not open defaultDB session: %v", err)
+	}
+
+	mgoSession.SetMode(mgo.Monotonic, true)
+
+	return MongoSession{mgoSession}, nil
 }
 
-// Returns current db.
-func Get() *mgo.Database {
-	return database
+// Returns current data source with new session
+func Copy() DataSource {
+	return defaultDB.With(defaultDB.Session.Copy())
+}
+
+// Returns current data source.
+func Get() DataSource {
+	return defaultDB
 }
