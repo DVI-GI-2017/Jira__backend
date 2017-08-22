@@ -15,27 +15,6 @@ type Task struct {
 
 type TasksList []Task
 
-// Initialize Labels with empty LabelsList.
-func NewTask() *Task {
-	return &Task{
-		Labels: make(LabelsList, 0),
-	}
-}
-
-// Safely copies task and return pointer to new task.
-func (t *Task) Copy() *Task {
-	newTask := &Task{
-		Id:          t.Id,
-		Title:       t.Title,
-		Description: t.Description,
-		InitiatorId: t.InitiatorId,
-		AssigneeId:  t.AssigneeId,
-		Labels:      t.Labels,
-	}
-
-	return newTask
-}
-
 func (t *Task) HasLabel(label Label) bool {
 	for _, l := range t.Labels {
 		if l == label {
@@ -44,8 +23,4 @@ func (t *Task) HasLabel(label Label) bool {
 	}
 
 	return false
-}
-
-func (t *Task) AddLabel(label Label) {
-	t.Labels = append(t.Labels, label)
 }
