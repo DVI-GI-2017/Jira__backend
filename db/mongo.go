@@ -14,8 +14,8 @@ type MongoSession struct {
 	*mgo.Session
 }
 
-// Override DB method of mgo.Session to return wrapper around *mgo.DataSource.
-func (s MongoSession) DB(name string) DataSource {
+// Override Source method of mgo.Session to return wrapper around *mgo.DataSource.
+func (s MongoSession) Source(name string) DataSource {
 	return &MongoDatabase{Database: s.Session.DB(name)}
 }
 
@@ -27,6 +27,11 @@ type MongoDatabase struct {
 // Override C method of mgo.DataSource to return wrapper around *mgo.Collection
 func (d MongoDatabase) C(name string) Collection {
 	return &MongoCollection{Collection: d.Database.C(name)}
+}
+
+// Returns database associated with copied session
+func (d MongoDatabase) Copy() DataSource {
+	return MongoDatabase{d.With(d.Session.Copy())}
 }
 
 // Wrapper around *mgo.Collection
@@ -46,7 +51,7 @@ func InitDB(mongo *configs.Mongo) {
 		log.Panicf("can not connect to mongo server: %v", err)
 	}
 
-	defaultDB = session.DB(mongo.DB)
+	defaultDB = session.Source(mongo.DB)
 }
 
 // Creates new mongo session
@@ -63,7 +68,7 @@ func NewMongoSession(mgoURI string) (Session, error) {
 
 // Returns current data source with new session
 func Copy() DataSource {
-	return defaultDB.With(defaultDB.Session.Copy())
+	return defaultDB.Copy()
 }
 
 // Returns current data source.

@@ -1,13 +1,13 @@
 package tasks
 
 import (
+	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-func CheckLabelAlreadySet(mongo *mgo.Database, id bson.ObjectId, label models.Label) (bool, error) {
-	task, err := FindById(mongo, id)
+func CheckLabelAlreadySet(source db.DataSource, id bson.ObjectId, label models.Label) (bool, error) {
+	task, err := FindById(source, id)
 
 	if err != nil {
 		return false, err
@@ -16,8 +16,8 @@ func CheckLabelAlreadySet(mongo *mgo.Database, id bson.ObjectId, label models.La
 	return task.HasLabel(label), nil
 }
 
-func AllLabels(mongo *mgo.Database, id bson.ObjectId) (*models.LabelsList, error) {
-	task, err := FindById(mongo, id)
+func AllLabels(source db.DataSource, id bson.ObjectId) (*models.LabelsList, error) {
+	task, err := FindById(source, id)
 	if err != nil {
 		return nil, err
 	}
@@ -25,8 +25,8 @@ func AllLabels(mongo *mgo.Database, id bson.ObjectId) (*models.LabelsList, error
 	return &task.Labels, nil
 }
 
-func AddLabelToTask(mongo *mgo.Database, id bson.ObjectId, label models.Label) error {
-	task, err := FindById(mongo, id)
+func AddLabelToTask(source db.DataSource, id bson.ObjectId, label models.Label) error {
+	task, err := FindById(source, id)
 	if err != nil {
 		return err
 	}
@@ -34,5 +34,5 @@ func AddLabelToTask(mongo *mgo.Database, id bson.ObjectId, label models.Label) e
 	newTask := task.Copy()
 	newTask.AddLabel(label)
 
-	return mongo.C(collection).Update(task, newTask)
+	return source.C(collection).Update(task, newTask)
 }
