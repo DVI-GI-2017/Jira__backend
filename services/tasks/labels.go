@@ -33,10 +33,15 @@ func AddLabelToTask(source db.DataSource, task_id bson.ObjectId, label models.La
 	task, err := FindTaskById(source, task_id)
 	if err != nil {
 		return models.LabelsList{},
-			fmt.Errorf("can not find task with id '%s' :%v", label, task_id, err)
+			fmt.Errorf("can not find task with id '%s': %v", task_id, err)
 	}
 
 	labels := append(task.Labels, label)
 
-	return labels, source.C(cTasks).Update(task, bson.M{"labels": labels})
+	err = source.C(cTasks).Update(task, bson.M{"labels": labels})
+	if err != nil {
+		return models.LabelsList{}, fmt.Errorf("can not update labels '%v' on task '%v': %v", labels, task, err)
+	}
+
+	return labels, nil
 }
