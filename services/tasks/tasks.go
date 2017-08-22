@@ -1,38 +1,47 @@
 package tasks
 
 import (
+	"fmt"
+
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"gopkg.in/mgo.v2/bson"
 )
 
-const collectionTasks = "tasks"
+const cTasks = "tasks"
 
+// Checks if task with this 'title == task.Title' exists.
 func CheckTaskExists(source db.DataSource, task models.Task) (bool, error) {
-	c, err := source.C(collectionTasks).Find(bson.M{"title": task.Title}).IsEmpty()
-	return !c, err
+	c, err := source.C(cTasks).Find(bson.M{"title": task.Title}).IsEmpty()
+	if err != nil {
+		return false, fmt.Errorf("can not check if task exists: %v", err)
+	}
+	return !c, nil
 }
 
+// Creates task and returns it.
 func CreateTask(source db.DataSource, task models.Task) (models.Task, error) {
-	newTask, err := source.C(collectionTasks).Insert(task)
+	newTask, err := source.C(cTasks).Insert(task)
 	if err != nil {
-		return models.Task{}, err
+		return models.Task{}, fmt.Errorf("can not create task '%v': %v", task, err)
 	}
 	return newTask.(models.Task), nil
 }
 
+// Returns all tasks.
 func AllTasks(source db.DataSource) (models.TasksList, error) {
-	result, err := source.C(collectionTasks).Find(nil).All()
+	result, err := source.C(cTasks).Find(nil).All()
 	if err != nil {
-		return models.TasksList{}, err
+		return models.TasksList{}, fmt.Errorf("can not retrieve all tasks: %v", err)
 	}
 	return result.(models.TasksList), nil
 }
 
-func FindById(source db.DataSource, id bson.ObjectId) (models.Task, error) {
-	result, err := source.C(collectionTasks).FindId(id).One()
+// Returns task with given id
+func FindTaskById(source db.DataSource, id bson.ObjectId) (models.Task, error) {
+	result, err := source.C(cTasks).FindId(id).One()
 	if err != nil {
-		return models.Task{}, err
+		return models.Task{}, fmt.Errorf("can not find task with id '%s': %v", id, err)
 	}
 	return result.(models.Task), nil
 }

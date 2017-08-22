@@ -126,25 +126,25 @@ func GetServiceByAction(action *Action) (service ServiceFunc, err error) {
 
 	case CreateProject:
 		service = func(source db.DataSource, project interface{}) (interface{}, error) {
-			return projects.Create(source, project.(models.Project))
+			return projects.CreateProject(source, project.(models.Project))
 		}
 		return
 
 	case CheckProjectExists:
 		service = func(source db.DataSource, project interface{}) (interface{}, error) {
-			return projects.CheckExistence(source, project.(models.Project))
+			return projects.CheckProjectExists(source, project.(models.Project))
 		}
 		return
 
 	case AllProjects:
 		service = func(source db.DataSource, _ interface{}) (interface{}, error) {
-			return projects.All(source)
+			return projects.AllProjects(source)
 		}
 		return
 
 	case FindProjectById:
 		service = func(source db.DataSource, id interface{}) (interface{}, error) {
-			return projects.FindById(source, id.(bson.ObjectId))
+			return projects.FindProjectById(source, id.(bson.ObjectId))
 		}
 		return
 
@@ -168,7 +168,7 @@ func GetServiceByAction(action *Action) (service ServiceFunc, err error) {
 
 	case FindTaskById:
 		service = func(source db.DataSource, id interface{}) (interface{}, error) {
-			return tasks.FindById(source, id.(bson.ObjectId))
+			return tasks.FindTaskById(source, id.(bson.ObjectId))
 		}
 		return
 
