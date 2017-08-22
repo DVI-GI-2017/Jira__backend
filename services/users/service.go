@@ -1,44 +1,58 @@
 package users
 
 import (
+	"fmt"
+
+	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-const collection = "users"
+const cUsers = "users"
 
-func CheckExistence(mongo *mgo.Database, credentials *models.User) (bool, error) {
-	c, err := mongo.C(collection).Find(bson.M{"email": credentials.Email}).Count()
-	return c != 0, err
+// Checks if user with this credentials.Email exists.
+func CheckUserExists(source db.DataSource, credentials models.User) (bool, error) {
+	empty, err := source.C(cUsers).Find(bson.M{"email": credentials.Email}).IsEmpty()
+	if err != nil {
+		return false, fmt.Errorf("can not check if user with credentials '%v' exists: %v", credentials, err)
+	}
+	return !empty, nil
 }
 
-func CheckCredentials(mongo *mgo.Database, credentials *models.User) (bool, error) {
-	c, err := mongo.C(collection).Find(credentials).Count()
-	return c != 0, err
+// Checks if user credentials present in users collection.
+func CheckUserCredentials(source db.DataSource, credentials models.User) (bool, error) {
+	empty, err := source.C(cUsers).Find(credentials).IsEmpty()
+	if err != nil {
+		return false, fmt.Errorf("can not check user credentials '%v': %v", credentials, err)
+	}
+	return !empty, nil
 }
 
-func Insert(mongo *mgo.Database, user interface{}) (result interface{}, err error) {
-	return user, mongo.C(collection).Insert(user)
+// Creates user and returns it.
+func CreateUser(source db.DataSource, user models.User) (models.User, error) {
+	user.Id = bson.NewObjectId()
+
+	err := source.C(cUsers).Insert(user)
+	if err != nil {
+		return models.User{}, fmt.Errorf("can not create user '%v': %v", user, err)
+	}
+	return user, nil
 }
 
-func All(mongo *mgo.Database) (result models.UsersList, err error) {
-	const defaultSize = 100
-	result = make(models.UsersList, defaultSize)
-
-	err = mongo.C(collection).Find(nil).All(&result)
-	return
+// Returns all users.
+func AllUsers(source db.DataSource) (usersLists models.UsersList, err error) {
+	err = source.C(cUsers).Find(nil).All(&usersLists)
+	if err != nil {
+		return models.UsersList{}, fmt.Errorf("can not retrieve all users: %v", err)
+	}
+	return usersLists, nil
 }
 
-func FindUserById(mongo *mgo.Database, id bson.ObjectId) (*models.User, error) {
-	user := new(models.User)
-	err := mongo.C(collection).FindId(id).One(user)
-	return user, err
-}
-
-func FindUser(mongo *mgo.Database, email string) (*models.User, error) {
-	user := new(models.User)
-	err := mongo.C(collection).Find(email).One(user)
-
-	return user, err
+// Returns user with given id.
+func FindUserById(source db.DataSource, id bson.ObjectId) (user models.User, err error) {
+	err = source.C(cUsers).FindId(id).One(&user)
+	if err != nil {
+		return models.User{}, fmt.Errorf("can not find user with id '%s': %v", id, err)
+	}
+	return user, nil
 }

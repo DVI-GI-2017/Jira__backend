@@ -27,9 +27,3 @@ $ openssl genrsa -out app.rsa 1024
 $ openssl rsa -in app.rsa -pubout > app.rsa.pub
 ```
 
-#### Быстрая проверка (через консоль)
-```bash
-for i in {1..15}; 
-do echo '{"email": "test", "password": "password"}' | curl -d @- http://localhost:3000/api/v1/test; 
-done
-```

@@ -3,79 +3,62 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/params"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2/bson"
 )
 
-func CreateLabel(w http.ResponseWriter, req *http.Request) {
-	body := params.ExtractParams(req).Body
+// Adds label to task.
+// Query parameter: "task_id" - task id.
+// Post body - label.
+func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
+	p := params.ExtractParams(req)
 
-	labelInfo := new(models.Label)
-
-	err := json.Unmarshal(body, labelInfo)
+	var label models.Label
+	err := json.Unmarshal(p.Body, &label)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-
-		fmt.Fprint(w, "Error in request!")
-		log.Printf("%v", err)
-
+		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
 
-	exists, err := pool.DispatchAction(pool.CheckLabelExists, labelInfo)
+	taskId := bson.ObjectIdHex(p.PathParams["task_id"])
+	taskLabel := models.TaskLabel{TaskId: taskId, Label: label}
+
+	exists, err := pool.DispatchAction(pool.CheckLabelAlreadySet, taskLabel)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
 	if exists.(bool) {
-		w.WriteHeader(http.StatusConflict)
-		fmt.Fprintf(w, "Label with name: %s already exists!", labelInfo.Name)
-
-		log.Printf("Label with name: %s already exists!", labelInfo.Name)
-
+		JsonErrorResponse(w, fmt.Errorf("label '%v' already set on project '%s'", label, taskId.Hex()),
+			http.StatusConflict)
 		return
 	}
 
-	label, err := pool.DispatchAction(pool.CreateLabel, labelInfo)
+	labels, err := pool.DispatchAction(pool.AddLabelToTask, taskLabel)
 	if err != nil {
-		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprint(w, "Can not create label. Please, try later")
-		log.Printf("can not create label: %v", err)
-
+		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
-	tools.JsonResponse(label, w)
+	JsonResponse(w, labels)
 }
 
-func AllLabels(w http.ResponseWriter, _ *http.Request) {
-	labels, err := pool.DispatchAction(pool.AllLabels, nil)
+// Returns all labels from task
+// Query parameter: "task_id" - task id.
+func AllLabelsOnTask(w http.ResponseWriter, req *http.Request) {
+	pathParams := params.ExtractParams(req).PathParams
+	id := bson.ObjectIdHex(pathParams["task_id"])
+
+	labels, err := pool.DispatchAction(pool.AllLabelsOnTask, id)
 	if err != nil {
-		fmt.Fprint(w, "Can not return all labels!")
-		log.Printf("Can not return all labels: %v", err)
-
+		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
-	tools.JsonResponse(labels.(models.LabelsList), w)
-}
-
-func GetLabelById(w http.ResponseWriter, req *http.Request) {
-	parameters := params.ExtractParams(req).PathParams
-
-	if id, ok := parameters["id"]; ok {
-		label, err := pool.DispatchAction(pool.FindLabelById, bson.ObjectIdHex(id))
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-			log.Printf("Can not find label by id: %v because of: %v", id, err)
-			return
-		}
-
-		tools.JsonResponse(label.(*models.Label), w)
-		return
-	}
-
-	http.NotFound(w, req)
+	JsonResponse(w, labels.(models.LabelsList))
 }

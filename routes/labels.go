@@ -9,21 +9,15 @@ import (
 
 var LabelsRoutes = []Route{
 	{
-		Name:    "Create label.",
-		Pattern: "/labels",
+		Name:    "Add label to task (:task_id)",
+		Pattern: "/tasks/:task_id/labels",
 		Method:  http.MethodPost,
-		Handler: auth.ValidateToken(handlers.CreateLabel),
+		Handler: auth.ValidateToken(handlers.AddLabelToTask),
 	},
 	{
-		Name:    "All labels route",
-		Pattern: "/labels",
+		Name:    "All labels on task",
+		Pattern: "/tasks/:task_id/labels",
 		Method:  http.MethodGet,
-		Handler: auth.ValidateToken(handlers.AllLabels),
-	},
-	{
-		Name:    "Get label by id",
-		Pattern: "/labels/:id",
-		Method:  http.MethodGet,
-		Handler: auth.ValidateToken(handlers.GetLabelById),
+		Handler: auth.ValidateToken(handlers.AllLabelsOnTask),
 	},
 }

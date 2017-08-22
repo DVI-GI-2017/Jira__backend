@@ -1,32 +1,49 @@
 package projects
 
 import (
+	"fmt"
+
+	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-const collection = "projects"
+const cProjects = "projects"
 
-func CheckExistence(mongo *mgo.Database, project *models.Project) (bool, error) {
-	c, err := mongo.C(collection).Find(bson.M{"title": project.Title}).Count()
-	return c != 0, err
+// Check if project with title == project.Title exists
+func CheckProjectExists(source db.DataSource, project models.Project) (bool, error) {
+	empty, err := source.C(cProjects).Find(bson.M{"title": project.Title}).IsEmpty()
+	if err != nil {
+		return false, fmt.Errorf("can not check if project '%v' exists: %v", project, err)
+	}
+	return !empty, err
 }
 
-func Create(mongo *mgo.Database, project interface{}) (result interface{}, err error) {
-	return project, mongo.C(collection).Insert(project)
+// Creates project and returns it.
+func CreateProject(source db.DataSource, project models.Project) (models.Project, error) {
+	project.Id = bson.NewObjectId()
+
+	err := source.C(cProjects).Insert(project)
+	if err != nil {
+		return models.Project{}, fmt.Errorf("can not create project '%v': %v", project, err)
+	}
+	return project, nil
 }
 
-func All(mongo *mgo.Database) (result models.ProjectsList, err error) {
-	const defaultSize = 100
-	result = make(models.ProjectsList, defaultSize)
-
-	err = mongo.C(collection).Find(bson.M{}).All(&result)
-	return
+// Returns all projects.
+func AllProjects(source db.DataSource) (result models.ProjectsList, err error) {
+	err = source.C(cProjects).Find(bson.M{}).All(&result)
+	if err != nil {
+		return models.ProjectsList{}, fmt.Errorf("can not retrieve all projects: %v", err)
+	}
+	return result, nil
 }
 
-func FindById(mongo *mgo.Database, id bson.ObjectId) (*models.Project, error) {
-	project := new(models.Project)
-	err := mongo.C(collection).FindId(id).One(project)
-	return project, err
+// Returns task with given id.
+func FindProjectById(mongo db.DataSource, id bson.ObjectId) (result models.Project, err error) {
+	err = mongo.C(cProjects).FindId(id).One(&result)
+	if err != nil {
+		return models.Project{}, fmt.Errorf("can not find project with id '%s': %v", id, err)
+	}
+	return result, nil
 }

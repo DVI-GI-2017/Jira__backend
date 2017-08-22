@@ -5,18 +5,17 @@ import (
 
 	"log"
 
+	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/services/labels"
 	"github.com/DVI-GI-2017/Jira__backend/services/projects"
 	"github.com/DVI-GI-2017/Jira__backend/services/tasks"
 	"github.com/DVI-GI-2017/Jira__backend/services/users"
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 const (
 	//Users actions
-	InsertUser           = "InsertUser"
+	CreateUser           = "CreateUser"
 	CheckUserExists      = "CheckUserExists"
 	CheckUserCredentials = "CheckUserCredentials"
 	FindUserById         = "FindUserById"
@@ -35,15 +34,14 @@ const (
 	FindTaskById    = "FindTaskById"
 
 	// Labels actions
-	CreateLabel      = "CreateLabel"
-	CheckLabelExists = "CheckLabelExists"
-	AllLabels        = "AllLabels"
-	FindLabelById    = "FindLabelById"
+	AddLabelToTask       = "AddLabelToTask"
+	AllLabelsOnTask      = "AllLabelsOnTask"
+	CheckLabelAlreadySet = "CheckLabelAlreadySet"
 )
 
 var typesActionList = [...]string{
 	// Users actions
-	InsertUser,
+	CreateUser,
 	CheckUserExists,
 	CheckUserCredentials,
 	FindUserById,
@@ -62,10 +60,9 @@ var typesActionList = [...]string{
 	FindTaskById,
 
 	// Labels actions
-	CreateLabel,
-	CheckLabelExists,
-	AllLabels,
-	FindLabelById,
+	AddLabelToTask,
+	CheckLabelAlreadySet,
+	AllLabelsOnTask,
 }
 
 type Action struct {
@@ -92,94 +89,117 @@ func checkActionType(actionType string) bool {
 	return false
 }
 
-type ServiceFunc func(*mgo.Database, interface{}) (interface{}, error)
+type ServiceFunc func(source db.DataSource, data interface{}) (result interface{}, err error)
 
-func GetServiceByAction(action *Action) (ServiceFunc, error) {
+func GetServiceByAction(action *Action) (service ServiceFunc, err error) {
 	switch action.Type {
 
-	case InsertUser:
-		return users.Insert, nil
+	case CreateUser:
+		service = func(source db.DataSource, user interface{}) (result interface{}, err error) {
+			return users.CreateUser(source, user.(models.User))
+		}
+		return
 
 	case CheckUserExists:
-		return func(mongo *mgo.Database, credentials interface{}) (interface{}, error) {
-			return users.CheckExistence(mongo, credentials.(*models.User))
-		}, nil
+		service = func(source db.DataSource, credentials interface{}) (result interface{}, err error) {
+			return users.CheckUserExists(source, credentials.(models.User))
+		}
+		return
 
 	case CheckUserCredentials:
-		return func(mongo *mgo.Database, credentials interface{}) (interface{}, error) {
-			return users.CheckCredentials(mongo, credentials.(*models.User))
-		}, nil
+		service = func(source db.DataSource, credentials interface{}) (interface{}, error) {
+			return users.CheckUserCredentials(source, credentials.(models.User))
+		}
+		return
 
 	case AllUsers:
-		return func(mongo *mgo.Database, _ interface{}) (interface{}, error) {
-			return users.All(mongo)
-		}, nil
+		service = func(source db.DataSource, _ interface{}) (result interface{}, err error) {
+			return users.AllUsers(source)
+		}
+		return
 
 	case FindUserById:
-		return func(mongo *mgo.Database, id interface{}) (interface{}, error) {
-			return users.FindUserById(mongo, id.(bson.ObjectId))
-		}, nil
+		service = func(source db.DataSource, id interface{}) (interface{}, error) {
+			return users.FindUserById(source, id.(bson.ObjectId))
+		}
+		return
 
 	case CreateProject:
-		return func(mongo *mgo.Database, project interface{}) (interface{}, error) {
-			return projects.Create(mongo, project)
-		}, nil
+		service = func(source db.DataSource, project interface{}) (interface{}, error) {
+			return projects.CreateProject(source, project.(models.Project))
+		}
+		return
 
 	case CheckProjectExists:
-		return func(mongo *mgo.Database, project interface{}) (interface{}, error) {
-			return projects.CheckExistence(mongo, project.(*models.Project))
-		}, nil
+		service = func(source db.DataSource, project interface{}) (interface{}, error) {
+			return projects.CheckProjectExists(source, project.(models.Project))
+		}
+		return
 
 	case AllProjects:
-		return func(mongo *mgo.Database, _ interface{}) (interface{}, error) {
-			return projects.All(mongo)
-		}, nil
+		service = func(source db.DataSource, _ interface{}) (interface{}, error) {
+			return projects.AllProjects(source)
+		}
+		return
 
 	case FindProjectById:
-		return func(mongo *mgo.Database, id interface{}) (interface{}, error) {
-			return projects.FindById(mongo, id.(bson.ObjectId))
-		}, nil
+		service = func(source db.DataSource, id interface{}) (interface{}, error) {
+			return projects.FindProjectById(source, id.(bson.ObjectId))
+		}
+		return
 
 	case CreateTask:
-		return func(mongo *mgo.Database, task interface{}) (interface{}, error) {
-			return tasks.Create(mongo, task)
-		}, nil
-	case CheckTaskExists:
-		return func(mongo *mgo.Database, task interface{}) (interface{}, error) {
-			return tasks.CheckExistence(mongo, task.(*models.Task))
-		}, nil
-	case AllTasks:
-		return func(mongo *mgo.Database, _ interface{}) (interface{}, error) {
-			return tasks.All(mongo)
-		}, nil
-	case FindTaskById:
-		return func(mongo *mgo.Database, id interface{}) (interface{}, error) {
-			return tasks.FindById(mongo, id.(bson.ObjectId))
-		}, nil
+		service = func(source db.DataSource, task interface{}) (interface{}, error) {
+			return tasks.CreateTask(source, task.(models.Task))
+		}
+		return
 
-	case CreateLabel:
-		return func(mongo *mgo.Database, label interface{}) (interface{}, error) {
-			return labels.Create(mongo, label)
-		}, nil
-	case CheckLabelExists:
-		return func(mongo *mgo.Database, label interface{}) (interface{}, error) {
-			return labels.CheckExistence(mongo, label.(*models.Label))
-		}, nil
-	case AllLabels:
-		return func(mongo *mgo.Database, _ interface{}) (interface{}, error) {
-			return labels.All(mongo)
-		}, nil
-	case FindLabelById:
-		return func(mongo *mgo.Database, id interface{}) (interface{}, error) {
-			return labels.FindById(mongo, id.(bson.ObjectId))
-		}, nil
+	case CheckTaskExists:
+		service = func(source db.DataSource, task interface{}) (interface{}, error) {
+			return tasks.CheckTaskExists(source, task.(models.Task))
+		}
+		return
+
+	case AllTasks:
+		service = func(source db.DataSource, _ interface{}) (interface{}, error) {
+			return tasks.AllTasks(source)
+		}
+		return
+
+	case FindTaskById:
+		service = func(source db.DataSource, id interface{}) (interface{}, error) {
+			return tasks.FindTaskById(source, id.(bson.ObjectId))
+		}
+		return
+
+	case AddLabelToTask:
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			taskLabel := data.(models.TaskLabel)
+
+			return tasks.AddLabelToTask(source, taskLabel.TaskId, taskLabel.Label)
+		}
+		return
+
+	case CheckLabelAlreadySet:
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			taskLabel := data.(models.TaskLabel)
+
+			return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
+		}
+		return
+
+	case AllLabelsOnTask:
+		service = func(source db.DataSource, id interface{}) (interface{}, error) {
+			return tasks.AllLabels(source, id.(bson.ObjectId))
+		}
+		return
 	}
 
 	return NullHandler, errors.New("Can't find handler!")
 }
 
 // Helper handler for case when handler not found.
-func NullHandler(_ *mgo.Database, _ interface{}) (result interface{}, err error) {
+func NullHandler(_ db.DataSource, _ interface{}) (result interface{}, err error) {
 	return nil, nil
 }
 

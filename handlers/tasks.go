@@ -3,85 +3,66 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/params"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Create task
+// Post body - task
+// Returns created task if OK
 func CreateTask(w http.ResponseWriter, req *http.Request) {
 	body := params.ExtractParams(req).Body
 
-	taskInfo := new(models.Task)
+	var task models.Task
 
-	fmt.Println(body)
-	fmt.Println(taskInfo)
-	err := json.Unmarshal(body, &taskInfo)
+	err := json.Unmarshal(body, &task)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-
-		fmt.Fprint(w, "Error in request!")
-		log.Printf("%v", err)
-
+		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
 
-	exists, err := pool.DispatchAction(pool.CheckTaskExists, taskInfo)
+	exists, err := pool.DispatchAction(pool.CheckTaskExists, task)
 	if exists.(bool) {
-		w.WriteHeader(http.StatusConflict)
-		fmt.Fprintf(w, "Task with title: %s already exists!", taskInfo.Title)
-
-		log.Printf("Task with title: %s already exists!", taskInfo.Title)
-
+		JsonErrorResponse(w, fmt.Errorf("Task with title: %s already exists!", task.Title), http.StatusConflict)
 		return
 	}
 
-	project, err := pool.DispatchAction(pool.CreateTask, taskInfo)
+	newTask, err := pool.DispatchAction(pool.CreateTask, task)
 	if err != nil {
-		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprint(w, "Can not create task. Please, try later")
-		log.Printf("can not create task: %v", err)
-
+		JsonErrorResponse(w, err, http.StatusBadGateway)
 		return
 	}
 
-	tools.JsonResponse(project, w)
+	JsonResponse(w, newTask)
 }
 
+// Returns all tasks
 func AllTasks(w http.ResponseWriter, _ *http.Request) {
-	projects, err := pool.DispatchAction(pool.AllTasks, nil)
+	tasks, err := pool.DispatchAction(pool.AllTasks, nil)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-
-		fmt.Fprint(w, "Can not return all tasks!")
-		log.Printf("Can not return all tasks: %v", err)
-
+		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
-	tools.JsonResponse(projects.(models.TasksList), w)
+	JsonResponse(w, tasks.(models.TasksList))
 }
 
+// Returns task with given id
+// Path params: "id" - task id.
 func GetTaskById(w http.ResponseWriter, req *http.Request) {
-	parameters := params.ExtractParams(req).PathParams
 
-	if id, ok := parameters["id"]; ok {
-		task, err := pool.DispatchAction(pool.FindTaskById, bson.ObjectIdHex(id))
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
+	id := params.ExtractParams(req).PathParams["id"]
 
-			fmt.Fprintln(w, "Can't find task!")
-			log.Printf("Can not find task by id: %v because of: %v", id, err)
-			return
-		}
-
-		tools.JsonResponse(task.(*models.Task), w)
+	task, err := pool.DispatchAction(pool.FindTaskById, bson.ObjectIdHex(id))
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
-	http.NotFound(w, req)
+	JsonResponse(w, task.(models.Task))
+	return
 }

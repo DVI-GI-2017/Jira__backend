@@ -28,7 +28,7 @@ func init() {
 			"openssl genrsa -out app.rsa 1024 && "+
 			"openssl rsa -in app.rsa -pubout > app.rsa.pub").Output()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	pool.InitWorkers()
 	rsaInit()
@@ -48,7 +48,6 @@ func main() {
 	}
 
 	routes.InitRouter(router, routes.LoginRoutes)
-	routes.InitRouter(router, routes.TestRoutes)
 	routes.InitRouter(router, routes.UsersRoutes)
 	routes.InitRouter(router, routes.ProjectRoutes)
 	routes.InitRouter(router, routes.TasksRoutes)
@@ -56,7 +55,7 @@ func main() {
 
 	port := config.Server.GetPort()
 
-	fmt.Printf("Server started on port %s...\n", port)
+	log.Printf("Server started on port %s...\n", port)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), handlers.Logger(router)))
 }

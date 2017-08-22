@@ -3,90 +3,77 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/params"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"github.com/DVI-GI-2017/Jira__backend/services/auth"
-	"github.com/DVI-GI-2017/Jira__backend/tools"
 )
 
+// Registers user
+// Post body - user credentials in format: {"email": "...", "password": "..."}
+// Returns credentials if OK
 func RegisterUser(w http.ResponseWriter, req *http.Request) {
-	credentials := new(models.User)
+	var credentials models.User
 
 	parameters := params.ExtractParams(req)
 
-	if err := json.Unmarshal(parameters.Body, credentials); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-
-		fmt.Fprint(w, "Error in request!")
-		log.Printf("%v", err)
-
+	if err := json.Unmarshal(parameters.Body, &credentials); err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
 
 	exists, err := pool.DispatchAction(pool.CheckUserExists, credentials)
 	if err != nil {
-		log.Panicf("%v", err)
+		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		return
 	}
 
 	if exists.(bool) {
-		w.WriteHeader(http.StatusConflict)
-		fmt.Fprintf(w, "User with email: %s already exists!", credentials.Email)
-
-		log.Printf("User with email: %s already exists!", credentials.Email)
-
+		JsonErrorResponse(w, fmt.Errorf("User with email: %s already exists!", credentials.Email),
+			http.StatusConflict)
 		return
 	}
 
-	user, err := pool.DispatchAction(pool.InsertUser, credentials)
+	user, err := pool.DispatchAction(pool.CreateUser, credentials)
 	if err != nil {
-		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprint(w, "Can not create your account. Please, try later")
-		log.Printf("can not create user: %v", err)
-
+		JsonErrorResponse(w, fmt.Errorf("can not create account: %v", err), http.StatusBadGateway)
 		return
 	}
 
-	tools.JsonResponse(user, w)
+	JsonResponse(w, user)
 }
 
+// Authorizes user in system.
+// Post body - credentials in format: {"email": "...", "password": "..."}
+// Returns token for authentication.
 func Login(w http.ResponseWriter, req *http.Request) {
-	credentials := new(models.User)
+	var credentials models.User
 
 	parameters := params.ExtractParams(req)
 
-	if err := json.Unmarshal(parameters.Body, credentials); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-
-		fmt.Fprint(w, "Error in request!")
-		log.Printf("%v", err)
-
+	if err := json.Unmarshal(parameters.Body, &credentials); err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
 
 	valid, err := pool.DispatchAction(pool.CheckUserCredentials, credentials)
 	if err != nil {
-		log.Panicf("%v", err)
+		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		return
 	}
 
 	if !valid.(bool) {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintln(w, "User not found!")
+		JsonErrorResponse(w, fmt.Errorf("can not find user with: %v", credentials), http.StatusNotFound)
 		return
 	}
 
 	token, err := auth.NewToken()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		fmt.Fprintln(w, "Error while signing the token!")
-		log.Printf("%v", err)
-
+		JsonErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	tools.JsonResponse(token, w)
+	JsonResponse(w, token)
 }
