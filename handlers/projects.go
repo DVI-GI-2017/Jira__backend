@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"encoding/json"
@@ -10,73 +9,61 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/params"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/DVI-GI-2017/Jira__backend/tools"
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Creates project
+// Post body - project
+// Returns created project if OK
 func CreateProject(w http.ResponseWriter, req *http.Request) {
+	var projectInfo models.Project
+
 	body := params.ExtractParams(req).Body
 
-	projectInfo := new(models.Project)
-
-	err := json.Unmarshal(body, projectInfo)
+	err := json.Unmarshal(body, &projectInfo)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-
-		fmt.Fprint(w, "Error in request!")
-		log.Printf("%v", err)
-
+		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
 
 	exists, err := pool.DispatchAction(pool.CheckProjectExists, projectInfo)
 	if exists.(bool) {
-		w.WriteHeader(http.StatusConflict)
-		fmt.Fprintf(w, "Project with title: %s already exists!", projectInfo.Title)
-
-		log.Printf("Project with title: %s already exists!", projectInfo.Title)
-
+		JsonErrorResponse(w, fmt.Errorf("project with title %s already exists", projectInfo.Title),
+			http.StatusConflict)
 		return
 	}
 
 	project, err := pool.DispatchAction(pool.CreateProject, projectInfo)
 	if err != nil {
-		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprint(w, "Can not create project. Please, try later")
-		log.Printf("can not create project: %v", err)
-
+		JsonErrorResponse(w, err, http.StatusBadGateway)
 		return
 	}
 
-	tools.JsonResponse(project, w)
+	JsonResponse(w, project)
 }
 
+// Returns all projects
 func AllProjects(w http.ResponseWriter, _ *http.Request) {
 	projects, err := pool.DispatchAction(pool.AllProjects, nil)
 	if err != nil {
-		fmt.Fprint(w, "Can not return all projects!")
-		log.Printf("Can not return all projects: %v", err)
-
+		JsonErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	tools.JsonResponse(projects.(models.ProjectsList), w)
+	JsonResponse(w, projects.(models.ProjectsList))
 }
 
+// Returns project with given id
+// Query param: "id" - project id
 func GetProjectById(w http.ResponseWriter, req *http.Request) {
-	parameters := params.ExtractParams(req).PathParams
+	id := params.ExtractParams(req).PathParams["id"]
 
-	if id, ok := parameters["id"]; ok {
-		user, err := pool.DispatchAction(pool.FindProjectById, bson.ObjectIdHex(id))
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-			log.Printf("Can not find task by id: %v because of: %v", id, err)
-			return
-		}
-
-		tools.JsonResponse(user.(*models.Project), w)
+	user, err := pool.DispatchAction(pool.FindProjectById, bson.ObjectIdHex(id))
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	http.NotFound(w, req)
+	JsonResponse(w, user.(models.Project))
+	return
 }
