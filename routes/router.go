@@ -9,6 +9,8 @@ import (
 
 	"log"
 
+	"strings"
+
 	"github.com/DVI-GI-2017/Jira__backend/params"
 )
 
@@ -114,5 +116,13 @@ func (r *router) Add(route Route) error {
 
 // Pretty prints routes
 func (r *router) PrintRoutes() {
-	log.Printf("%v\n", r.routes)
+	log.Println(strings.Repeat("-", 10))
+
+	for method, list := range r.routes {
+		for re := range list {
+			log.Printf("'%s': '%s'", method, re)
+		}
+	}
+
+	log.Println(strings.Repeat("-", 10))
 }
