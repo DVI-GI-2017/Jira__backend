@@ -12,7 +12,7 @@ type Route struct {
 	Handler http.HandlerFunc
 }
 
-func (r *router) SetupRoutes() {
+func SetupRoutes(r *router) {
 	InitRouter(r, LoginRoutes)
 	InitRouter(r, UsersRoutes)
 	InitRouter(r, ProjectRoutes)

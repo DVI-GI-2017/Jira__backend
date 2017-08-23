@@ -3,14 +3,11 @@ package routes
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 )
 
 // Converts patterns like "/users/:id" to "/users/(?P<id>\d+)"
 func convertSimplePatternToRegexp(pattern string) string {
-	log.Printf("route: %s", pattern)
-
 	parts := strings.Split(pattern, "/")
 
 	for i, part := range parts {

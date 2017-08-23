@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"regexp"
 
+	"log"
+
 	"github.com/DVI-GI-2017/Jira__backend/params"
 )
 
@@ -108,4 +110,9 @@ func (r *router) Add(route Route) error {
 	}
 
 	return fmt.Errorf("Error method '%s' not supported.", route.Method)
+}
+
+// Pretty prints routes
+func (r *router) PrintRoutes() {
+	log.Printf("%v\n", r.routes)
 }
