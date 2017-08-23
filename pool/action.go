@@ -37,6 +37,7 @@ const (
 	AddLabelToTask       = "AddLabelToTask"
 	AllLabelsOnTask      = "AllLabelsOnTask"
 	CheckLabelAlreadySet = "CheckLabelAlreadySet"
+	DeleteLabelFromTask  = "DeleteLabelFromTask"
 )
 
 var typesActionList = [...]string{
@@ -61,8 +62,9 @@ var typesActionList = [...]string{
 
 	// Labels actions
 	AddLabelToTask,
-	CheckLabelAlreadySet,
 	AllLabelsOnTask,
+	CheckLabelAlreadySet,
+	DeleteLabelFromTask,
 }
 
 type Action struct {
@@ -180,6 +182,12 @@ func GetServiceByAction(action *Action) (service ServiceFunc, err error) {
 		}
 		return
 
+	case AllLabelsOnTask:
+		service = func(source db.DataSource, id interface{}) (interface{}, error) {
+			return tasks.AllLabels(source, id.(bson.ObjectId))
+		}
+		return
+
 	case CheckLabelAlreadySet:
 		service = func(source db.DataSource, data interface{}) (interface{}, error) {
 			taskLabel := data.(models.TaskLabel)
@@ -187,10 +195,11 @@ func GetServiceByAction(action *Action) (service ServiceFunc, err error) {
 			return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
 		}
 		return
+	case DeleteLabelFromTask:
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			taskLabel := data.(models.TaskLabel)
 
-	case AllLabelsOnTask:
-		service = func(source db.DataSource, id interface{}) (interface{}, error) {
-			return tasks.AllLabels(source, id.(bson.ObjectId))
+			return tasks.DeleteLabelFromTask(source, taskLabel.TaskId, taskLabel.Label)
 		}
 		return
 	}
