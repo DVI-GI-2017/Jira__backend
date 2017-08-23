@@ -18,8 +18,11 @@ func BenchmarkGorilla(b *testing.B) {
 
 	apiRouter.Path("/users/{id:[a-f0-9]{24}}").Methods(http.MethodGet).HandlerFunc(gorillaHandler)
 
+	helper := newGetHelper("/api/v1/users/234feabc1357346781234524")
+
 	for i := 0; i < b.N; i++ {
-		processRequest(router, b)
+		processRequest(router, helper, b)
+		helper.clear()
 	}
 }
 
@@ -41,8 +44,11 @@ func BenchmarkCustom(b *testing.B) {
 		b.Fatalf("%v", err)
 	}
 
+	helper := newGetHelper("/api/v1/users/234feabc1357346781234524")
+
 	for i := 0; i < b.N; i++ {
-		processRequest(router, b)
+		processRequest(router, helper, b)
+		helper.clear()
 	}
 }
 
@@ -51,16 +57,30 @@ func customHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "get params: %v, path params: %v", parameters.Query, parameters.PathParams)
 }
 
-func processRequest(router http.Handler, b *testing.B) {
-	reader := bytes.NewBufferString("")
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/users/234feabc1357346781234524", reader)
-	response := httptest.NewRecorder()
+func processRequest(router http.Handler, helper *getHelper, b *testing.B) {
+	router.ServeHTTP(helper.w, helper.r)
 
-	router.ServeHTTP(response, request)
-
-	s := fmt.Sprintf("%s", response.Body)
+	s := fmt.Sprintf("%s", helper.w.Body)
 	expected := "get params: map[], path params: map[id:234feabc1357346781234524]"
 	if s != expected {
 		b.Errorf("invalid response: %s; expected: %s", s, expected)
 	}
+}
+
+type getHelper struct {
+	w *httptest.ResponseRecorder
+	r *http.Request
+}
+
+func newGetHelper(path string) *getHelper {
+	r, _ := http.NewRequest(http.MethodGet, path, bytes.NewBufferString(""))
+
+	return &getHelper{
+		w: httptest.NewRecorder(),
+		r: r,
+	}
+}
+
+func (helper *getHelper) clear() {
+	helper.w.Body = bytes.NewBufferString("")
 }
