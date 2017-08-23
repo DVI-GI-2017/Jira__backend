@@ -8,27 +8,28 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+type LabelsContainer struct {
+	LabelsList models.LabelsList `bson:"labels"`
+}
+
 // Returns all labels from given task.
-func AllLabels(source db.DataSource, task_id bson.ObjectId) (models.LabelsList, error) {
-	var container = struct {
-		LabelsList models.LabelsList `bson:"labels"`
-	}{}
+func AllLabels(source db.DataSource, taskId bson.ObjectId) (models.LabelsList, error) {
+	var container LabelsContainer
 
-	err := queryLabels(source.C(cTasks), task_id).One(&container)
-
+	err := queryLabels(source.C(cTasks), taskId).One(&container)
 	if err != nil {
 		return models.LabelsList{},
-			fmt.Errorf("can not retrieve all labels on task %s: %v", task_id.Hex(), err)
+			fmt.Errorf("can not retrieve all labels on task %s: %v", taskId.Hex(), err)
 	}
 
 	return container.LabelsList, nil
 }
 
 // Selects labels from tasks query
-func queryLabels(collection db.Collection, task_id bson.ObjectId) db.Query {
+func queryLabels(collection db.Collection, taskId bson.ObjectId) db.Query {
 	return collection.Find(
 		bson.M{
-			"_id": task_id,
+			"_id": taskId,
 		}).Select(bson.M{"labels": 1})
 }
 
@@ -52,19 +53,22 @@ func queryLabel(collection db.Collection, task_id bson.ObjectId, label models.La
 }
 
 // Adds label to task and returns new list of labels on this task.
-func AddLabelToTask(source db.DataSource, task_id bson.ObjectId, label models.Label) (models.LabelsList, error) {
-	task, err := UpdateTask(source, task_id, pushLabel(label))
+func AddLabelToTask(source db.DataSource, taskId bson.ObjectId, label models.Label) (models.LabelsList, error) {
+	err := pushLabel(source.C(cTasks), taskId, label)
 	if err != nil {
 		return models.LabelsList{},
-			fmt.Errorf("can not add label '%v' to task '%s': %v", label, task.Id.Hex(), err)
+			fmt.Errorf("can not add label '%v' to task '%s': %v", label, taskId.Hex(), err)
 	}
 
-	return task.Labels, nil
+	return AllLabels(source, taskId)
 }
 
-// Returns "updater" that performs push in task labels array.
-func pushLabel(label models.Label) interface{} {
-	return bson.M{"$push": bson.M{"labels": label}}
+// Pushes label in task's labels array.
+func pushLabel(collection db.Collection, task_id bson.ObjectId, label models.Label) error {
+	return collection.Update(
+		bson.M{"_id": task_id},
+		bson.M{"$push": bson.M{"labels": label}},
+	)
 }
 
 // Deletes label from task and returns new list of labels on this task
