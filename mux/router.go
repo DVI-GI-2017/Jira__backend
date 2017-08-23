@@ -11,8 +11,6 @@ import (
 
 	"strings"
 
-	"time"
-
 	"github.com/DVI-GI-2017/Jira__backend/params"
 )
 
@@ -35,6 +33,8 @@ type router struct {
 	root *url.URL
 
 	routes map[string]map[*regexp.Regexp]http.HandlerFunc
+
+	wrappers []WrapperFunc
 }
 
 // Set router root path, other paths will be relative to it
@@ -49,10 +49,42 @@ func (r *router) SetRootPath(path string) error {
 	return nil
 }
 
+// Add wrappers to router
+func (r *router) AddWrappers(wrappers ...WrapperFunc) {
+	r.wrappers = append(r.wrappers, wrappers...)
+}
+
+// Adds Get handler
+func (r *router) Get(pattern string, handler http.HandlerFunc) error {
+	pattern = convertSimplePatternToRegexp(pattern)
+
+	compiledPattern, err := regexp.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	r.routes[http.MethodGet][compiledPattern] = Wrap(handler, r.wrappers...)
+
+	return nil
+}
+
+// Adds Post handler
+func (r *router) Post(pattern string, handler http.HandlerFunc) error {
+	pattern = convertSimplePatternToRegexp(pattern)
+
+	compiledPattern, err := regexp.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	r.routes[http.MethodPost][compiledPattern] = Wrap(handler, r.wrappers...)
+
+	return nil
+}
+
 // Listen on given port
 func (r *router) ListenAndServe(port string) error {
-	return http.ListenAndServe(fmt.Sprintf(":%s", port),
-		Logger(http.TimeoutHandler(r, time.Second, "timeout")))
+	return http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 }
 
 // Implements http.Handler interface
@@ -93,34 +125,6 @@ func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path st
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	fmt.Fprintf(w, "Method: %s not supported", req.Method)
-}
-
-// Adds Get handler
-func (r *router) Get(pattern string, handler http.HandlerFunc) error {
-	pattern = convertSimplePatternToRegexp(pattern)
-
-	compiledPattern, err := regexp.Compile(pattern)
-	if err != nil {
-		return err
-	}
-
-	r.routes[http.MethodGet][compiledPattern] = handler
-
-	return nil
-}
-
-// Adds Post handler
-func (r *router) Post(pattern string, handler http.HandlerFunc) error {
-	pattern = convertSimplePatternToRegexp(pattern)
-
-	compiledPattern, err := regexp.Compile(pattern)
-	if err != nil {
-		return err
-	}
-
-	r.routes[http.MethodPost][compiledPattern] = handler
-
-	return nil
 }
 
 // Pretty prints routes

@@ -44,6 +44,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("can not create router: %v", err)
 	}
+	router.AddWrappers(mux.Logger)
 
 	routes.SetupRoutes(router)
 
