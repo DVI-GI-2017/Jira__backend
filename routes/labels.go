@@ -20,4 +20,10 @@ var LabelsRoutes = []Route{
 		Method:  http.MethodGet,
 		Handler: auth.ValidateToken(handlers.AllLabelsOnTask),
 	},
+	{
+		Name:    "Delete label from task (:task_id)",
+		Pattern: "/tasks/:task_id/labels/delete",
+		Method:  http.MethodPost,
+		Handler: auth.ValidateToken(handlers.DeleteLabelFromTask),
+	},
 }
