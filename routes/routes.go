@@ -13,7 +13,11 @@ type Route struct {
 }
 
 func (r *router) SetupRoutes() {
-
+	InitRouter(r, LoginRoutes)
+	InitRouter(r, UsersRoutes)
+	InitRouter(r, ProjectRoutes)
+	InitRouter(r, TasksRoutes)
+	InitRouter(r, LabelsRoutes)
 }
 
 func InitRouter(r *router, routes []Route) {
