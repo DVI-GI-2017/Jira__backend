@@ -26,7 +26,19 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if err := projectInfo.Validate(); err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
 	exists, err := pool.DispatchAction(pool.CheckProjectExists, projectInfo)
+
+	if err != nil {
+		JsonErrorResponse(w, fmt.Errorf("can not check project existence: %v", err),
+			http.StatusInternalServerError)
+		return
+	}
+
 	if exists.(bool) {
 		JsonErrorResponse(w, fmt.Errorf("project with title %s already exists", projectInfo.Title),
 			http.StatusConflict)
