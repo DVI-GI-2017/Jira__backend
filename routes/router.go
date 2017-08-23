@@ -11,6 +11,8 @@ import (
 
 	"strings"
 
+	"time"
+
 	"github.com/DVI-GI-2017/Jira__backend/params"
 )
 
@@ -49,7 +51,8 @@ func (r *router) SetRootPath(path string) error {
 
 // Listen on given port
 func (r *router) ListenAndServe(port string) error {
-	return http.ListenAndServe(fmt.Sprintf(":%s", port), Logger(r))
+	return http.ListenAndServe(fmt.Sprintf(":%s", port),
+		Logger(http.TimeoutHandler(r, time.Second, "timeout")))
 }
 
 // Implements http.Handler interface

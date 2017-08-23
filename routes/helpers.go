@@ -42,7 +42,7 @@ func relativePath(base string, absolute string) (string, error) {
 }
 
 // Logs requests
-func Logger(handler http.Handler) http.HandlerFunc {
+func Logger(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
