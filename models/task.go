@@ -5,9 +5,9 @@ import (
 )
 
 type Task struct {
-	Id          bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Title       string        `json:"title" bson:"title"`
-	ProjectId   bson.ObjectId `json:"project_id" bson:"project_id"`
+	Id          AutoId `json:"_id" bson:"_id,omitempty"`
+	Title       Name        `json:"title" bson:"title"`
+	ProjectId   RequiredId `json:"project_id" bson:"project_id"`
 	Description string        `json:"description" bson:"description,omitempty"`
 	InitiatorId bson.ObjectId `json:"initiator_id" bson:"initiator_id,omitempty"`
 	AssigneeId  bson.ObjectId `json:"assignee_id" bson:"assignee_id,omitempty"`

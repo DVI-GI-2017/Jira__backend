@@ -75,6 +75,24 @@ func (n Name) Validate() error {
 	return nil
 }
 
+// Text
+
+type Text string
+
+var (
+	ErrTextTooLong = errors.New("text too long")
+
+	MaxTextLen = 500
+)
+
+// Validate text
+func (t Text) Validate() error {
+	if len(t) > MaxTextLen {
+		return ErrTextTooLong
+	}
+	return nil
+}
+
 // AutoId helpers
 
 type AutoId bson.ObjectId
