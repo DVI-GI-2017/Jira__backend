@@ -14,7 +14,7 @@ func AllLabels(source db.DataSource, taskId bson.ObjectId) (models.LabelsList, e
 		models.LabelsList `bson:"labels"`
 	}
 
-	err := queryLabels(source.C(cTasks), taskId).One(&container)
+	err := queryLabels(source, taskId).One(&container)
 	if err != nil {
 		return models.LabelsList{},
 			fmt.Errorf("can not retrieve all labels on task %s: %v", taskId.Hex(), err)
@@ -24,8 +24,8 @@ func AllLabels(source db.DataSource, taskId bson.ObjectId) (models.LabelsList, e
 }
 
 // Selects labels from tasks query
-func queryLabels(collection db.Collection, taskId bson.ObjectId) db.Query {
-	return collection.Find(
+func queryLabels(source db.DataSource, taskId bson.ObjectId) db.Query {
+	return source.C(cTasks).Find(
 		bson.M{
 			"_id": taskId,
 		}).Select(bson.M{"labels": 1})
@@ -33,7 +33,7 @@ func queryLabels(collection db.Collection, taskId bson.ObjectId) db.Query {
 
 // Checks if label already set on this task.
 func CheckLabelAlreadySet(source db.DataSource, id bson.ObjectId, label models.Label) (bool, error) {
-	notset, err := queryLabel(source.C(cTasks), id, label).IsEmpty()
+	notset, err := queryLabel(source, id, label).IsEmpty()
 	if err != nil {
 		return false, err
 	}
@@ -42,8 +42,8 @@ func CheckLabelAlreadySet(source db.DataSource, id bson.ObjectId, label models.L
 }
 
 // Selects label from collection.
-func queryLabel(collection db.Collection, task_id bson.ObjectId, label models.Label) db.Query {
-	return collection.Find(
+func queryLabel(source db.DataSource, task_id bson.ObjectId, label models.Label) db.Query {
+	return source.C(cTasks).Find(
 		bson.M{
 			"_id":    task_id,
 			"labels": label,
@@ -52,7 +52,7 @@ func queryLabel(collection db.Collection, task_id bson.ObjectId, label models.La
 
 // Adds label to task and returns new list of labels on this task.
 func AddLabelToTask(source db.DataSource, taskId bson.ObjectId, label models.Label) (models.LabelsList, error) {
-	err := pushLabel(source.C(cTasks), taskId, label)
+	err := pushLabel(source, taskId, label)
 	if err != nil {
 		return models.LabelsList{},
 			fmt.Errorf("can not add label '%v' to task '%s': %v", label, taskId.Hex(), err)
@@ -62,8 +62,8 @@ func AddLabelToTask(source db.DataSource, taskId bson.ObjectId, label models.Lab
 }
 
 // Pushes label in task's labels array.
-func pushLabel(collection db.Collection, taskId bson.ObjectId, label models.Label) error {
-	return collection.Update(
+func pushLabel(source db.DataSource, taskId bson.ObjectId, label models.Label) error {
+	return source.C(cTasks).Update(
 		bson.M{"_id": taskId},
 		bson.M{"$push": bson.M{"labels": label}},
 	)
@@ -71,7 +71,7 @@ func pushLabel(collection db.Collection, taskId bson.ObjectId, label models.Labe
 
 // Deletes label from task and returns new list of labels on this task
 func DeleteLabelFromTask(source db.DataSource, taskId bson.ObjectId, label models.Label) (models.LabelsList, error) {
-	err := pullLabel(source.C(cTasks), taskId, label)
+	err := pullLabel(source, taskId, label)
 	if err != nil {
 		return models.LabelsList{},
 			fmt.Errorf("can not delete label '%v' from task '%s': %v", label, taskId.Hex(), err)
@@ -81,8 +81,8 @@ func DeleteLabelFromTask(source db.DataSource, taskId bson.ObjectId, label model
 }
 
 // Pulls label from task's labels array.
-func pullLabel(collection db.Collection, taskId bson.ObjectId, label models.Label) error {
-	return collection.Update(
+func pullLabel(source db.DataSource, taskId bson.ObjectId, label models.Label) error {
+	return source.C(cTasks).Update(
 		bson.M{"_id": taskId},
 		bson.M{"$pull": bson.M{"labels": label}},
 	)
