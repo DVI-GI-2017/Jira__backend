@@ -24,6 +24,11 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if err := credentials.Validate(); err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
 	exists, err := pool.DispatchAction(pool.CheckUserExists, credentials)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusInternalServerError)
@@ -63,6 +68,11 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	parameters := params.ExtractParams(req)
 
 	if err := json.Unmarshal(parameters.Body, &credentials); err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	if err := credentials.Validate(); err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
