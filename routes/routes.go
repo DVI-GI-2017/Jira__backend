@@ -12,6 +12,10 @@ type Route struct {
 	Handler http.HandlerFunc
 }
 
+func (r *router) SetupRoutes() {
+
+}
+
 func InitRouter(r *router, routes []Route) {
 	for _, route := range routes {
 		err := r.Add(route)
