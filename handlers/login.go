@@ -42,7 +42,16 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	JsonResponse(w, user)
+	token, err := auth.NewToken()
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	JsonResponse(w, struct {
+		models.User
+		auth.Token
+	}{user.(models.User), token})
 }
 
 // Authorizes user in system.
