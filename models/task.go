@@ -15,16 +15,6 @@ type Task struct {
 
 type TasksList []Task
 
-func (t *Task) HasLabel(label Label) bool {
-	for _, l := range t.Labels {
-		if l == label {
-			return true
-		}
-	}
-
-	return false
-}
-
 // Helper structure for label associated with task.
 type TaskLabel struct {
 	TaskId bson.ObjectId
