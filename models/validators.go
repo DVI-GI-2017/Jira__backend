@@ -93,9 +93,25 @@ func (t Text) Validate() error {
 	return nil
 }
 
+// General Id helpers
+
+type Id bson.ObjectId
+
+var ErrInvalidId = errors.New("invalid id")
+
+// Validates id
+func ValidateId(id Id) error {
+	// NOTE: By  default id.Valid() checks only id len
+	// BTW we could pass id like: bson.ObjectId("12_bytes_len")
+	if !bson.IsObjectIdHex(string(id)) {
+		return ErrInvalidId
+	}
+	return nil
+}
+
 // AutoId helpers
 
-type AutoId bson.ObjectId
+type AutoId Id
 
 var ErrIdMustBeOmitted = errors.New("id must be omitted")
 
@@ -109,7 +125,7 @@ func (id AutoId) Validate() error {
 
 // RequiredId helpers
 
-type RequiredId bson.ObjectId
+type RequiredId Id
 
 var ErrIdMustBePresent = errors.New("id must be present")
 
@@ -117,6 +133,26 @@ var ErrIdMustBePresent = errors.New("id must be present")
 func (id RequiredId) Validate() error {
 	if id == RequiredId("") {
 		return ErrIdMustBePresent
+	}
+
+	if err := ValidateId(Id(id)); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Optional Id helpers
+
+type OptionalId bson.ObjectId
+
+// Validates optional id
+func (id OptionalId) Validate() error {
+	if err := AutoId(id).Validate(); err == nil {
+		return nil
+	}
+
+	if err := RequiredId(id).Validate(); err != nil {
+		return err
 	}
 	return nil
 }
