@@ -8,13 +8,11 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type LabelsContainer struct {
-	LabelsList models.LabelsList `bson:"labels"`
-}
-
 // Returns all labels from given task.
 func AllLabels(source db.DataSource, taskId bson.ObjectId) (models.LabelsList, error) {
-	var container LabelsContainer
+	var container struct {
+		models.LabelsList `bson:"labels"`
+	}
 
 	err := queryLabels(source.C(cTasks), taskId).One(&container)
 	if err != nil {
@@ -64,20 +62,28 @@ func AddLabelToTask(source db.DataSource, taskId bson.ObjectId, label models.Lab
 }
 
 // Pushes label in task's labels array.
-func pushLabel(collection db.Collection, task_id bson.ObjectId, label models.Label) error {
+func pushLabel(collection db.Collection, taskId bson.ObjectId, label models.Label) error {
 	return collection.Update(
-		bson.M{"_id": task_id},
+		bson.M{"_id": taskId},
 		bson.M{"$push": bson.M{"labels": label}},
 	)
 }
 
 // Deletes label from task and returns new list of labels on this task
-func DeleteLabelFromTask(source db.DataSource, task_id bson.ObjectId, label models.Label) (models.LabelsList, error) {
-	task, err := UpdateTask(source, task_id, bson.M{"$pull": bson.M{"labels": label}})
+func DeleteLabelFromTask(source db.DataSource, taskId bson.ObjectId, label models.Label) (models.LabelsList, error) {
+	err := pullLabel(source.C(cTasks), taskId, label)
 	if err != nil {
 		return models.LabelsList{},
-			fmt.Errorf("can not delete label '%v' from task '%s': %v", label, task.Id.Hex(), err)
+			fmt.Errorf("can not delete label '%v' from task '%s': %v", label, taskId.Hex(), err)
 	}
 
-	return task.Labels, nil
+	return AllLabels(source, taskId)
+}
+
+// Pulls label from task's labels array.
+func pullLabel(collection db.Collection, taskId bson.ObjectId, label models.Label) error {
+	return collection.Update(
+		bson.M{"_id": taskId},
+		bson.M{"$pull": bson.M{"labels": label}},
+	)
 }
