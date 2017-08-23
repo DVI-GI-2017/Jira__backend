@@ -39,6 +39,12 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	err = label.Validate()
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
 	taskId := bson.ObjectIdHex(p.PathParams["task_id"])
 	taskLabel := models.TaskLabel{TaskId: taskId, Label: label}
 
