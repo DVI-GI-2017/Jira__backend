@@ -18,16 +18,25 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 	body := params.ExtractParams(req).Body
 
 	var task models.Task
+	if err := json.Unmarshal(body, &task); err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
 
-	err := json.Unmarshal(body, &task)
-	if err != nil {
+	if err := task.Validate(); err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
 
 	exists, err := pool.DispatchAction(pool.CheckTaskExists, task)
+	if err != nil {
+		JsonErrorResponse(w, fmt.Errorf("can not check task existence: %v", err),
+			http.StatusInternalServerError)
+		return
+	}
 	if exists.(bool) {
-		JsonErrorResponse(w, fmt.Errorf("Task with title: %s already exists!", task.Title), http.StatusConflict)
+		JsonErrorResponse(w, fmt.Errorf("Task with title: %s already exists!", task.Title),
+			http.StatusConflict)
 		return
 	}
 

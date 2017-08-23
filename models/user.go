@@ -1,21 +1,31 @@
 package models
 
-import (
-	"time"
-
-	"gopkg.in/mgo.v2/bson"
-)
-
 type User struct {
-	Id        bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Email     string        `json:"email"`
-	Password  string        `json:"password"`
-	FirstName string        `json:"first_name"`
-	LastName  string        `json:"last_name"`
-	Bio       string        `json:"bio"`
-	Tasks     TasksList     `json:"tasks"`
-	CreatedAt time.Time     `json:"created_at"`
-	UpdatedAt time.Time     `json:"updated_at"`
+	Id       AutoId   `json:"_id" bson:"_id,omitempty"`
+	Email    Email    `json:"email" bson:"email"`
+	Password Password `json:"password" bson:"password"`
+	Name     Name     `json:"name" bson:"name"`
+	Bio      Text     `json:"bio" bson:"bio,omitempty"`
+}
+
+// Returns validation error or nil if valid
+func (u User) Validate() error {
+	if err := u.Id.Validate(); err != nil {
+		return err
+	}
+	if err := u.Email.Validate(); err != nil {
+		return err
+	}
+	if err := u.Password.Validate(); err != nil {
+		return err
+	}
+	if err := u.Name.Validate(); err != nil {
+		return err
+	}
+	if err := u.Bio.Validate(); err != nil {
+		return err
+	}
+	return nil
 }
 
 type UsersList []User
