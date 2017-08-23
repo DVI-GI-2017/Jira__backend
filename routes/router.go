@@ -43,6 +43,11 @@ func (r *router) SetRootPath(path string) error {
 	return nil
 }
 
+// Listen on given port
+func (r *router) ListenAndServe(port string) error {
+	return http.ListenAndServe(fmt.Sprintf(":%s", port), r)
+}
+
 // Implements http.Handler interface
 func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	relPath, err := relativePath(r.root.Path, req.URL.Path)
