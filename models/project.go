@@ -8,7 +8,6 @@ type Project struct {
 	Id          bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	Title       string        `json:"title" bson:"title"`
 	Description string        `json:"description" bson:"description,omitempty"`
-	Tasks       TasksList     `json:"tasks" bson:"tasks,omitempty"`
 }
 
 type ProjectsList []Project

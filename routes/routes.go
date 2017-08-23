@@ -12,6 +12,14 @@ type Route struct {
 	Handler http.HandlerFunc
 }
 
+func (r *router) SetupRoutes() {
+	InitRouter(r, LoginRoutes)
+	InitRouter(r, UsersRoutes)
+	InitRouter(r, ProjectRoutes)
+	InitRouter(r, TasksRoutes)
+	InitRouter(r, LabelsRoutes)
+}
+
 func InitRouter(r *router, routes []Route) {
 	for _, route := range routes {
 		err := r.Add(route)

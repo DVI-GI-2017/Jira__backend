@@ -46,12 +46,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("can not create router: %v", err)
 	}
-
-	routes.InitRouter(router, routes.LoginRoutes)
-	routes.InitRouter(router, routes.UsersRoutes)
-	routes.InitRouter(router, routes.ProjectRoutes)
-	routes.InitRouter(router, routes.TasksRoutes)
-	routes.InitRouter(router, routes.LabelsRoutes)
+	router.SetupRoutes()
 
 	port := config.Server.GetPort()
 
