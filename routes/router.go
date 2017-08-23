@@ -49,7 +49,7 @@ func (r *router) SetRootPath(path string) error {
 
 // Listen on given port
 func (r *router) ListenAndServe(port string) error {
-	return http.ListenAndServe(fmt.Sprintf(":%s", port), r)
+	return http.ListenAndServe(fmt.Sprintf(":%s", port), Logger(r))
 }
 
 // Implements http.Handler interface
