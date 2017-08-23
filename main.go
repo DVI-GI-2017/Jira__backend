@@ -6,6 +6,7 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/db"
+	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
 	"github.com/DVI-GI-2017/Jira__backend/services/auth"
@@ -39,10 +40,11 @@ func main() {
 
 	db.InitDB(config.Mongo)
 
-	router, err := routes.NewRouter("/api/v1")
+	router, err := mux.NewRouter("/api/v1")
 	if err != nil {
 		log.Fatalf("can not create router: %v", err)
 	}
+
 	routes.SetupRoutes(router)
 
 	router.PrintRoutes()

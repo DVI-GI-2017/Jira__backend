@@ -1,4 +1,4 @@
-package routes
+package mux
 
 import (
 	"errors"
