@@ -79,6 +79,8 @@ func Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	credentials.Encrypt()
+
 	valid, err := pool.Dispatch(pool.UserAuthorize, credentials)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusInternalServerError)
