@@ -20,9 +20,13 @@ type Params struct {
 }
 
 func NewParams(request *http.Request, pattern *regexp.Regexp, path string) (*Params, error) {
-	body, err := ioutil.ReadAll(request.Body)
-	if err != nil {
-		return nil, err
+	var body []byte
+	if request.Body != nil {
+		newBody, err := ioutil.ReadAll(request.Body)
+		if err != nil {
+			return nil, err
+		}
+		body = newBody
 	}
 
 	return &Params{
