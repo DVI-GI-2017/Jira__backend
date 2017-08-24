@@ -2,7 +2,7 @@ package pool
 
 import "log"
 
-func getServiceByAction(action Action) (service ServiceFunc, err error) {
+func getService(action Action) (service ServiceFunc) {
 	for prefix, resolver := range resolvers {
 		if action.HasPrefix(prefix) {
 			return resolver(action)

@@ -16,8 +16,8 @@ func (a Action) HasPrefix(prefix string) bool {
 // Function to be passed to workers pool
 type ServiceFunc func(source db.DataSource, data interface{}) (result interface{}, err error)
 
-// Function that returns service function
-type ResolverFunc func(action Action) (service ServiceFunc, err error)
+// Function that takes action and returns service function
+type ResolverFunc func(action Action) (service ServiceFunc)
 
 // Resolvers will be initialized from files with resolvers in this package
 var resolvers = make(map[string]ResolverFunc, 0)

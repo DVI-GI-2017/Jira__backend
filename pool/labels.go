@@ -20,7 +20,7 @@ const (
 	LabelDeleteFromTask = Action("LabelDeleteFromTask")
 )
 
-func labelsResolver(action Action) (service ServiceFunc, err error) {
+func labelsResolver(action Action) (service ServiceFunc) {
 	switch action {
 
 	case LabelAddToTask:

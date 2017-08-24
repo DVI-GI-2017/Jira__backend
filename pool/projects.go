@@ -20,7 +20,7 @@ const (
 	ProjectFindById = Action("ProjectFindById")
 )
 
-func projectsResolver(action Action) (service ServiceFunc, err error) {
+func projectsResolver(action Action) (service ServiceFunc) {
 	switch action {
 	case ProjectCreate:
 		service = func(source db.DataSource, project interface{}) (interface{}, error) {

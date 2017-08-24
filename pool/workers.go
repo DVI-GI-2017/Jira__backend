@@ -13,9 +13,9 @@ type Job struct {
 }
 
 type JobResult struct {
-	WorkerId   int
-	Error      error
-	Result interface{}
+	WorkerId int
+	Error    error
+	Result   interface{}
 }
 
 var Queue = make(chan *Job, 512)
@@ -29,7 +29,7 @@ func InitWorkers() {
 
 func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	for job := range queue {
-		function, _ := getServiceByAction(job.Action)
+		function := getService(job.Action)
 
 		result, err := function(db.Copy(), job.Input)
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
@@ -41,9 +41,9 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 		}
 
 		results <- &JobResult{
-			WorkerId:   id,
-			Error:      err,
-			Result: result,
+			WorkerId: id,
+			Error:    err,
+			Result:   result,
 		}
 	}
 }

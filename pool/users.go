@@ -21,7 +21,7 @@ const (
 	UsersAll      = Action("UsersAll")
 )
 
-func usersResolver(action Action) (service ServiceFunc, err error) {
+func usersResolver(action Action) (service ServiceFunc) {
 	switch action {
 
 	case UserCreate:

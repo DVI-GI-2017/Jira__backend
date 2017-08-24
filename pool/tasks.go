@@ -20,7 +20,7 @@ const (
 	TaskFindById = Action("TaskFindById")
 )
 
-func tasksResolver(action Action) (service ServiceFunc, err error) {
+func tasksResolver(action Action) (service ServiceFunc) {
 	switch action {
 
 	case TaskCreate:
