@@ -6,7 +6,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/services/tasks"
-	"gopkg.in/mgo.v2/bson"
 )
 
 func init() {
@@ -43,7 +42,7 @@ func tasksResolver(action Action) (service ServiceFunc) {
 
 	case TaskFindById:
 		service = func(source db.DataSource, id interface{}) (interface{}, error) {
-			return tasks.FindTaskById(source, id.(bson.ObjectId))
+			return tasks.FindTaskById(source, id.(models.RequiredId))
 		}
 		return
 

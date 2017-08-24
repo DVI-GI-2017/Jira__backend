@@ -6,7 +6,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/services/projects"
-	"gopkg.in/mgo.v2/bson"
 )
 
 func init() {
@@ -45,13 +44,13 @@ func projectsResolver(action Action) (service ServiceFunc) {
 
 	case ProjectFindById:
 		service = func(source db.DataSource, id interface{}) (interface{}, error) {
-			return projects.FindProjectById(source, id.(bson.ObjectId))
+			return projects.FindProjectById(source, id.(models.RequiredId))
 		}
 		return
 
 	case ProjectAllUsers:
 		service = func(source db.DataSource, id interface{}) (result interface{}, err error) {
-			return projects.AllUsersInProject(source, id.(bson.ObjectId))
+			return projects.AllUsersInProject(source, id.(models.RequiredId))
 		}
 		return
 

@@ -21,8 +21,9 @@ func CheckProjectExists(source db.DataSource, project models.Project) (bool, err
 }
 
 // Creates project and returns it.
+
 func CreateProject(source db.DataSource, project models.Project) (models.Project, error) {
-	project.Id = models.AutoId(bson.NewObjectId())
+	project.Id = models.NewAutoId()
 
 	err := source.C(cProjects).Insert(project)
 	if err != nil {
@@ -41,7 +42,7 @@ func AllProjects(source db.DataSource) (result models.ProjectsList, err error) {
 }
 
 // Returns task with given id.
-func FindProjectById(mongo db.DataSource, id bson.ObjectId) (result models.Project, err error) {
+func FindProjectById(mongo db.DataSource, id models.RequiredId) (result models.Project, err error) {
 	err = mongo.C(cProjects).FindId(id).One(&result)
 	if err != nil {
 		return models.Project{}, fmt.Errorf("can not find project with id '%s': %v", id, err)
@@ -50,13 +51,14 @@ func FindProjectById(mongo db.DataSource, id bson.ObjectId) (result models.Proje
 }
 
 // Returns all users in project
-func AllUsersInProject(mongo db.DataSource, id bson.ObjectId) (result models.UsersList, err error) {
+func AllUsersInProject(mongo db.DataSource, id models.RequiredId) (result models.UsersList, err error) {
 	var project models.Project
 	err = mongo.C(cProjects).FindId(id).One(&project)
 	if err != nil {
 		return models.UsersList{}, fmt.Errorf("can not find project with id '%s': %v", id, err)
 	}
-	err = mongo.C(cUsers).Find(bson.M{"_id": project.Users}).All(&result)
+
+	err = mongo.C(cUsers).Find(bson.M{"_id": bson.M{"$in": project.Users}}).All(&result)
 	if err != nil {
 		return models.UsersList{}, fmt.Errorf("can not retrieve all users from project: %s", id.Hex())
 	}
@@ -64,20 +66,20 @@ func AllUsersInProject(mongo db.DataSource, id bson.ObjectId) (result models.Use
 }
 
 func AddUserToProject(source db.DataSource, projectId, userId models.RequiredId) (result models.UsersList, err error) {
-	if err := pushUser(source, bson.ObjectIdHex(projectId.Hex()), bson.ObjectIdHex(userId.Hex())); err != nil {
+	if err := pushUser(source, projectId, userId); err != nil {
 		return models.UsersList{},
-			fmt.Errorf("can not add user '%v' to project '%s': %v", userId.Hex(), projectId.Hex(), err)
+			fmt.Errorf("can not add user '%v' to project '%s': %v", userId, projectId, err)
 	}
-	if err := pushProject(source, bson.ObjectIdHex(userId.Hex()), bson.ObjectIdHex(projectId.Hex())); err != nil {
+	if err := pushProject(source, userId, projectId); err != nil {
 		return models.UsersList{},
 			fmt.Errorf("can not add project '%v' to user '%s': %v", projectId.Hex(), userId.Hex(), err)
 	}
 
-	return AllUsersInProject(source, bson.ObjectIdHex(projectId.Hex()))
+	return AllUsersInProject(source, projectId)
 }
 
 // Pushes user to project's users array.
-func pushUser(source db.DataSource, projectId, userId bson.ObjectId) error {
+func pushUser(source db.DataSource, projectId, userId models.RequiredId) error {
 	return source.C(cProjects).Update(
 		bson.M{"_id": projectId},
 		bson.M{"$push": bson.M{"users": userId}},
@@ -85,7 +87,7 @@ func pushUser(source db.DataSource, projectId, userId bson.ObjectId) error {
 }
 
 // Pushes project to user's projects array
-func pushProject(source db.DataSource, userId, projectId bson.ObjectId) error {
+func pushProject(source db.DataSource, userId, projectId models.RequiredId) error {
 	return source.C(cUsers).Update(
 		bson.M{"_id": userId},
 		bson.M{"$push": bson.M{"projects": projectId}},
@@ -93,20 +95,20 @@ func pushProject(source db.DataSource, userId, projectId bson.ObjectId) error {
 }
 
 func DeleteUserFromProject(source db.DataSource, projectId, userId models.RequiredId) (result models.UsersList, err error) {
-	if err := pullUser(source, bson.ObjectIdHex(projectId.Hex()), bson.ObjectIdHex(userId.Hex())); err != nil {
+	if err := pullUser(source, projectId, userId); err != nil {
 		return models.UsersList{},
 			fmt.Errorf("can not delete user '%v' from project '%s': %v", userId.Hex(), projectId.Hex(), err)
 	}
-	if err := pullProject(source, bson.ObjectIdHex(userId.Hex()), bson.ObjectIdHex(projectId.Hex())); err != nil {
+	if err := pullProject(source, userId, projectId); err != nil {
 		return models.UsersList{},
 			fmt.Errorf("can not delete project '%v' from user '%s': %v", projectId.Hex(), userId.Hex(), err)
 	}
 
-	return AllUsersInProject(source, bson.ObjectIdHex(projectId.Hex()))
+	return AllUsersInProject(source, projectId)
 }
 
 // Pulls user from project's users array.
-func pullUser(source db.DataSource, projectId, userId bson.ObjectId) error {
+func pullUser(source db.DataSource, projectId, userId models.RequiredId) error {
 	return source.C(cProjects).Update(
 		bson.M{"_id": projectId},
 		bson.M{"$pull": bson.M{"users": userId}},
@@ -114,7 +116,7 @@ func pullUser(source db.DataSource, projectId, userId bson.ObjectId) error {
 }
 
 // Pulls project from user's projects array.
-func pullProject(source db.DataSource, userId, projectId bson.ObjectId) error {
+func pullProject(source db.DataSource, userId, projectId models.RequiredId) error {
 	return source.C(cUsers).Update(
 		bson.M{"_id": userId},
 		bson.M{"$pull": bson.M{"projects": projectId}},

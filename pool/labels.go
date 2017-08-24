@@ -6,7 +6,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/services/tasks"
-	"gopkg.in/mgo.v2/bson"
 )
 
 func init() {
@@ -33,7 +32,7 @@ func labelsResolver(action Action) (service ServiceFunc) {
 
 	case LabelsAllOnTask:
 		service = func(source db.DataSource, id interface{}) (interface{}, error) {
-			return tasks.AllLabels(source, id.(bson.ObjectId))
+			return tasks.AllLabels(source, id.(models.RequiredId))
 		}
 		return
 
