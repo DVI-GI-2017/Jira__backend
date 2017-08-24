@@ -30,4 +30,22 @@ var projectRoutes = []Route{
 		Method:  http.MethodGet,
 		Handler: auth.ValidateToken(handlers.GetProjectById),
 	},
+	{
+		Name:    "Get all users from project with given id",
+		Pattern: "/projects/:id/users",
+		Method:  http.MethodGet,
+		Handler: auth.ValidateToken(handlers.GetAllUsersFromProject),
+	},
+	{
+		Name:    "Add user to project with given id",
+		Pattern: "/projects/:id/users",
+		Method:  http.MethodPost,
+		Handler: auth.ValidateToken(handlers.AddUserToProject),
+	},
+	{
+		Name:    "Delete user from project with given id",
+		Pattern: "/projects/:id/users/delete",
+		Method:  http.MethodPost,
+		Handler: auth.ValidateToken(handlers.DeleteUserFromProject),
+	},
 }

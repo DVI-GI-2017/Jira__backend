@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("can not create router: %v", err)
 	}
-	router.AddWrappers(mux.Logger, mux.Timeout(time.Second))
+	router.AddWrappers(mux.Logger, mux.Timeout(5*time.Second))
 
 	routes.SetupRoutes(router)
 
