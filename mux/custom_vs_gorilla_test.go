@@ -9,6 +9,9 @@ import (
 
 	"encoding/json"
 
+	"fmt"
+	"strings"
+
 	"github.com/buger/jsonparser"
 	"github.com/gorilla/mux"
 )
@@ -101,6 +104,7 @@ func initGorillaRouter(data *benchmarkData) *mux.Router {
 	apiRouter.Path(data.patternGorilla).Methods(http.MethodGet).HandlerFunc(
 		func(w http.ResponseWriter, req *http.Request) {
 			vars := mux.Vars(req)
+
 			data, err := json.Marshal(vars)
 			if err != nil {
 				log.Panicf("can not marshal data: %v", err)
@@ -131,6 +135,27 @@ func initCustomRouter(data *benchmarkData) *router {
 	}
 
 	return router
+}
+
+// Converts flat map to json
+func flatMapToJson(data map[string]string) []byte {
+	template := fmt.Sprintf(`{%s}`, strings.Repeat(`"%s":"%s",`, len(data)))
+
+	keys := make([]string, 0, len(data))
+	values := make([]string, 0, len(data))
+
+	for key, value := range data {
+		keys = append(keys, key)
+		values = append(values, value)
+	}
+
+	toInsert := make([]string, 0, 2*len(data))
+	for i := 0; i < len(data); i++ {
+		toInsert = append(toInsert, keys[i], values[i])
+	}
+
+	str := fmt.Sprintf(template, toInsert)
+	return bytes.NewBufferString(str).Bytes()
 }
 
 // Helper to mock get requests
