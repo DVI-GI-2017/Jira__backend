@@ -98,8 +98,26 @@ func (t Text) Validate() error {
 // General Id helpers
 type Id struct{ bson.ObjectId }
 
-func (id AutoId) MarshalJSON() ([]byte, error) {
+func (id Id) MarshalJSON() ([]byte, error) {
 	return json.Marshal(id.Hex())
+}
+
+func (id *Id) UnmarshalJSON(data []byte) error {
+	var result string
+	err := json.Unmarshal(data, &result)
+	id.ObjectId = bson.ObjectIdHex(result)
+	return err
+}
+
+func (id Id) GetBSON() (interface{}, error) {
+	return id.Hex(), nil
+}
+
+func (id *Id) SetBSON(raw bson.Raw) error {
+	var result string
+	err := raw.Unmarshal(&result)
+	id.ObjectId = bson.ObjectIdHex(result)
+	return err
 }
 
 var ErrInvalidId = errors.New("invalid id")
