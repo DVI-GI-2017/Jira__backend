@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-type WrapperFunc func(handlerFunc http.HandlerFunc) http.HandlerFunc
+type WrapperFunc func(handlerFunc http.Handler) http.Handler
 
 // Wraps handler func with slice of wrapper functions one by one.
-func Wrap(h http.HandlerFunc, wrappers ...WrapperFunc) http.HandlerFunc {
+func Wrap(h http.Handler, wrappers ...WrapperFunc) http.Handler {
 	for _, w := range wrappers {
 		h = w(h)
 	}
@@ -17,11 +17,11 @@ func Wrap(h http.HandlerFunc, wrappers ...WrapperFunc) http.HandlerFunc {
 }
 
 // Logs requests
-func Logger(h http.HandlerFunc) http.HandlerFunc {
+func Logger(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		h(w, r)
+		h.ServeHTTP(w, r)
 
 		log.Printf(
 			"%s\t%s\t%s",
@@ -30,4 +30,11 @@ func Logger(h http.HandlerFunc) http.HandlerFunc {
 			time.Since(start),
 		)
 	})
+}
+
+// Creates wrapper functions that adds timeout to requests
+func Timeout(timeout time.Duration) WrapperFunc {
+	return func(h http.Handler) http.Handler {
+		return http.TimeoutHandler(h, timeout, "timeout exceed")
+	}
 }

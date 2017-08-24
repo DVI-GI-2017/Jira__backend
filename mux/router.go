@@ -63,7 +63,7 @@ func (r *router) Get(pattern string, handler http.HandlerFunc) error {
 		return err
 	}
 
-	r.routes[http.MethodGet][compiledPattern] = Wrap(handler, r.wrappers...)
+	r.routes[http.MethodGet][compiledPattern] = Wrap(handler, r.wrappers...).ServeHTTP
 
 	return nil
 }
@@ -77,7 +77,7 @@ func (r *router) Post(pattern string, handler http.HandlerFunc) error {
 		return err
 	}
 
-	r.routes[http.MethodPost][compiledPattern] = Wrap(handler, r.wrappers...)
+	r.routes[http.MethodPost][compiledPattern] = Wrap(handler, r.wrappers...).ServeHTTP
 
 	return nil
 }
