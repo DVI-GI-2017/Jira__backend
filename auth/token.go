@@ -18,7 +18,7 @@ func NewToken() (Token, error) {
 
 	claims := make(jwt.MapClaims)
 
-	claims["exp"] = time.Now().Add(time.Hour * time.Duration(1)).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 730).Unix()
 	claims["iat"] = time.Now().Unix()
 
 	token.Claims = claims
