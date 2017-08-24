@@ -72,7 +72,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if err := credentials.Validate(); err != nil {
+	if err := credentials.Validate(); err != nil && err != models.ErrEmptyName {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
