@@ -73,7 +73,7 @@ type getHelper struct {
 }
 
 func newGetHelper(path string) *getHelper {
-	r, _ := http.NewRequest(http.MethodGet, path, bytes.NewBufferString(""))
+	r, _ := http.NewRequest(http.MethodGet, path, nil)
 
 	return &getHelper{
 		w: httptest.NewRecorder(),
@@ -82,5 +82,5 @@ func newGetHelper(path string) *getHelper {
 }
 
 func (helper *getHelper) clear() {
-	helper.w.Body = bytes.NewBufferString("")
+	helper.w.Body = bytes.NewBuffer(make([]byte, 0, 64))
 }
