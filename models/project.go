@@ -4,6 +4,7 @@ type Project struct {
 	Id          AutoId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Title       Name   `json:"title" bson:"title"`
 	Description Text   `json:"description,omitempty" bson:"description,omitempty"`
+	Users       []RequiredId `json:"users,omitempty" bson:"users,omitempty"`
 }
 
 type ProjectsList []Project

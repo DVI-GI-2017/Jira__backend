@@ -30,4 +30,10 @@ var projectRoutes = []Route{
 		Method:  http.MethodGet,
 		Handler: auth.ValidateToken(handlers.GetProjectById),
 	},
+	{
+		Name:    "Get all users from project with given id",
+		Pattern: "/projects/:id/users",
+		Method:  http.MethodGet,
+		Handler: auth.ValidateToken(handlers.GetAllUsersFromProject),
+	},
 }

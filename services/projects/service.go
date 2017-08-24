@@ -9,6 +9,7 @@ import (
 )
 
 const cProjects = "projects"
+const cUsers = "users"
 
 // Check if project with title == project.Title exists
 func CheckProjectExists(source db.DataSource, project models.Project) (bool, error) {
@@ -44,6 +45,20 @@ func FindProjectById(mongo db.DataSource, id bson.ObjectId) (result models.Proje
 	err = mongo.C(cProjects).FindId(id).One(&result)
 	if err != nil {
 		return models.Project{}, fmt.Errorf("can not find project with id '%s': %v", id, err)
+	}
+	return result, nil
+}
+
+// Returns all users in project
+func AllUsersInProject(mongo db.DataSource, id bson.ObjectId) (result models.UsersList, err error) {
+	var project models.Project
+	err = mongo.C(cProjects).FindId(id).One(&project)
+	if err != nil {
+		return models.UsersList{}, fmt.Errorf("can not find project with id '%s': %v", id, err)
+	}
+	err = mongo.C(cUsers).Find(bson.M{"_id": project.Users}).All(&result)
+	if err != nil {
+		return models.UsersList{}, fmt.Errorf("can not retrieve all users from project: %s", id.Hex())
 	}
 	return result, nil
 }

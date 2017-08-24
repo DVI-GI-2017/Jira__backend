@@ -18,6 +18,7 @@ const (
 	ProjectExists   = Action("ProjectExists")
 	ProjectsAll     = Action("ProjectsAll")
 	ProjectFindById = Action("ProjectFindById")
+	ProjectAllUsers = Action("ProjectAllUsers")
 )
 
 func projectsResolver(action Action) (service ServiceFunc) {
@@ -45,6 +46,13 @@ func projectsResolver(action Action) (service ServiceFunc) {
 			return projects.FindProjectById(source, id.(bson.ObjectId))
 		}
 		return
+
+	case ProjectAllUsers:
+		service = func(source db.DataSource, id interface{}) (result interface{}, err error) {
+			return projects.AllUsersInProject(source, id.(bson.ObjectId))
+		}
+		return
+
 	default:
 		log.Panicf("can not find resolver with action: %v, in projects resolvers", action)
 		return
