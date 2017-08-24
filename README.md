@@ -19,11 +19,3 @@
 Интерфейс к MongoDB: `mgo.v2` 
 
 JSON Web Tokens : `dgrijalva/jwt-go` 
-
-#### Генерация ключей
-```bash
-$ mkdir rsa && cd rsa
-$ openssl genrsa -out app.rsa 1024
-$ openssl rsa -in app.rsa -pubout > app.rsa.pub
-```
-
