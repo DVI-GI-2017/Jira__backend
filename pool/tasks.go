@@ -13,10 +13,10 @@ func init() {
 }
 
 const (
-	TaskCreate   = Action("TaskCreate")
-	TaskExists   = Action("TaskExists")
-	TasksAll     = Action("TasksAll")
-	TaskFindById = Action("TaskFindById")
+	TaskCreate        = Action("TaskCreate")
+	TaskExists        = Action("TaskExists")
+	TasksAllOnProject = Action("TasksAllOnProject")
+	TaskFindById      = Action("TaskFindById")
 )
 
 func tasksResolver(action Action) (service ServiceFunc) {
@@ -34,8 +34,8 @@ func tasksResolver(action Action) (service ServiceFunc) {
 		}
 		return
 
-	case TasksAll:
-		service = func(source db.DataSource, _ interface{}) (interface{}, error) {
+	case TasksAllOnProject:
+		service = func(source db.DataSource, projectId interface{}) (interface{}, error) {
 			return tasks.AllTasks(source)
 		}
 		return

@@ -13,16 +13,16 @@ func init() {
 
 var tasksRoutes = []Route{
 	{
-		Name:    "Create task.",
-		Pattern: "/tasks",
+		Name:    "Add task to project.",
+		Pattern: "/projects/:project_id/tasks",
 		Method:  http.MethodPost,
-		Handler: auth.ValidateToken(handlers.CreateTask),
+		Handler: auth.ValidateToken(handlers.AddTaskToProject),
 	},
 	{
-		Name:    "All tasks route",
-		Pattern: "/tasks",
+		Name:    "All tasks in project",
+		Pattern: "/projects/:project_id/tasks",
 		Method:  http.MethodGet,
-		Handler: auth.ValidateToken(handlers.AllTasks),
+		Handler: auth.ValidateToken(handlers.AllTasksInProject),
 	},
 	{
 		Name:    "Get task by id",

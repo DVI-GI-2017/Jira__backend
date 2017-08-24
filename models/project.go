@@ -5,6 +5,7 @@ type Project struct {
 	Title       Name         `json:"title" bson:"title"`
 	Description Text         `json:"description,omitempty" bson:"description,omitempty"`
 	Users       []RequiredId `json:"users,omitempty" bson:"users,omitempty"`
+	Tasks       []RequiredId `json:"tasks,omitempty" bson:"tasks,omitempty"`
 }
 
 // Helper for both project and user ids.
