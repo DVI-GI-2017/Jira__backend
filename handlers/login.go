@@ -88,11 +88,20 @@ func Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	user, err := pool.Dispatch(pool.UserFindByEmail, credentials.Email)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
 	token, err := auth.NewToken()
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	JsonResponse(w, token)
+	JsonResponse(w, struct {
+		models.User
+		auth.Token
+	}{user.(models.User), token})
 }
