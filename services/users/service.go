@@ -81,7 +81,7 @@ func AllUsersProject(source db.DataSource, id models.RequiredId) (projects model
 		return models.ProjectsList{}, fmt.Errorf("can not find user with id '%s': %v", id, err)
 	}
 
-	err = source.C(cProjects).Find(bson.M{"_id": user.Projects}).All(&projects)
+	err = source.C(cProjects).Find(bson.M{"_id": bson.M{"$in": user.Projects}}).All(&projects)
 	if err != nil {
 		return models.ProjectsList{}, fmt.Errorf("can not retrieve all users from project: %s", id.Hex())
 	}
