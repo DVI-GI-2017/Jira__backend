@@ -125,7 +125,7 @@ func (id AutoId) Validate() error {
 }
 
 func (id AutoId) Hex() string {
-	return id.Hex()
+	return bson.ObjectId(id).Hex()
 }
 
 func (id AutoId) MarshalJSON() ([]byte, error) {
@@ -151,7 +151,7 @@ func (id RequiredId) Validate() error {
 }
 
 func (id RequiredId) Hex() string {
-	return id.Hex()
+	return bson.ObjectId(id).Hex()
 }
 
 func (id RequiredId) MarshalJSON() ([]byte, error) {
@@ -175,7 +175,7 @@ func (id OptionalId) Validate() error {
 }
 
 func (id OptionalId) Hex() string {
-	return id.Hex()
+	return bson.ObjectId(id).Hex()
 }
 
 func (id OptionalId) MarshalJSON() ([]byte, error) {
