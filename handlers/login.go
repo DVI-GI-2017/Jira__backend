@@ -88,7 +88,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if !valid.(bool) {
-		JsonErrorResponse(w, fmt.Errorf("can not find user with: %v", credentials), http.StatusNotFound)
+		JsonErrorResponse(w, fmt.Errorf("can not find user with: %s", credentials.Email), http.StatusNotFound)
 		return
 	}
 
