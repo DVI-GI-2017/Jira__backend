@@ -34,7 +34,7 @@ func CheckUserCredentials(source db.DataSource, credentials models.User) (bool, 
 
 // Creates user and returns it.
 func CreateUser(source db.DataSource, user models.User) (models.User, error) {
-	user.Id = models.AutoId(bson.NewObjectId())
+	user.Id = models.NewAutoId()
 
 	err := source.C(cUsers).Insert(user)
 	if err != nil {

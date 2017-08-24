@@ -42,9 +42,9 @@ var (
 	ErrWrongPasswordFormat = errors.New("wrong password format")
 )
 
-var passwordRegex = regexp.MustCompile(`^[[:graph:]]{3,14}$`)
+var passwordRegex = regexp.MustCompile(`^[[:graph:]]{5,14}$`)
 
-// Validates passowrd
+// Validates password
 func (p Password) Validate() error {
 	if len(p) == 0 {
 		return ErrEmptyPassword
@@ -59,7 +59,7 @@ func (p Password) Validate() error {
 
 type Name string
 
-var nameRegex = regexp.MustCompile(`^[a-zA-Z](.[a-zA-Z0-9_-]*)$`)
+var nameRegex = regexp.MustCompile(`^[a-zA-Z](.[ a-zA-Z0-9_-]*)$`)
 
 var (
 	ErrEmptyName       = errors.New("empty name")
@@ -96,89 +96,75 @@ func (t Text) Validate() error {
 }
 
 // General Id helpers
+type Id struct{ bson.ObjectId }
 
-type Id bson.ObjectId
+func (id AutoId) MarshalJSON() ([]byte, error) {
+	return json.Marshal(id.Hex())
+}
 
 var ErrInvalidId = errors.New("invalid id")
 
 // Validates id
-func ValidateId(id Id) error {
+func (id Id) Validate() error {
 	// NOTE: By  default id.Valid() checks only id len
 	// BTW we could pass id like: bson.ObjectId("12_bytes_len")
-	if !bson.IsObjectIdHex(string(id)) {
+	if !bson.IsObjectIdHex(id.Hex()) {
 		return ErrInvalidId
 	}
 	return nil
 }
 
 // AutoId helpers
-
-type AutoId Id
+type AutoId struct{ Id }
 
 var ErrIdMustBeOmitted = errors.New("id must be omitted")
 
 // Validates generated id
 func (id AutoId) Validate() error {
-	if id != AutoId("") {
+	if id.Hex() != "" {
 		return ErrIdMustBeOmitted
 	}
 	return nil
 }
 
-func (id AutoId) Hex() string {
-	return bson.ObjectId(id).Hex()
-}
-
-func (id AutoId) MarshalJSON() ([]byte, error) {
-	return json.Marshal(id.Hex())
+// New auto Id
+func NewAutoId() AutoId {
+	return AutoId{Id: Id{ObjectId: bson.NewObjectId()}}
 }
 
 // RequiredId helpers
-
-type RequiredId Id
+type RequiredId struct{ Id }
 
 var ErrIdMustBePresent = errors.New("id must be present")
 
 // Validates required id
 func (id RequiredId) Validate() error {
-	if id == RequiredId("") {
+	if id.Hex() == "" {
 		return ErrIdMustBePresent
 	}
 
-	if err := ValidateId(Id(id)); err != nil {
+	if err := id.Id.Validate(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (id RequiredId) Hex() string {
-	return bson.ObjectId(id).Hex()
-}
-
-func (id RequiredId) MarshalJSON() ([]byte, error) {
-	return json.Marshal(id.Hex())
+// New required id
+func NewRequiredId(hex string) RequiredId {
+	return RequiredId{Id: Id{ObjectId: bson.ObjectIdHex(hex)}}
 }
 
 // Optional Id helpers
-
-type OptionalId bson.ObjectId
+type OptionalId struct{ Id }
 
 // Validates optional id
 func (id OptionalId) Validate() error {
-	if err := AutoId(id).Validate(); err == nil {
+	if id.Hex() == "" {
 		return nil
 	}
 
-	if err := RequiredId(id).Validate(); err != nil {
+	if err := id.Id.Validate(); err != nil {
 		return err
 	}
 	return nil
-}
-
-func (id OptionalId) Hex() string {
-	return bson.ObjectId(id).Hex()
-}
-
-func (id OptionalId) MarshalJSON() ([]byte, error) {
-	return json.Marshal(id.Hex())
 }

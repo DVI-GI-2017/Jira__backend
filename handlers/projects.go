@@ -98,8 +98,8 @@ func AddUserToProject(w http.ResponseWriter, req *http.Request) {
 
 	users, err := pool.Dispatch(pool.ProjectAddUser,
 		models.ProjectUser{
-			ProjectId: models.RequiredId(bson.ObjectIdHex(projectId)),
-			UserId:    models.RequiredId(bson.ObjectIdHex(userId)),
+			ProjectId: models.NewRequiredId(projectId),
+			UserId:    models.NewRequiredId(userId),
 		})
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
@@ -115,8 +115,8 @@ func DeleteUserFromProject(w http.ResponseWriter, req *http.Request) {
 
 	users, err := pool.Dispatch(pool.ProjectDeleteUser,
 		models.ProjectUser{
-			ProjectId: models.RequiredId(bson.ObjectIdHex(projectId)),
-			UserId:    models.RequiredId(bson.ObjectIdHex(userId)),
+			ProjectId: models.NewRequiredId(projectId),
+			UserId:    models.NewRequiredId(userId),
 		})
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)

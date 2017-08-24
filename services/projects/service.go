@@ -21,8 +21,9 @@ func CheckProjectExists(source db.DataSource, project models.Project) (bool, err
 }
 
 // Creates project and returns it.
+
 func CreateProject(source db.DataSource, project models.Project) (models.Project, error) {
-	project.Id = models.AutoId(bson.NewObjectId())
+	project.Id = models.NewAutoId()
 
 	err := source.C(cProjects).Insert(project)
 	if err != nil {

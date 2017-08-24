@@ -21,7 +21,7 @@ func CheckTaskExists(source db.DataSource, task models.Task) (bool, error) {
 
 // Creates task and returns it.
 func CreateTask(source db.DataSource, task models.Task) (models.Task, error) {
-	task.Id = models.AutoId(bson.NewObjectId())
+	task.Id = models.NewAutoId()
 
 	err := source.C(cTasks).Insert(task)
 	if err != nil {
