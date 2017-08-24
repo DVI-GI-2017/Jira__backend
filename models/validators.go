@@ -40,7 +40,7 @@ var (
 	ErrWrongPasswordFormat = errors.New("wrong password format")
 )
 
-var passwordRegex = regexp.MustCompile(`^[0-9a-zA-Z\s\r\n@!#$^%&*()+=\-\[\]\\';,./{}|":<>?]{3,14}$`)
+var passwordRegex = regexp.MustCompile(`^[[:graph:]]{3,14}$`)
 
 // Validates passowrd
 func (p Password) Validate() error {
@@ -57,7 +57,7 @@ func (p Password) Validate() error {
 
 type Name string
 
-var nameRegex = regexp.MustCompile(`^[a-zA-Z].{1,49}$`)
+var nameRegex = regexp.MustCompile(`^[[:alpha:]][[:alnum:]] ']{1,49}$`)
 
 var (
 	ErrEmptyName       = errors.New("empty name")
