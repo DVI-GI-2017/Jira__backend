@@ -4,7 +4,7 @@ type User struct {
 	Id       AutoId   `json:"_id" bson:"_id,omitempty"`
 	Email    Email    `json:"email" bson:"email"`
 	Password Password `json:"password" bson:"password"`
-	Name     Name     `json:"name" bson:"name"`
+	Name     Name     `json:"first_name" bson:"name"`
 	Bio      Text     `json:"bio" bson:"bio,omitempty"`
 }
 
