@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/params"
+	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -23,7 +23,7 @@ func AllUsers(w http.ResponseWriter, _ *http.Request) {
 // Returns user with given id.
 // Path param: "id" - user id.
 func GetUserById(w http.ResponseWriter, req *http.Request) {
-	id := params.ExtractParams(req).PathParams["id"]
+	id := mux.Params(req).PathParams["id"]
 	user, err := pool.DispatchAction(pool.FindUserById, bson.ObjectIdHex(id))
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)

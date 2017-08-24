@@ -1,4 +1,4 @@
-package params
+package mux
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 
 func TestExtractPathParams(t *testing.T) {
 	pattern := regexp.MustCompile(`/users/(?P<id>\d+)`)
-	pathParams := ExtractPathParams(pattern, "/users/12")
+	pathParams := extractPathParams(pattern, "/users/12")
 
 	expectedPathParams := PathParams{"id": "12"}
 
@@ -26,7 +26,7 @@ func TestPostBody(t *testing.T) {
 	const path = "/"
 	req := httptest.NewRequest(http.MethodPost, path, bytes.NewBuffer(bodyBuf.Bytes()))
 
-	p, err := NewParams(req, regexp.MustCompile(path), path)
+	p, err := newParams(req, regexp.MustCompile(path), path)
 	if err != nil {
 		t.Fail()
 	}
@@ -40,7 +40,7 @@ func TestNilBody(t *testing.T) {
 	const path = "/"
 	req := httptest.NewRequest(http.MethodPost, path, nil)
 
-	p, err := NewParams(req, regexp.MustCompile(path), path)
+	p, err := newParams(req, regexp.MustCompile(path), path)
 	if err != nil {
 		t.Fail()
 	}

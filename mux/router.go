@@ -1,17 +1,12 @@
 package mux
 
 import (
-	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"regexp"
-
-	"log"
-
 	"strings"
-
-	"github.com/DVI-GI-2017/Jira__backend/params"
 )
 
 func NewRouter(rootPath string) (*router, error) {
@@ -103,7 +98,7 @@ func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path st
 	if routeMap, ok := r.routes[req.Method]; ok {
 		for pattern, handler := range routeMap {
 			if pattern.MatchString(path) {
-				parameters, err := params.NewParams(req, pattern, path)
+				params, err := newParams(req, pattern, path)
 
 				if err != nil {
 					fmt.Printf("error while parsing params: %v", err)
@@ -111,8 +106,7 @@ func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path st
 					return
 				}
 
-				req = req.WithContext(context.WithValue(req.Context(), "params", parameters))
-				handler.ServeHTTP(w, req)
+				handler.ServeHTTP(w, putParams(req, params))
 
 				return
 			}

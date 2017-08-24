@@ -4,15 +4,13 @@ import (
 	"reflect"
 	"regexp"
 	"testing"
-
-	"github.com/DVI-GI-2017/Jira__backend/params"
 )
 
 func TestSimplifiedPattern(t *testing.T) {
 	pattern := regexp.MustCompile(convertSimplePatternToRegexp("/users/:id"))
-	pathParams := params.ExtractPathParams(pattern, "/users/234feabc1357346781234524")
+	pathParams := extractPathParams(pattern, "/users/234feabc1357346781234524")
 
-	expectedPathParams := params.PathParams{"id": "234feabc1357346781234524"}
+	expectedPathParams := PathParams{"id": "234feabc1357346781234524"}
 
 	if !reflect.DeepEqual(pathParams, expectedPathParams) {
 		t.Fatalf("expected: %v but got: %v", expectedPathParams, pathParams)

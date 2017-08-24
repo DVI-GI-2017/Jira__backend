@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/params"
+	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -18,7 +18,7 @@ import (
 func CreateProject(w http.ResponseWriter, req *http.Request) {
 	var projectInfo models.Project
 
-	body := params.ExtractParams(req).Body
+	body := mux.Params(req).Body
 
 	err := json.Unmarshal(body, &projectInfo)
 	if err != nil {
@@ -68,7 +68,7 @@ func AllProjects(w http.ResponseWriter, _ *http.Request) {
 // Returns project with given id
 // Query param: "id" - project id
 func GetProjectById(w http.ResponseWriter, req *http.Request) {
-	id := params.ExtractParams(req).PathParams["id"]
+	id := mux.Params(req).PathParams["id"]
 
 	user, err := pool.DispatchAction(pool.FindProjectById, bson.ObjectIdHex(id))
 	if err != nil {
