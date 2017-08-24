@@ -14,11 +14,12 @@ func init() {
 }
 
 const (
-	UserCreate    = Action("UserCreate")
-	UserExists    = Action("UserExists")
-	UserAuthorize = Action("UserAuthorize")
-	UserFindById  = Action("UserFindById")
-	UsersAll      = Action("UsersAll")
+	UserCreate      = Action("UserCreate")
+	UserExists      = Action("UserExists")
+	UserAuthorize   = Action("UserAuthorize")
+	UserFindById    = Action("UserFindById")
+	UserFindByEmail = Action("UserFindByEmail")
+	UsersAll        = Action("UsersAll")
 )
 
 func usersResolver(action Action) (service ServiceFunc) {
@@ -51,6 +52,12 @@ func usersResolver(action Action) (service ServiceFunc) {
 	case UserFindById:
 		service = func(source db.DataSource, id interface{}) (interface{}, error) {
 			return users.FindUserById(source, id.(bson.ObjectId))
+		}
+		return
+
+	case UserFindByEmail:
+		service = func(source db.DataSource, email interface{}) (interface{}, error) {
+			return users.FindUserByEmail(source, email.(models.Email))
 		}
 		return
 
