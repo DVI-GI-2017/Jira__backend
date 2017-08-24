@@ -9,7 +9,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // Creates project
@@ -70,9 +69,9 @@ func AllProjects(w http.ResponseWriter, _ *http.Request) {
 // Returns project with given id
 // Query param: "id" - project id
 func GetProjectById(w http.ResponseWriter, req *http.Request) {
-	id := mux.Params(req).PathParams["id"]
+	id := models.NewRequiredId(mux.Params(req).PathParams["id"])
 
-	user, err := pool.Dispatch(pool.ProjectFindById, bson.ObjectIdHex(id))
+	user, err := pool.Dispatch(pool.ProjectFindById, id)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
@@ -83,9 +82,9 @@ func GetProjectById(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
-	id := mux.Params(req).PathParams["id"]
+	id := models.NewRequiredId(mux.Params(req).PathParams["id"])
 
-	users, err := pool.Dispatch(pool.ProjectAllUsers, bson.ObjectIdHex(id))
+	users, err := pool.Dispatch(pool.ProjectAllUsers, id)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
