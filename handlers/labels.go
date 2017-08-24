@@ -8,14 +8,12 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // Returns all labels from task
 // Path parameter: "task_id" - task id.
 func AllLabelsOnTask(w http.ResponseWriter, req *http.Request) {
-	pathParams := mux.Params(req).PathParams
-	id := bson.ObjectIdHex(pathParams["task_id"])
+	id := models.NewRequiredId(mux.Params(req).PathParams["task_id"])
 
 	labels, err := pool.Dispatch(pool.LabelsAllOnTask, id)
 	if err != nil {
@@ -45,7 +43,7 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	taskId := bson.ObjectIdHex(params.PathParams["task_id"])
+	taskId := models.NewRequiredId(params.PathParams["task_id"])
 	taskLabel := models.TaskLabel{TaskId: taskId, Label: label}
 
 	exists, err := pool.Dispatch(pool.LabelAlreadySet, taskLabel)
@@ -82,7 +80,7 @@ func DeleteLabelFromTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	taskId := bson.ObjectIdHex(params.PathParams["task_id"])
+	taskId := models.NewRequiredId(params.PathParams["task_id"])
 
 	taskLabel := models.TaskLabel{TaskId: taskId, Label: label}
 

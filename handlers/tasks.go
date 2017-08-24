@@ -8,7 +8,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // Create task
@@ -27,6 +26,8 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
+
+	task.Id = models.NewAutoId()
 
 	exists, err := pool.Dispatch(pool.TaskExists, task)
 	if err != nil {
@@ -64,9 +65,9 @@ func AllTasks(w http.ResponseWriter, _ *http.Request) {
 // Path params: "id" - task id.
 func GetTaskById(w http.ResponseWriter, req *http.Request) {
 
-	id := mux.Params(req).PathParams["id"]
+	id := models.NewRequiredId(mux.Params(req).PathParams["id"])
 
-	task, err := pool.Dispatch(pool.TaskFindById, bson.ObjectIdHex(id))
+	task, err := pool.Dispatch(pool.TaskFindById, id)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return

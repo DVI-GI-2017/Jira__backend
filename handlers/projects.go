@@ -31,6 +31,8 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	projectInfo.Id = models.NewAutoId()
+
 	exists, err := pool.Dispatch(pool.ProjectExists, projectInfo)
 
 	if err != nil {
