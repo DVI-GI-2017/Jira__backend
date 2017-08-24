@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"regexp"
+	"unicode/utf8"
 
 	"gopkg.in/mgo.v2/bson"
 )
@@ -58,7 +59,7 @@ func (p Password) Validate() error {
 
 type Name string
 
-var nameRegex = regexp.MustCompile(`^[a-zA-Z](.[a-zA-Z0-9_-]*)$`)
+var nameRegex = regexp.MustCompile(`^[[:alpha:]](.[[:alnum:]]_- ]*)$`)
 
 var (
 	ErrEmptyName       = errors.New("empty name")
@@ -88,7 +89,7 @@ var (
 
 // Validate text
 func (t Text) Validate() error {
-	if len(t) > MaxTextLen {
+	if utf8.RuneCountInString(string(t)) > MaxTextLen {
 		return ErrTextTooLong
 	}
 	return nil
