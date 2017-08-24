@@ -14,7 +14,7 @@ func convertSimplePatternToRegexp(pattern string) string {
 		return fmt.Sprintf(`(?P<%s>[[:xdigit:]]{24})`, param[1:])
 	})
 
-	return fmt.Sprintf("^%s$", patternWithParams)
+	return fmt.Sprintf(`^%s/?$`, patternWithParams)
 }
 
 // Return path relative to "base"
