@@ -122,3 +122,19 @@ func pullProject(source db.DataSource, userId, projectId models.RequiredId) erro
 		bson.M{"$pull": bson.M{"projects": projectId}},
 	)
 }
+
+// Checks if user already in current project
+func CheckUserInProject(source db.DataSource, userId, projectId models.RequiredId) (bool, error) {
+	var project models.Project
+	err := source.C(cProjects).FindId(projectId).One(&project)
+	if err != nil {
+		return false, fmt.Errorf("can not find project with id '%s': %v", projectId.Hex(), err)
+	}
+	for _, id := range project.Users {
+		if id == userId {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}

@@ -20,6 +20,7 @@ const (
 	ProjectAllUsers   = Action("ProjectAllUsers")
 	ProjectAddUser    = Action("ProjectAddUser")
 	ProjectDeleteUser = Action("ProjectDeleteUser")
+	ProjectUserExists = Action("ProjectUserExists")
 )
 
 func projectsResolver(action Action) (service ServiceFunc) {
@@ -65,6 +66,13 @@ func projectsResolver(action Action) (service ServiceFunc) {
 		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
 			ids := data.(models.ProjectUser)
 			return projects.DeleteUserFromProject(source, ids.ProjectId, ids.UserId)
+		}
+		return
+
+	case ProjectUserExists:
+		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			ids := data.(models.ProjectUser)
+			return projects.CheckUserInProject(source, ids.UserId, ids.ProjectId)
 		}
 		return
 

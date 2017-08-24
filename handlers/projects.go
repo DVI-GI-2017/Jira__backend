@@ -103,6 +103,22 @@ func AddUserToProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	exists, err := pool.Dispatch(pool.ProjectUserExists,
+		models.ProjectUser{
+			ProjectId: projectId,
+			UserId:    userId,
+		})
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	if exists.(bool) {
+		JsonErrorResponse(w, fmt.Errorf("user '%s' already in project '%s'", userId.Hex(), projectId.Hex()),
+			http.StatusConflict)
+		return
+	}
+
 	users, err := pool.Dispatch(pool.ProjectAddUser,
 		models.ProjectUser{
 			ProjectId: projectId,
@@ -123,6 +139,22 @@ func DeleteUserFromProject(w http.ResponseWriter, req *http.Request) {
 	err := json.Unmarshal(mux.Params(req).Body, &userId)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	exists, err := pool.Dispatch(pool.ProjectUserExists,
+		models.ProjectUser{
+			ProjectId: projectId,
+			UserId:    userId,
+		})
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	if !exists.(bool) {
+		JsonErrorResponse(w, fmt.Errorf("user '%s' not in project '%s'", userId.Hex(), projectId.Hex()),
+			http.StatusNotFound)
 		return
 	}
 
