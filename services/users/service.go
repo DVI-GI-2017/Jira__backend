@@ -12,10 +12,7 @@ const cUsers = "users"
 
 // Checks if user with this credentials.Email exists.
 func CheckUserExists(source db.DataSource, credentials models.User) (bool, error) {
-	empty, err := source.C(cUsers).Find(bson.M{
-		"email":    credentials.Email,
-		"password": credentials.Password,
-	}).IsEmpty()
+	empty, err := source.C(cUsers).Find(bson.M{"email": credentials.Email}).IsEmpty()
 	if err != nil {
 		return false, fmt.Errorf("can not check if user with credentials '%v' exists: %v", credentials, err)
 	}
@@ -24,7 +21,10 @@ func CheckUserExists(source db.DataSource, credentials models.User) (bool, error
 
 // Checks if user credentials present in users collection.
 func CheckUserCredentials(source db.DataSource, credentials models.User) (bool, error) {
-	empty, err := source.C(cUsers).Find(credentials).IsEmpty()
+	empty, err := source.C(cUsers).Find(bson.M{
+		"email":    credentials.Email,
+		"password": credentials.Password,
+	}).IsEmpty()
 	if err != nil {
 		return false, fmt.Errorf("can not check user credentials '%v': %v", credentials, err)
 	}
