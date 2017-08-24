@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"regexp"
 
@@ -123,6 +124,14 @@ func (id AutoId) Validate() error {
 	return nil
 }
 
+func (id AutoId) Hex() string {
+	return bson.ObjectId(id).Hex()
+}
+
+func (id AutoId) MarshalJSON() ([]byte, error) {
+	return json.Marshal(id.Hex())
+}
+
 // RequiredId helpers
 
 type RequiredId Id
@@ -141,6 +150,14 @@ func (id RequiredId) Validate() error {
 	return nil
 }
 
+func (id RequiredId) Hex() string {
+	return bson.ObjectId(id).Hex()
+}
+
+func (id RequiredId) MarshalJSON() ([]byte, error) {
+	return json.Marshal(id.Hex())
+}
+
 // Optional Id helpers
 
 type OptionalId bson.ObjectId
@@ -155,4 +172,12 @@ func (id OptionalId) Validate() error {
 		return err
 	}
 	return nil
+}
+
+func (id OptionalId) Hex() string {
+	return bson.ObjectId(id).Hex()
+}
+
+func (id OptionalId) MarshalJSON() ([]byte, error) {
+	return json.Marshal(id.Hex())
 }
