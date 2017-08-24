@@ -20,6 +20,7 @@ const (
 	UserFindById    = Action("UserFindById")
 	UserFindByEmail = Action("UserFindByEmail")
 	UsersAll        = Action("UsersAll")
+	UserAllProjects = Action("UserAllProjects")
 )
 
 func usersResolver(action Action) (service ServiceFunc) {
@@ -58,6 +59,12 @@ func usersResolver(action Action) (service ServiceFunc) {
 	case UserFindByEmail:
 		service = func(source db.DataSource, email interface{}) (interface{}, error) {
 			return users.FindUserByEmail(source, email.(models.Email))
+		}
+		return
+
+	case UserAllProjects:
+		service = func(source db.DataSource, id interface{}) (result interface{}, err error) {
+			return users.AllUsersProject(source, id.(models.RequiredId))
 		}
 		return
 
