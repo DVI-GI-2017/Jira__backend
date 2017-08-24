@@ -44,7 +44,7 @@ func CreateUser(source db.DataSource, user models.User) (models.User, error) {
 
 // Returns all users.
 func AllUsers(source db.DataSource) (usersLists models.UsersList, err error) {
-	err = source.C(cUsers).Find(nil).All(&usersLists)
+	err = source.C(cUsers).Find(nil).Select(bson.M{"password": 0}).All(&usersLists)
 	if err != nil {
 		return models.UsersList{}, fmt.Errorf("can not retrieve all users: %v", err)
 	}
