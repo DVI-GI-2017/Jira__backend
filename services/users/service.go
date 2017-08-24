@@ -39,12 +39,15 @@ func CreateUser(source db.DataSource, user models.User) (models.User, error) {
 	if err != nil {
 		return models.User{}, fmt.Errorf("can not create user '%v': %v", user, err)
 	}
+
+	user.Password = ""
+
 	return user, nil
 }
 
 // Returns all users.
 func AllUsers(source db.DataSource) (usersLists models.UsersList, err error) {
-	err = source.C(cUsers).Find(nil).All(&usersLists)
+	err = source.C(cUsers).Find(nil).Select(bson.M{"password": 0}).All(&usersLists)
 	if err != nil {
 		return models.UsersList{}, fmt.Errorf("can not retrieve all users: %v", err)
 	}
@@ -53,7 +56,7 @@ func AllUsers(source db.DataSource) (usersLists models.UsersList, err error) {
 
 // Returns user with given id.
 func FindUserById(source db.DataSource, id bson.ObjectId) (user models.User, err error) {
-	err = source.C(cUsers).FindId(id).One(&user)
+	err = source.C(cUsers).FindId(id).Select(bson.M{"password": 0}).One(&user)
 	if err != nil {
 		return models.User{}, fmt.Errorf("can not find user with id '%s': %v", id, err)
 	}
@@ -62,7 +65,7 @@ func FindUserById(source db.DataSource, id bson.ObjectId) (user models.User, err
 
 // Returns user with given email.
 func FindUserByEmail(source db.DataSource, email models.Email) (user models.User, err error) {
-	err = source.C(cUsers).Find(bson.M{"email": email}).One(&user)
+	err = source.C(cUsers).Find(bson.M{"email": email}).Select(bson.M{"password": 0}).One(&user)
 	if err != nil {
 		return models.User{}, fmt.Errorf("can not find user with email '%s': %v", email, err)
 	}
