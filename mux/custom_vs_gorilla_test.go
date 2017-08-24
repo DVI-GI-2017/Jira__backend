@@ -81,5 +81,5 @@ func newGetHelper(path string) *getHelper {
 }
 
 func (helper *getHelper) clear() {
-	helper.w.Body = bytes.NewBuffer(make([]byte, 0, 64))
+	helper.w.Body = bytes.NewBuffer(make([]byte, 0, 100))
 }

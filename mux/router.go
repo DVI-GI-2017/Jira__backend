@@ -9,12 +9,13 @@ import (
 	"strings"
 )
 
+// Returns new router with root path == rootPath
 func NewRouter(rootPath string) (*router, error) {
 	r := &router{}
-	r.routes = make(map[string]map[*regexp.Regexp]http.HandlerFunc)
+	r.routes = make(map[string]routes)
 
-	r.routes[http.MethodGet] = make(map[*regexp.Regexp]http.HandlerFunc)
-	r.routes[http.MethodPost] = make(map[*regexp.Regexp]http.HandlerFunc)
+	r.routes[http.MethodGet] = make(routes, 0, 10)
+	r.routes[http.MethodPost] = make(routes, 0, 10)
 
 	err := r.SetRootPath(rootPath)
 	if err != nil {
@@ -27,10 +28,18 @@ func NewRouter(rootPath string) (*router, error) {
 type router struct {
 	root *url.URL
 
-	routes map[string]map[*regexp.Regexp]http.HandlerFunc
+	routes map[string]routes
 
 	wrappers []WrapperFunc
 }
+
+// Internal structures to store routes
+type route struct {
+	pattern     *regexp.Regexp
+	handlerFunc http.HandlerFunc
+}
+
+type routes []route
 
 // Set router root path, other paths will be relative to it
 func (r *router) SetRootPath(path string) error {
@@ -58,7 +67,8 @@ func (r *router) Get(pattern string, handler http.HandlerFunc) error {
 		return err
 	}
 
-	r.routes[http.MethodGet][compiledPattern] = Wrap(handler, r.wrappers...).ServeHTTP
+	r.routes[http.MethodGet] = append(r.routes[http.MethodGet],
+		route{compiledPattern, Wrap(handler, r.wrappers...).ServeHTTP})
 
 	return nil
 }
@@ -72,7 +82,8 @@ func (r *router) Post(pattern string, handler http.HandlerFunc) error {
 		return err
 	}
 
-	r.routes[http.MethodPost][compiledPattern] = Wrap(handler, r.wrappers...).ServeHTTP
+	r.routes[http.MethodPost] = append(r.routes[http.MethodPost],
+		route{compiledPattern, Wrap(handler, r.wrappers...).ServeHTTP})
 
 	return nil
 }
@@ -95,10 +106,10 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 // Handles request: iterate over all routes before finds first matching route.
 func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path string) {
 
-	if routeMap, ok := r.routes[req.Method]; ok {
-		for pattern, handler := range routeMap {
-			if pattern.MatchString(path) {
-				params, err := newParams(req, pattern, path)
+	if routes, ok := r.routes[req.Method]; ok {
+		for _, route := range routes {
+			if route.pattern.MatchString(path) {
+				params, err := newParams(req, route.pattern, path)
 
 				if err != nil {
 					fmt.Printf("error while parsing params: %v", err)
@@ -106,7 +117,7 @@ func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path st
 					return
 				}
 
-				handler.ServeHTTP(w, putParams(req, params))
+				route.handlerFunc(w, putParams(req, params))
 
 				return
 			}
@@ -126,8 +137,8 @@ func (r *router) PrintRoutes() {
 	log.Println(strings.Repeat("-", 10))
 
 	for method, list := range r.routes {
-		for re := range list {
-			log.Printf("'%s': '%s'", method, re)
+		for _, r := range list {
+			log.Printf("'%s': '%s'", method, r.pattern)
 		}
 	}
 
