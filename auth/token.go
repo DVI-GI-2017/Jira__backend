@@ -23,7 +23,7 @@ func NewToken() (Token, error) {
 
 	token.Claims = claims
 
-	result, err := token.SignedString(SignKey)
+	result, err := token.SignedString(signKey)
 
 	if err != nil {
 		return Token{Token: result}, fmt.Errorf("can not create signed string: %v", err)
@@ -36,7 +36,7 @@ func ValidateToken(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, err := request.ParseFromRequest(r, request.AuthorizationHeaderExtractor,
 			func(token *jwt.Token) (interface{}, error) {
-				return VerifyKey, nil
+				return verifyKey, nil
 			})
 
 		if err == nil {
