@@ -1,30 +1,23 @@
 package pool
 
+import (
+	"strings"
+
+	"github.com/DVI-GI-2017/Jira__backend/db"
+)
+
 type Action string
 
-const (
-	//Users actions
-	UserCreate    = Action("UserCreate")
-	UserExists    = Action("UserExists")
-	UserAuthorize = Action("UserAuthorize")
-	UserFindById  = Action("UserFindById")
-	UsersAll      = Action("UsersAll")
+// Returns true if action has prefix "prefix"
+func (a Action) HasPrefix(prefix string) bool {
+	return strings.HasPrefix(string(a), prefix)
+}
 
-	// Projects actions
-	ProjectCreate   = Action("ProjectCreate")
-	ProjectExists   = Action("ProjectExists")
-	ProjectsAll     = Action("ProjectsAll")
-	ProjectFindById = Action("ProjectFindById")
+// Function to be passed to workers pool
+type ServiceFunc func(source db.DataSource, data interface{}) (result interface{}, err error)
 
-	// Tasks actions
-	TaskCreate   = Action("TaskCreate")
-	TaskExists   = Action("TaskExists")
-	TasksAll     = Action("TasksAll")
-	TaskFindById = Action("TaskFindById")
+// Function that returns service function
+type ResolverFunc func(action Action) (service ServiceFunc, err error)
 
-	// Labels actions
-	LabelAddToTask      = Action("LabelAddToTask")
-	LabelsAllOnTask     = Action("LabelsAllOnTask")
-	LabelAlreadySet     = Action("LabelAlreadySet")
-	LabelDeleteFromTask = Action("LabelDeleteFromTask")
-)
+// Resolvers will be initialized from files with resolvers in this package
+var resolvers = make(map[string]ResolverFunc, 0)
