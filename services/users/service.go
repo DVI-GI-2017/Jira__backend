@@ -39,6 +39,9 @@ func CreateUser(source db.DataSource, user models.User) (models.User, error) {
 	if err != nil {
 		return models.User{}, fmt.Errorf("can not create user '%v': %v", user, err)
 	}
+
+	user.Password = ""
+
 	return user, nil
 }
 
