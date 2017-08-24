@@ -7,7 +7,11 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
 )
 
-var ProjectRoutes = []Route{
+func init() {
+	defaultRoutes = append(defaultRoutes, projectRoutes...)
+}
+
+var projectRoutes = []Route{
 	{
 		Name:    "Creates project",
 		Pattern: "/projects",

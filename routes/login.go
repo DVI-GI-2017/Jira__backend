@@ -6,7 +6,11 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
 )
 
-var LoginRoutes = []Route{
+func init() {
+	defaultRoutes = append(defaultRoutes, loginRoutes...)
+}
+
+var loginRoutes = []Route{
 	{
 		Name:    "Sign-up route",
 		Pattern: "/signup",
