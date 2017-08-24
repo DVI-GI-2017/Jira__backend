@@ -83,7 +83,7 @@ func GetProjectById(w http.ResponseWriter, req *http.Request) {
 func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
 	id := mux.Params(req).PathParams["id"]
 
-	users, err := pool.Dispatch(pool.ProjectFindById, bson.ObjectIdHex(id))
+	users, err := pool.Dispatch(pool.ProjectAllUsers, bson.ObjectIdHex(id))
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return

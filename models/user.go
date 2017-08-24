@@ -3,11 +3,12 @@ package models
 import "crypto/sha256"
 
 type User struct {
-	Id       AutoId   `json:"_id" bson:"_id,omitempty"`
-	Email    Email    `json:"email" bson:"email"`
-	Password Password `json:"password" bson:"password"`
-	Name     Name     `json:"first_name" bson:"name"`
-	Bio      Text     `json:"bio" bson:"bio,omitempty"`
+	Id       AutoId       `json:"_id" bson:"_id,omitempty"`
+	Email    Email        `json:"email" bson:"email"`
+	Password Password     `json:"password" bson:"password"`
+	Name     Name         `json:"first_name" bson:"name"`
+	Bio      Text         `json:"bio" bson:"bio,omitempty"`
+	Projects []RequiredId `json:"projects,omitempty" bson:"projects,omitempty"`
 }
 
 // Returns validation error or nil if valid

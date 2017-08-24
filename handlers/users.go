@@ -32,3 +32,15 @@ func GetUserById(w http.ResponseWriter, req *http.Request) {
 
 	JsonResponse(w, user.(models.User))
 }
+
+// Returns all projects of given user
+func GetAllProjectsFromUser(w http.ResponseWriter, req *http.Request) {
+	id := mux.Params(req).PathParams["id"]
+	projects, err := pool.Dispatch(pool.UserAllProjects, bson.ObjectIdHex(id))
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
+		return
+	}
+
+	JsonResponse(w, projects.(models.ProjectsList))
+}

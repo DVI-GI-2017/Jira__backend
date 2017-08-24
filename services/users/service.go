@@ -9,6 +9,7 @@ import (
 )
 
 const cUsers = "users"
+const cProjects = "projects"
 
 // Checks if user with this credentials.Email exists.
 func CheckUserExists(source db.DataSource, credentials models.User) (bool, error) {
@@ -70,4 +71,19 @@ func FindUserByEmail(source db.DataSource, email models.Email) (user models.User
 		return models.User{}, fmt.Errorf("can not find user with email '%s': %v", email, err)
 	}
 	return user, nil
+}
+
+// Returns all users project.
+func AllUsersProject(source db.DataSource, id models.RequiredId) (projects models.ProjectsList, err error) {
+	var user models.User
+	err = source.C(cUsers).FindId(id).One(&user)
+	if err != nil {
+		return models.ProjectsList{}, fmt.Errorf("can not find user with id '%s': %v", id, err)
+	}
+
+	err = source.C(cProjects).Find(bson.M{"_id": user.Projects}).All(&projects)
+	if err != nil {
+		return models.ProjectsList{}, fmt.Errorf("can not retrieve all users from project: %s", id.Hex())
+	}
+	return projects, nil
 }

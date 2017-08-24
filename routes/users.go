@@ -25,6 +25,12 @@ var usersRoutes = []Route{
 		Handler: auth.ValidateToken(handlers.AllUsers),
 	},
 	{
+		Name:"All user's projects",
+		Pattern:"/users/:id/projects",
+		Method:http.MethodGet,
+		Handler:auth.ValidateToken(handlers.GetAllProjectsFromUser),
+	},
+	{
 		Name:    "Check current user",
 		Pattern: "/cur-user",
 		Method:  http.MethodGet,
