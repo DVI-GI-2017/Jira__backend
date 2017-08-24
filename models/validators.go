@@ -59,7 +59,7 @@ func (p Password) Validate() error {
 
 type Name string
 
-var nameRegex = regexp.MustCompile(`^[[:alpha:]](.[[:alnum:]]_- ]*)$`)
+var nameRegex = regexp.MustCompile(`^[a-zA-Z](.[a-zA-Z0-9_-]*)$`)
 
 var (
 	ErrEmptyName       = errors.New("empty name")

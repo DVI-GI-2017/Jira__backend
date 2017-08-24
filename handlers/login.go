@@ -29,6 +29,8 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	credentials.Encrypt()
+
 	exists, err := pool.Dispatch(pool.UserExists, credentials)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusInternalServerError)
