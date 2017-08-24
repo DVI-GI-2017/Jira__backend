@@ -4,27 +4,27 @@ type Action string
 
 const (
 	//Users actions
-	CreateUser           = Action("CreateUser")
-	CheckUserExists      = Action("CheckUserExists")
-	CheckUserCredentials = Action("CheckUserCredentials")
-	FindUserById         = Action("FindUserById")
-	AllUsers             = Action("AllUsers")
+	UserCreate    = Action("UserCreate")
+	UserExists    = Action("UserExists")
+	UserAuthorize = Action("UserAuthorize")
+	UserFindById  = Action("UserFindById")
+	UsersAll      = Action("UsersAll")
 
 	// Projects actions
-	CreateProject      = Action("CreateProject")
-	CheckProjectExists = Action("CheckProjectExists")
-	AllProjects        = Action("AllProjects")
-	FindProjectById    = Action("FindProjectById")
+	ProjectCreate   = Action("ProjectCreate")
+	ProjectExists   = Action("ProjectExists")
+	ProjectsAll     = Action("ProjectsAll")
+	ProjectFindById = Action("ProjectFindById")
 
 	// Tasks actions
-	CreateTask      = Action("CreateTask")
-	CheckTaskExists = Action("CheckTaskExists")
-	AllTasks        = Action("AllTasks")
-	FindTaskById    = Action("FindTaskById")
+	TaskCreate   = Action("TaskCreate")
+	TaskExists   = Action("TaskExists")
+	TasksAll     = Action("TasksAll")
+	TaskFindById = Action("TaskFindById")
 
 	// Labels actions
-	AddLabelToTask       = Action("AddLabelToTask")
-	AllLabelsOnTask      = Action("AllLabelsOnTask")
-	CheckLabelAlreadySet = Action("CheckLabelAlreadySet")
-	DeleteLabelFromTask  = Action("DeleteLabelFromTask")
+	LabelAddToTask      = Action("LabelAddToTask")
+	LabelsAllOnTask     = Action("LabelsAllOnTask")
+	LabelAlreadySet     = Action("LabelAlreadySet")
+	LabelDeleteFromTask = Action("LabelDeleteFromTask")
 )

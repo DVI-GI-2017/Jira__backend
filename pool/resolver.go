@@ -16,85 +16,85 @@ type ServiceFunc func(source db.DataSource, data interface{}) (result interface{
 func getServiceByAction(action Action) (service ServiceFunc, err error) {
 	switch action {
 
-	case CreateUser:
+	case UserCreate:
 		service = func(source db.DataSource, user interface{}) (result interface{}, err error) {
 			return users.CreateUser(source, user.(models.User))
 		}
 		return
 
-	case CheckUserExists:
+	case UserExists:
 		service = func(source db.DataSource, credentials interface{}) (result interface{}, err error) {
 			return users.CheckUserExists(source, credentials.(models.User))
 		}
 		return
 
-	case CheckUserCredentials:
+	case UserAuthorize:
 		service = func(source db.DataSource, credentials interface{}) (interface{}, error) {
 			return users.CheckUserCredentials(source, credentials.(models.User))
 		}
 		return
 
-	case AllUsers:
+	case UsersAll:
 		service = func(source db.DataSource, _ interface{}) (result interface{}, err error) {
 			return users.AllUsers(source)
 		}
 		return
 
-	case FindUserById:
+	case UserFindById:
 		service = func(source db.DataSource, id interface{}) (interface{}, error) {
 			return users.FindUserById(source, id.(bson.ObjectId))
 		}
 		return
 
-	case CreateProject:
+	case ProjectCreate:
 		service = func(source db.DataSource, project interface{}) (interface{}, error) {
 			return projects.CreateProject(source, project.(models.Project))
 		}
 		return
 
-	case CheckProjectExists:
+	case ProjectExists:
 		service = func(source db.DataSource, project interface{}) (interface{}, error) {
 			return projects.CheckProjectExists(source, project.(models.Project))
 		}
 		return
 
-	case AllProjects:
+	case ProjectsAll:
 		service = func(source db.DataSource, _ interface{}) (interface{}, error) {
 			return projects.AllProjects(source)
 		}
 		return
 
-	case FindProjectById:
+	case ProjectFindById:
 		service = func(source db.DataSource, id interface{}) (interface{}, error) {
 			return projects.FindProjectById(source, id.(bson.ObjectId))
 		}
 		return
 
-	case CreateTask:
+	case TaskCreate:
 		service = func(source db.DataSource, task interface{}) (interface{}, error) {
 			return tasks.CreateTask(source, task.(models.Task))
 		}
 		return
 
-	case CheckTaskExists:
+	case TaskExists:
 		service = func(source db.DataSource, task interface{}) (interface{}, error) {
 			return tasks.CheckTaskExists(source, task.(models.Task))
 		}
 		return
 
-	case AllTasks:
+	case TasksAll:
 		service = func(source db.DataSource, _ interface{}) (interface{}, error) {
 			return tasks.AllTasks(source)
 		}
 		return
 
-	case FindTaskById:
+	case TaskFindById:
 		service = func(source db.DataSource, id interface{}) (interface{}, error) {
 			return tasks.FindTaskById(source, id.(bson.ObjectId))
 		}
 		return
 
-	case AddLabelToTask:
+	case LabelAddToTask:
 		service = func(source db.DataSource, data interface{}) (interface{}, error) {
 			taskLabel := data.(models.TaskLabel)
 
@@ -102,20 +102,20 @@ func getServiceByAction(action Action) (service ServiceFunc, err error) {
 		}
 		return
 
-	case AllLabelsOnTask:
+	case LabelsAllOnTask:
 		service = func(source db.DataSource, id interface{}) (interface{}, error) {
 			return tasks.AllLabels(source, id.(bson.ObjectId))
 		}
 		return
 
-	case CheckLabelAlreadySet:
+	case LabelAlreadySet:
 		service = func(source db.DataSource, data interface{}) (interface{}, error) {
 			taskLabel := data.(models.TaskLabel)
 
 			return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
 		}
 		return
-	case DeleteLabelFromTask:
+	case LabelDeleteFromTask:
 		service = func(source db.DataSource, data interface{}) (interface{}, error) {
 			taskLabel := data.(models.TaskLabel)
 

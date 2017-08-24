@@ -28,7 +28,7 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	exists, err := pool.Dispatch(pool.CheckTaskExists, task)
+	exists, err := pool.Dispatch(pool.TaskExists, task)
 	if err != nil {
 		JsonErrorResponse(w, fmt.Errorf("can not check task existence: %v", err),
 			http.StatusInternalServerError)
@@ -40,7 +40,7 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	newTask, err := pool.Dispatch(pool.CreateTask, task)
+	newTask, err := pool.Dispatch(pool.TaskCreate, task)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadGateway)
 		return
@@ -51,7 +51,7 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 
 // Returns all tasks
 func AllTasks(w http.ResponseWriter, _ *http.Request) {
-	tasks, err := pool.Dispatch(pool.AllTasks, nil)
+	tasks, err := pool.Dispatch(pool.TasksAll, nil)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
@@ -66,7 +66,7 @@ func GetTaskById(w http.ResponseWriter, req *http.Request) {
 
 	id := mux.Params(req).PathParams["id"]
 
-	task, err := pool.Dispatch(pool.FindTaskById, bson.ObjectIdHex(id))
+	task, err := pool.Dispatch(pool.TaskFindById, bson.ObjectIdHex(id))
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return

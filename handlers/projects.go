@@ -31,7 +31,7 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	exists, err := pool.Dispatch(pool.CheckProjectExists, projectInfo)
+	exists, err := pool.Dispatch(pool.ProjectExists, projectInfo)
 
 	if err != nil {
 		JsonErrorResponse(w, fmt.Errorf("can not check project existence: %v", err),
@@ -45,7 +45,7 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	project, err := pool.Dispatch(pool.CreateProject, projectInfo)
+	project, err := pool.Dispatch(pool.ProjectCreate, projectInfo)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadGateway)
 		return
@@ -56,7 +56,7 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 
 // Returns all projects
 func AllProjects(w http.ResponseWriter, _ *http.Request) {
-	projects, err := pool.Dispatch(pool.AllProjects, nil)
+	projects, err := pool.Dispatch(pool.ProjectsAll, nil)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
@@ -70,7 +70,7 @@ func AllProjects(w http.ResponseWriter, _ *http.Request) {
 func GetProjectById(w http.ResponseWriter, req *http.Request) {
 	id := mux.Params(req).PathParams["id"]
 
-	user, err := pool.Dispatch(pool.FindProjectById, bson.ObjectIdHex(id))
+	user, err := pool.Dispatch(pool.ProjectFindById, bson.ObjectIdHex(id))
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return

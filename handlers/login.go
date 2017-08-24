@@ -29,7 +29,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	exists, err := pool.Dispatch(pool.CheckUserExists, credentials)
+	exists, err := pool.Dispatch(pool.UserExists, credentials)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusInternalServerError)
 		return
@@ -41,7 +41,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	user, err := pool.Dispatch(pool.CreateUser, credentials)
+	user, err := pool.Dispatch(pool.UserCreate, credentials)
 	if err != nil {
 		JsonErrorResponse(w, fmt.Errorf("can not create account: %v", err), http.StatusBadGateway)
 		return
@@ -77,7 +77,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	valid, err := pool.Dispatch(pool.CheckUserCredentials, credentials)
+	valid, err := pool.Dispatch(pool.UserAuthorize, credentials)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusInternalServerError)
 		return

@@ -17,7 +17,7 @@ func AllLabelsOnTask(w http.ResponseWriter, req *http.Request) {
 	pathParams := mux.Params(req).PathParams
 	id := bson.ObjectIdHex(pathParams["task_id"])
 
-	labels, err := pool.Dispatch(pool.AllLabelsOnTask, id)
+	labels, err := pool.Dispatch(pool.LabelsAllOnTask, id)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
@@ -48,7 +48,7 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 	taskId := bson.ObjectIdHex(params.PathParams["task_id"])
 	taskLabel := models.TaskLabel{TaskId: taskId, Label: label}
 
-	exists, err := pool.Dispatch(pool.CheckLabelAlreadySet, taskLabel)
+	exists, err := pool.Dispatch(pool.LabelAlreadySet, taskLabel)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusInternalServerError)
 		return
@@ -60,7 +60,7 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	labels, err := pool.Dispatch(pool.AddLabelToTask, taskLabel)
+	labels, err := pool.Dispatch(pool.LabelAddToTask, taskLabel)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
@@ -86,7 +86,7 @@ func DeleteLabelFromTask(w http.ResponseWriter, req *http.Request) {
 
 	taskLabel := models.TaskLabel{TaskId: taskId, Label: label}
 
-	labels, err := pool.Dispatch(pool.DeleteLabelFromTask, taskLabel)
+	labels, err := pool.Dispatch(pool.LabelDeleteFromTask, taskLabel)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
