@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/DVI-GI-2017/Jira__backend/params"
 	"github.com/gorilla/mux"
 )
 
@@ -53,8 +52,8 @@ func BenchmarkCustom(b *testing.B) {
 }
 
 func customHandler(w http.ResponseWriter, req *http.Request) {
-	parameters := params.ExtractParams(req)
-	fmt.Fprintf(w, "get params: %v, path params: %v", parameters.Query, parameters.PathParams)
+	params := Params(req)
+	fmt.Fprintf(w, "get params: %v, path params: %v", params.Query, params.PathParams)
 }
 
 func processRequest(router http.Handler, helper *getHelper, b *testing.B) {

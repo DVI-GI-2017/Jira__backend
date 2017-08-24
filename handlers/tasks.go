@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/params"
+	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -15,7 +15,7 @@ import (
 // Post body - task
 // Returns created task if OK
 func CreateTask(w http.ResponseWriter, req *http.Request) {
-	body := params.ExtractParams(req).Body
+	body := mux.Params(req).Body
 
 	var task models.Task
 	if err := json.Unmarshal(body, &task); err != nil {
@@ -64,7 +64,7 @@ func AllTasks(w http.ResponseWriter, _ *http.Request) {
 // Path params: "id" - task id.
 func GetTaskById(w http.ResponseWriter, req *http.Request) {
 
-	id := params.ExtractParams(req).PathParams["id"]
+	id := mux.Params(req).PathParams["id"]
 
 	task, err := pool.DispatchAction(pool.FindTaskById, bson.ObjectIdHex(id))
 	if err != nil {

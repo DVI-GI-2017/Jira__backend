@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/params"
+	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -14,7 +14,7 @@ import (
 // Returns all labels from task
 // Path parameter: "task_id" - task id.
 func AllLabelsOnTask(w http.ResponseWriter, req *http.Request) {
-	pathParams := params.ExtractParams(req).PathParams
+	pathParams := mux.Params(req).PathParams
 	id := bson.ObjectIdHex(pathParams["task_id"])
 
 	labels, err := pool.DispatchAction(pool.AllLabelsOnTask, id)
@@ -30,10 +30,10 @@ func AllLabelsOnTask(w http.ResponseWriter, req *http.Request) {
 // Query parameter: "task_id" - task id.
 // Post body - label.
 func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
-	p := params.ExtractParams(req)
+	params := mux.Params(req)
 
 	var label models.Label
-	err := json.Unmarshal(p.Body, &label)
+	err := json.Unmarshal(params.Body, &label)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -45,7 +45,7 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	taskId := bson.ObjectIdHex(p.PathParams["task_id"])
+	taskId := bson.ObjectIdHex(params.PathParams["task_id"])
 	taskLabel := models.TaskLabel{TaskId: taskId, Label: label}
 
 	exists, err := pool.DispatchAction(pool.CheckLabelAlreadySet, taskLabel)
@@ -73,16 +73,16 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 // Path parameter: "task_id" - task id.
 // Post body - label
 func DeleteLabelFromTask(w http.ResponseWriter, req *http.Request) {
-	p := params.ExtractParams(req)
+	params := mux.Params(req)
 
 	var label models.Label
-	err := json.Unmarshal(p.Body, &label)
+	err := json.Unmarshal(params.Body, &label)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
 
-	taskId := bson.ObjectIdHex(p.PathParams["task_id"])
+	taskId := bson.ObjectIdHex(params.PathParams["task_id"])
 
 	taskLabel := models.TaskLabel{TaskId: taskId, Label: label}
 

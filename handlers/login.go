@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/params"
+	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 	"github.com/DVI-GI-2017/Jira__backend/services/auth"
 )
@@ -17,9 +17,9 @@ import (
 func RegisterUser(w http.ResponseWriter, req *http.Request) {
 	var credentials models.User
 
-	parameters := params.ExtractParams(req)
+	params := mux.Params(req)
 
-	if err := json.Unmarshal(parameters.Body, &credentials); err != nil {
+	if err := json.Unmarshal(params.Body, &credentials); err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
@@ -65,9 +65,9 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 func Login(w http.ResponseWriter, req *http.Request) {
 	var credentials models.User
 
-	parameters := params.ExtractParams(req)
+	params := mux.Params(req)
 
-	if err := json.Unmarshal(parameters.Body, &credentials); err != nil {
+	if err := json.Unmarshal(params.Body, &credentials); err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
