@@ -62,7 +62,7 @@ func FindUserById(source db.DataSource, id bson.ObjectId) (user models.User, err
 
 // Returns user with given email.
 func FindUserByEmail(source db.DataSource, email models.Email) (user models.User, err error) {
-	err = source.C(cUsers).Find(bson.M{"email": email}).One(&user)
+	err = source.C(cUsers).Find(bson.M{"email": email}).Select(bson.M{"text": 1}).One(&user)
 	if err != nil {
 		return models.User{}, fmt.Errorf("can not find user with email '%s': %v", email, err)
 	}
