@@ -3,23 +3,18 @@ package mux
 import (
 	"errors"
 	"fmt"
-	"strings"
+	"regexp"
 )
+
+var paramRegexp = regexp.MustCompile(`:([[:lower:]]|_)+`)
 
 // Converts patterns like "/users/:id" to "/users/(?P<id>\d+)"
 func convertSimplePatternToRegexp(pattern string) string {
-	parts := strings.Split(pattern, "/")
+	patternWithParams := paramRegexp.ReplaceAllStringFunc(pattern, func(param string) string {
+		return fmt.Sprintf(`(?P<%s>[[:xdigit:]]{24})`, param[1:])
+	})
 
-	for i, part := range parts {
-		if len(part) != 0 && part[0] == ':' {
-			parts[i] = fmt.Sprintf(`(?P<%s>[a-f\d]{24})`, part[1:])
-		}
-	}
-
-	pattern = strings.Join(parts, `\/`)
-	pattern = fmt.Sprintf("^%s$", pattern)
-
-	return pattern
+	return fmt.Sprintf("^%s$", patternWithParams)
 }
 
 // Return path relative to "base"
