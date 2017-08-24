@@ -21,7 +21,10 @@ func CheckUserExists(source db.DataSource, credentials models.User) (bool, error
 
 // Checks if user credentials present in users collection.
 func CheckUserCredentials(source db.DataSource, credentials models.User) (bool, error) {
-	empty, err := source.C(cUsers).Find(credentials).IsEmpty()
+	empty, err := source.C(cUsers).Find(bson.M{
+		"email":    credentials.Email,
+		"password": credentials.Password,
+	}).IsEmpty()
 	if err != nil {
 		return false, fmt.Errorf("can not check user credentials '%v': %v", credentials, err)
 	}
