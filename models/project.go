@@ -7,6 +7,12 @@ type Project struct {
 	Users       []RequiredId `json:"users,omitempty" bson:"users,omitempty"`
 }
 
+// Helper for both project and user ids.
+type ProjectUser struct {
+	ProjectId RequiredId
+	UserId    RequiredId
+}
+
 type ProjectsList []Project
 
 // Validates project.

@@ -91,3 +91,37 @@ func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
 
 	JsonResponse(w, users.(models.UsersList))
 }
+
+func AddUserToProject(w http.ResponseWriter, req *http.Request) {
+	projectId := mux.Params(req).PathParams["id"]
+	userId := string(mux.Params(req).Body)
+
+	users, err := pool.Dispatch(pool.ProjectAddUser,
+		models.ProjectUser{
+			ProjectId: models.RequiredId(bson.ObjectIdHex(projectId)),
+			UserId:    models.RequiredId(bson.ObjectIdHex(userId)),
+		})
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
+		return
+	}
+
+	JsonResponse(w, users.(models.UsersList))
+}
+
+func DeleteUserFromProject(w http.ResponseWriter, req *http.Request) {
+	projectId := mux.Params(req).PathParams["id"]
+	userId := string(mux.Params(req).Body)
+
+	users, err := pool.Dispatch(pool.ProjectDeleteUser,
+		models.ProjectUser{
+			ProjectId: models.RequiredId(bson.ObjectIdHex(projectId)),
+			UserId:    models.RequiredId(bson.ObjectIdHex(userId)),
+		})
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
+		return
+	}
+
+	JsonResponse(w, users.(models.UsersList))
+}
