@@ -110,14 +110,11 @@ func (id *Id) UnmarshalJSON(data []byte) error {
 }
 
 func (id Id) GetBSON() (interface{}, error) {
-	return id.Hex(), nil
+	return id.ObjectId, nil
 }
 
 func (id *Id) SetBSON(raw bson.Raw) error {
-	var result string
-	err := raw.Unmarshal(&result)
-	id.ObjectId = bson.ObjectIdHex(result)
-	return err
+	return raw.Unmarshal(&id.ObjectId)
 }
 
 var ErrInvalidId = errors.New("invalid id")
