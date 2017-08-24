@@ -14,10 +14,13 @@ func init() {
 }
 
 const (
-	ProjectCreate   = Action("ProjectCreate")
-	ProjectExists   = Action("ProjectExists")
-	ProjectsAll     = Action("ProjectsAll")
-	ProjectFindById = Action("ProjectFindById")
+	ProjectCreate     = Action("ProjectCreate")
+	ProjectExists     = Action("ProjectExists")
+	ProjectsAll       = Action("ProjectsAll")
+	ProjectFindById   = Action("ProjectFindById")
+	ProjectAllUsers   = Action("ProjectAllUsers")
+	ProjectAddUser    = Action("ProjectAddUser")
+	ProjectDeleteUser = Action("ProjectDeleteUser")
 )
 
 func projectsResolver(action Action) (service ServiceFunc) {
@@ -45,6 +48,27 @@ func projectsResolver(action Action) (service ServiceFunc) {
 			return projects.FindProjectById(source, id.(bson.ObjectId))
 		}
 		return
+
+	case ProjectAllUsers:
+		service = func(source db.DataSource, id interface{}) (result interface{}, err error) {
+			return projects.AllUsersInProject(source, id.(bson.ObjectId))
+		}
+		return
+
+	case ProjectAddUser:
+		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			ids := data.(models.ProjectUser)
+			return projects.AddUserToProject(source, ids.ProjectId, ids.UserId)
+		}
+		return
+
+	case ProjectDeleteUser:
+		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			ids := data.(models.ProjectUser)
+			return projects.DeleteUserFromProject(source, ids.ProjectId, ids.UserId)
+		}
+		return
+
 	default:
 		log.Panicf("can not find resolver with action: %v, in projects resolvers", action)
 		return
