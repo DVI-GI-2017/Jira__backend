@@ -1,6 +1,7 @@
-package params
+package mux
 
 import (
+	"context"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -13,13 +14,24 @@ type PostBody []byte // Byte array with request body
 // Get params stands for "query params"
 type GetParams map[string]string
 
-type Params struct {
+// Extracts "params" from request
+func Params(req *http.Request) *params {
+	return req.Context().Value("params").(*params)
+}
+
+// Puts params in request context and returns new request
+func putParams(req *http.Request, params *params) *http.Request {
+	return req.WithContext(context.WithValue(req.Context(), "params", params))
+}
+
+type params struct {
 	Query      GetParams
 	Body       PostBody
 	PathParams PathParams
 }
 
-func NewParams(request *http.Request, pattern *regexp.Regexp, path string) (*Params, error) {
+// Creates new params
+func newParams(request *http.Request, pattern *regexp.Regexp, path string) (*params, error) {
 	var body []byte
 	if request.Body != nil {
 		newBody, err := ioutil.ReadAll(request.Body)
@@ -29,20 +41,16 @@ func NewParams(request *http.Request, pattern *regexp.Regexp, path string) (*Par
 		body = newBody
 	}
 
-	return &Params{
-		Query:      ValuesToGetParams(request.URL.Query()),
+	return &params{
+		Query:      valuesToGetParams(request.URL.Query()),
 		Body:       body,
-		PathParams: ExtractPathParams(pattern, path),
+		PathParams: extractPathParams(pattern, path),
 	}, nil
-}
-
-func ExtractParams(req *http.Request) *Params {
-	return req.Context().Value("params").(*Params)
 }
 
 // Converts url.Url.Query() from "Values" (map[string][]string)
 // to "getParams" (map[string]string)
-func ValuesToGetParams(values url.Values) GetParams {
+func valuesToGetParams(values url.Values) GetParams {
 	params := make(map[string]string)
 	for key := range values {
 		params[key] = values.Get(key)
@@ -55,7 +63,7 @@ func ValuesToGetParams(values url.Values) GetParams {
 type PathParams map[string]string
 
 // Extract path params from path
-func ExtractPathParams(pattern *regexp.Regexp, path string) PathParams {
+func extractPathParams(pattern *regexp.Regexp, path string) PathParams {
 	match := pattern.FindStringSubmatch(path)
 	result := make(PathParams)
 
