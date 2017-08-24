@@ -1,4 +1,4 @@
-package routes
+package mux
 
 import (
 	"context"
@@ -7,15 +7,19 @@ import (
 	"net/url"
 	"regexp"
 
+	"log"
+
+	"strings"
+
 	"github.com/DVI-GI-2017/Jira__backend/params"
 )
 
 func NewRouter(rootPath string) (*router, error) {
 	r := &router{}
-	r.routes = make(map[string]map[*regexp.Regexp]Route)
+	r.routes = make(map[string]map[*regexp.Regexp]http.HandlerFunc)
 
-	r.routes[http.MethodGet] = make(map[*regexp.Regexp]Route)
-	r.routes[http.MethodPost] = make(map[*regexp.Regexp]Route)
+	r.routes[http.MethodGet] = make(map[*regexp.Regexp]http.HandlerFunc)
+	r.routes[http.MethodPost] = make(map[*regexp.Regexp]http.HandlerFunc)
 
 	err := r.SetRootPath(rootPath)
 	if err != nil {
@@ -28,7 +32,9 @@ func NewRouter(rootPath string) (*router, error) {
 type router struct {
 	root *url.URL
 
-	routes map[string]map[*regexp.Regexp]Route
+	routes map[string]map[*regexp.Regexp]http.HandlerFunc
+
+	wrappers []WrapperFunc
 }
 
 // Set router root path, other paths will be relative to it
@@ -39,6 +45,39 @@ func (r *router) SetRootPath(path string) error {
 	}
 
 	r.root = newRoot
+
+	return nil
+}
+
+// Add wrappers to router
+func (r *router) AddWrappers(wrappers ...WrapperFunc) {
+	r.wrappers = append(r.wrappers, wrappers...)
+}
+
+// Adds Get handler
+func (r *router) Get(pattern string, handler http.HandlerFunc) error {
+	pattern = convertSimplePatternToRegexp(pattern)
+
+	compiledPattern, err := regexp.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	r.routes[http.MethodGet][compiledPattern] = Wrap(handler, r.wrappers...).ServeHTTP
+
+	return nil
+}
+
+// Adds Post handler
+func (r *router) Post(pattern string, handler http.HandlerFunc) error {
+	pattern = convertSimplePatternToRegexp(pattern)
+
+	compiledPattern, err := regexp.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	r.routes[http.MethodPost][compiledPattern] = Wrap(handler, r.wrappers...).ServeHTTP
 
 	return nil
 }
@@ -62,7 +101,7 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path string) {
 
 	if routeMap, ok := r.routes[req.Method]; ok {
-		for pattern, route := range routeMap {
+		for pattern, handler := range routeMap {
 			if pattern.MatchString(path) {
 				parameters, err := params.NewParams(req, pattern, path)
 
@@ -73,7 +112,7 @@ func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path st
 				}
 
 				req = req.WithContext(context.WithValue(req.Context(), "params", parameters))
-				route.Handler(w, req)
+				handler.ServeHTTP(w, req)
 
 				return
 			}
@@ -88,24 +127,15 @@ func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path st
 	fmt.Fprintf(w, "Method: %s not supported", req.Method)
 }
 
-// Add new route.
-func (r *router) Add(route Route) error {
-	pattern := route.Pattern
-	pattern = convertSimplePatternToRegexp(pattern)
+// Pretty prints routes
+func (r *router) PrintRoutes() {
+	log.Println(strings.Repeat("-", 10))
 
-	compiledPattern, err := regexp.Compile(pattern)
-	if err != nil {
-		return err
+	for method, list := range r.routes {
+		for re := range list {
+			log.Printf("'%s': '%s'", method, re)
+		}
 	}
 
-	switch route.Method {
-	case http.MethodGet:
-		r.routes[http.MethodGet][compiledPattern] = route
-		return nil
-	case http.MethodPost:
-		r.routes[http.MethodPost][compiledPattern] = route
-		return nil
-	}
-
-	return fmt.Errorf("Error method '%s' not supported.", route.Method)
+	log.Println(strings.Repeat("-", 10))
 }

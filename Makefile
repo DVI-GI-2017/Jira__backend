@@ -3,7 +3,8 @@
 all: test bench
 
 test:
-	cd ./routes && go test
+	go test ./mux
+	go test ./params
 
 bench:
-	cd ./routes && go test -bench=.
+	go test ./mux -bench=.
