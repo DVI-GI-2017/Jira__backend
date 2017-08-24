@@ -31,7 +31,7 @@ func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	for job := range queue {
 		function := getService(job.Action)
 
-		result, err := function(db.Copy(), job.Input)
+		result, err := function(db.Get(), job.Input)
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
 			go func(job *Job, queue chan *Job) {
 				queue <- job
