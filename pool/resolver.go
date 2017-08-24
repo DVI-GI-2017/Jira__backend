@@ -1,8 +1,6 @@
 package pool
 
 import (
-	"errors"
-
 	"log"
 
 	"github.com/DVI-GI-2017/Jira__backend/db"
@@ -13,88 +11,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const (
-	//Users actions
-	CreateUser           = "CreateUser"
-	CheckUserExists      = "CheckUserExists"
-	CheckUserCredentials = "CheckUserCredentials"
-	FindUserById         = "FindUserById"
-	AllUsers             = "AllUsers"
-
-	// Projects actions
-	CreateProject      = "CreateProject"
-	CheckProjectExists = "CheckProjectExists"
-	AllProjects        = "AllProjects"
-	FindProjectById    = "FindProjectById"
-
-	// Tasks actions
-	CreateTask      = "CreateTask"
-	CheckTaskExists = "CheckTaskExists"
-	AllTasks        = "AllTasks"
-	FindTaskById    = "FindTaskById"
-
-	// Labels actions
-	AddLabelToTask       = "AddLabelToTask"
-	AllLabelsOnTask      = "AllLabelsOnTask"
-	CheckLabelAlreadySet = "CheckLabelAlreadySet"
-	DeleteLabelFromTask  = "DeleteLabelFromTask"
-)
-
-var typesActionList = [...]string{
-	// Users actions
-	CreateUser,
-	CheckUserExists,
-	CheckUserCredentials,
-	FindUserById,
-	AllUsers,
-
-	// Projects actions
-	CreateProject,
-	CheckProjectExists,
-	AllProjects,
-	FindProjectById,
-
-	// Tasks actions
-	CreateTask,
-	CheckTaskExists,
-	AllTasks,
-	FindTaskById,
-
-	// Labels actions
-	AddLabelToTask,
-	AllLabelsOnTask,
-	CheckLabelAlreadySet,
-	DeleteLabelFromTask,
-}
-
-type Action struct {
-	Type string
-}
-
-func NewAction(actionType string) (*Action, error) {
-	if checkActionType(actionType) {
-		return &Action{
-			Type: actionType,
-		}, nil
-	} else {
-		return &Action{}, errors.New("Can't create new action!")
-	}
-}
-
-func checkActionType(actionType string) bool {
-	for _, value := range typesActionList {
-		if value == actionType {
-			return true
-		}
-	}
-
-	return false
-}
-
 type ServiceFunc func(source db.DataSource, data interface{}) (result interface{}, err error)
 
-func GetServiceByAction(action *Action) (service ServiceFunc, err error) {
-	switch action.Type {
+func getServiceByAction(action Action) (service ServiceFunc, err error) {
+	switch action {
 
 	case CreateUser:
 		service = func(source db.DataSource, user interface{}) (result interface{}, err error) {
@@ -202,23 +122,14 @@ func GetServiceByAction(action *Action) (service ServiceFunc, err error) {
 			return tasks.DeleteLabelFromTask(source, taskLabel.TaskId, taskLabel.Label)
 		}
 		return
+	default:
+		log.Panicf("unknown action: %s", action)
+		return
 	}
-
-	return NullHandler, errors.New("Can't find handler!")
-}
-
-// Helper handler for case when handler not found.
-func NullHandler(_ db.DataSource, _ interface{}) (result interface{}, err error) {
-	return nil, nil
 }
 
 // Creates job with given action and input and returns result.
-func DispatchAction(actionType string, input interface{}) (result interface{}, err error) {
-	action, err := NewAction(actionType)
-	if err != nil {
-		log.Panicf("invalid actionType type: %s", actionType)
-	}
-
+func Dispatch(action Action, input interface{}) (result interface{}, err error) {
 	Queue <- &Job{
 		Input:  input,
 		Action: action,

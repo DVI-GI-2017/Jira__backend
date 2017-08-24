@@ -11,7 +11,7 @@ import (
 
 // Returns all users.
 func AllUsers(w http.ResponseWriter, _ *http.Request) {
-	users, err := pool.DispatchAction(pool.AllUsers, nil)
+	users, err := pool.Dispatch(pool.AllUsers, nil)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
@@ -24,7 +24,7 @@ func AllUsers(w http.ResponseWriter, _ *http.Request) {
 // Path param: "id" - user id.
 func GetUserById(w http.ResponseWriter, req *http.Request) {
 	id := mux.Params(req).PathParams["id"]
-	user, err := pool.DispatchAction(pool.FindUserById, bson.ObjectIdHex(id))
+	user, err := pool.Dispatch(pool.FindUserById, bson.ObjectIdHex(id))
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return

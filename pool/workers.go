@@ -8,7 +8,7 @@ import (
 )
 
 type Job struct {
-	Action *Action
+	Action Action
 	Input  interface{}
 }
 
@@ -29,7 +29,7 @@ func InitWorkers() {
 
 func worker(id int, queue chan *Job, results chan<- *JobResult) {
 	for job := range queue {
-		function, _ := GetServiceByAction(job.Action)
+		function, _ := getServiceByAction(job.Action)
 
 		result, err := function(db.Copy(), job.Input)
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
