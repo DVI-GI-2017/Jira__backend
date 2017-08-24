@@ -45,7 +45,7 @@ func AllProjects(source db.DataSource) (result models.ProjectsList, err error) {
 func FindProjectById(mongo db.DataSource, id models.RequiredId) (result models.Project, err error) {
 	err = mongo.C(cProjects).FindId(id).One(&result)
 	if err != nil {
-		return models.Project{}, fmt.Errorf("can not find project with id '%s': %v", id, err)
+		return models.Project{}, fmt.Errorf("can not find project with id '%s': %s", id.Hex(), err)
 	}
 	return result, nil
 }
