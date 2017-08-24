@@ -8,3 +8,4 @@ import:
   - bson
 testImport:
 - package: github.com/gorilla/mux
+- package: github.com/buger/jsonparser
