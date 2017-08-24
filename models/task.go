@@ -1,8 +1,6 @@
 package models
 
-import (
-	"gopkg.in/mgo.v2/bson"
-)
+import "gopkg.in/mgo.v2/bson"
 
 type Task struct {
 	Id          AutoId     `json:"_id,omitempty" bson:"_id,omitempty"`
