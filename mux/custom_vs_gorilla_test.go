@@ -3,6 +3,7 @@ package mux
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,62 +11,96 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func BenchmarkGorilla(b *testing.B) {
+var simpleBench = &benchmarkData{
+	basePath: "/api/v1",
+
+	patternGorilla: "/users/{id:[[:xdigit:]]{24}}",
+	patternCustom:  "/users/:id",
+
+	matchedPath: "/api/v1/users/599ce026ff64e74a60086508",
+
+	pathParams:  map[string]string{"id": "599ce026ff64e74a60086508"},
+	queryParams: map[string]string{},
+
+	responseTemplate: "query params: %s, path params: %s",
+}
+
+func BenchmarkSimpleGorilla(b *testing.B) {
+	benchmark(b, simpleBench, initGorillaRouter(simpleBench))
+}
+
+func BenchmarkSimpleCustom(b *testing.B) {
+	benchmark(b, simpleBench, initCustomRouter(simpleBench))
+}
+
+// Executes simple benchmark atop of given data
+func benchmark(b *testing.B, data *benchmarkData, router http.Handler) {
+	helper := newGetHelper(data.matchedPath)
+	helper.clear()
+
+	for i := 0; i < b.N; i++ {
+		router.ServeHTTP(helper.w, helper.r)
+		if !data.Ok(helper.w.Body.String()) {
+			b.Fail()
+		}
+		helper.clear()
+	}
+}
+
+// Helper structure to store bench data
+type benchmarkData struct {
+	basePath string
+
+	patternGorilla string
+	patternCustom  string
+
+	matchedPath string
+
+	pathParams  map[string]string
+	queryParams map[string]string
+
+	responseTemplate string
+}
+
+func (b benchmarkData) Ok(input string) bool {
+	return fmt.Sprintf(b.responseTemplate, b.queryParams, b.pathParams) == input
+}
+
+// Helpers to work with gorilla router
+func initGorillaRouter(data *benchmarkData) *mux.Router {
 	router := mux.NewRouter()
+	apiRouter := router.PathPrefix(data.basePath).Subrouter()
 
-	apiRouter := router.PathPrefix("/api/v1").Subrouter()
+	apiRouter.Path(data.patternGorilla).Methods(http.MethodGet).HandlerFunc(
+		func(w http.ResponseWriter, req *http.Request) {
+			getParams := req.URL.Query()
+			vars := mux.Vars(req)
 
-	apiRouter.Path("/users/{id:[a-f0-9]{24}}").Methods(http.MethodGet).HandlerFunc(gorillaHandler)
+			fmt.Fprintf(w, data.responseTemplate, getParams, vars)
+		})
 
-	helper := newGetHelper("/api/v1/users/234feabc1357346781234524")
-
-	for i := 0; i < b.N; i++ {
-		processRequest(router, helper, b)
-		helper.clear()
-	}
+	return router
 }
 
-func gorillaHandler(w http.ResponseWriter, req *http.Request) {
-	getParams := req.URL.Query()
-	vars := mux.Vars(req)
-
-	fmt.Fprintf(w, "get params: %v, path params: %v", getParams, vars)
-}
-
-func BenchmarkCustom(b *testing.B) {
-	router, err := NewRouter("/api/v1")
+// Helper to work with custom router
+func initCustomRouter(data *benchmarkData) *router {
+	router, err := NewRouter(data.basePath)
 	if err != nil {
-		b.Errorf("can not create router: %v", err)
+		log.Panicf("can not create router: %v", err)
 	}
 
-	err = router.Get("/users/:id", customHandler)
+	err = router.Get(data.patternCustom, func(w http.ResponseWriter, req *http.Request) {
+		params := Params(req)
+		fmt.Fprintf(w, data.responseTemplate, params.Query, params.PathParams)
+	})
 	if err != nil {
-		b.Fatalf("%v", err)
+		log.Panicf("%v", err)
 	}
 
-	helper := newGetHelper("/api/v1/users/234feabc1357346781234524")
-
-	for i := 0; i < b.N; i++ {
-		processRequest(router, helper, b)
-		helper.clear()
-	}
+	return router
 }
 
-func customHandler(w http.ResponseWriter, req *http.Request) {
-	params := Params(req)
-	fmt.Fprintf(w, "get params: %v, path params: %v", params.Query, params.PathParams)
-}
-
-func processRequest(router http.Handler, helper *getHelper, b *testing.B) {
-	router.ServeHTTP(helper.w, helper.r)
-
-	s := fmt.Sprintf("%s", helper.w.Body)
-	expected := "get params: map[], path params: map[id:234feabc1357346781234524]"
-	if s != expected {
-		b.Errorf("invalid response: %s; expected: %s", s, expected)
-	}
-}
-
+// Helper to mock get requests
 type getHelper struct {
 	w *httptest.ResponseRecorder
 	r *http.Request
