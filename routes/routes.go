@@ -21,12 +21,11 @@ type Mux interface {
 
 // Setup routes defined in this package
 func SetupRoutes(m Mux) {
-	addRoutesToMux(m, LoginRoutes)
-	addRoutesToMux(m, UsersRoutes)
-	addRoutesToMux(m, ProjectRoutes)
-	addRoutesToMux(m, TasksRoutes)
-	addRoutesToMux(m, LabelsRoutes)
+	addRoutesToMux(m, defaultRoutes)
 }
+
+// Slice of default routes will be resolved automatically
+var defaultRoutes []Route
 
 // Adds slice of routes to mux
 func addRoutesToMux(m Mux, routes []Route) {

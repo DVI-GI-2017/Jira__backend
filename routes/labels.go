@@ -7,7 +7,11 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
 )
 
-var LabelsRoutes = []Route{
+func init() {
+	defaultRoutes = append(defaultRoutes, labelsRoutes...)
+}
+
+var labelsRoutes = []Route{
 	{
 		Name:    "Add label to task (:task_id)",
 		Pattern: "/tasks/:task_id/labels",

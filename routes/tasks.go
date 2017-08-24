@@ -7,7 +7,11 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
 )
 
-var TasksRoutes = []Route{
+func init() {
+	defaultRoutes = append(defaultRoutes, tasksRoutes...)
+}
+
+var tasksRoutes = []Route{
 	{
 		Name:    "Create task.",
 		Pattern: "/tasks",

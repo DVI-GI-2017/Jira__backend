@@ -7,7 +7,11 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
 )
 
-var UsersRoutes = []Route{
+func init() {
+	defaultRoutes = append(defaultRoutes, usersRoutes...)
+}
+
+var usersRoutes = []Route{
 	{
 		Name:    "Get user by id",
 		Pattern: "/users/:id",
