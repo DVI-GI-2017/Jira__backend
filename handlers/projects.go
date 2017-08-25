@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"encoding/json"
@@ -31,25 +30,6 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 	}
 
 	projectInfo.Id = models.NewAutoId()
-
-	exists, err := pool.Dispatch(pool.ProjectExists, projectInfo)
-
-	if err != nil {
-		JsonErrorResponse(w, fmt.Errorf("can not check project existence: %v", err),
-			http.StatusInternalServerError)
-		return
-	}
-
-	if _, ok := exists.(bool); !ok {
-		JsonErrorResponse(w, models.ErrInvalidCastToBool(exists), http.StatusInternalServerError)
-		return
-	}
-
-	if exists.(bool) {
-		JsonErrorResponse(w, fmt.Errorf("project with title %s already exists", projectInfo.Title),
-			http.StatusConflict)
-		return
-	}
 
 	project, err := pool.Dispatch(pool.ProjectCreate, projectInfo)
 	if err != nil {
@@ -120,27 +100,6 @@ func AddUserToProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	exists, err := pool.Dispatch(pool.ProjectUserExists,
-		models.ProjectUser{
-			ProjectId: projectId,
-			UserId:    userId,
-		})
-	if err != nil {
-		JsonErrorResponse(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	if _, ok := exists.(bool); !ok {
-		JsonErrorResponse(w, models.ErrInvalidCastToBool(exists), http.StatusInternalServerError)
-		return
-	}
-
-	if exists.(bool) {
-		JsonErrorResponse(w, fmt.Errorf("user '%s' already in project '%s'", userId.Hex(), projectId.Hex()),
-			http.StatusConflict)
-		return
-	}
-
 	users, err := pool.Dispatch(pool.ProjectAddUser,
 		models.ProjectUser{
 			ProjectId: projectId,
@@ -161,27 +120,6 @@ func DeleteUserFromProject(w http.ResponseWriter, req *http.Request) {
 	err := json.Unmarshal(mux.Params(req).Body, &userId)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
-		return
-	}
-
-	exists, err := pool.Dispatch(pool.ProjectUserExists,
-		models.ProjectUser{
-			ProjectId: projectId,
-			UserId:    userId,
-		})
-	if err != nil {
-		JsonErrorResponse(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	if _, ok := exists.(bool); !ok {
-		JsonErrorResponse(w, models.ErrInvalidCastToBool(exists), http.StatusInternalServerError)
-		return
-	}
-
-	if !exists.(bool) {
-		JsonErrorResponse(w, fmt.Errorf("user '%s' not in project '%s'", userId.Hex(), projectId.Hex()),
-			http.StatusNotFound)
 		return
 	}
 
