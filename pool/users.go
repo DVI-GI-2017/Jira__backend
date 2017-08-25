@@ -6,7 +6,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/services/users"
-	"github.com/DVI-GI-2017/Jira__backend/utils"
 )
 
 func init() {
@@ -23,64 +22,74 @@ const (
 	UserAllProjects = Action("UserAllProjects")
 )
 
-func usersResolver(action Action) (ServiceFunc, error) {
+func usersResolver(action Action) (service ServiceFunc, err error) {
 	switch action {
 
 	case UserCreate:
-		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			if user, ok := data.(models.User); ok {
-				return users.CreateUser(source, user)
+		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			user, err := models.SafeCastToUser(data)
+			if err != nil {
+				return models.User{}, err
 			}
-			return models.User{}, utils.ErrInvalidCast(data, models.User{})
-		}, nil
+			return users.CreateUser(source, user)
+		}
+		return
 
 	case UserExists:
-		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			if user, ok := data.(models.User); ok {
-				return users.CheckUserExists(source, user)
+		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			user, err := models.SafeCastToUser(data)
+			if err != nil {
+				return false, err
 			}
-			return false, utils.ErrInvalidCast(data, models.User{})
-		}, nil
+			return users.CheckUserExists(source, user)
+		}
+		return
 
 	case UserAuthorize:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if user, ok := data.(models.User); ok {
-				return users.CheckUserCredentials(source, user)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			user, err := models.SafeCastToUser(data)
+			if err != nil {
+				return false, err
 			}
-			return false, utils.ErrInvalidCast(data, models.User{})
-		}, nil
+			return users.CheckUserCredentials(source, user)
+		}
+		return
 
 	case UsersAll:
-		return func(source db.DataSource, _ interface{}) (result interface{}, err error) {
+		service = func(source db.DataSource, _ interface{}) (result interface{}, err error) {
 			return users.AllUsers(source)
-		}, nil
+		}
+		return
 
 	case UserFindById:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if id, ok := data.(models.RequiredId); ok {
-				return users.FindUserById(source, id)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			id, err := models.SafeCastToRequiredId(data)
+			if err != nil {
+				return models.User{}, err
 			}
-			return models.User{}, utils.ErrInvalidCast(data, models.RequiredId{})
-		}, nil
+			return users.FindUserById(source, id)
+		}
+		return
 
 	case UserFindByEmail:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if email, ok := data.(models.Email); ok {
-				return users.FindUserByEmail(source, email)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			email, err := models.SafeCastToEmail(data)
+			if err != nil {
+				return models.User{}, err
 			}
-			return models.User{}, utils.ErrInvalidCast(data, models.Email(""))
-		}, nil
+			return users.FindUserByEmail(source, email)
+		}
+		return
 
 	case UserAllProjects:
-		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			if id, ok := data.(models.RequiredId); ok {
-				return users.AllUserProjects(source, id)
+		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			id, err := models.SafeCastToRequiredId(data)
+			if err != nil {
+				return models.ProjectsList{}, err
 			}
-			return models.ProjectsList{}, utils.ErrInvalidCast(data, models.RequiredId{})
-		}, nil
-
-	default:
-		return nil, fmt.Errorf("can not find resolver with action: %v, in users resolvers", action)
-
+			return users.AllUserProjects(source, id)
+		}
+		return
 	}
+	return nil, fmt.Errorf("can not find resolver with action: %v, in users resolvers", action)
 }

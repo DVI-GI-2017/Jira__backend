@@ -9,35 +9,49 @@ func ErrInvalidCast(got, expected interface{}) error {
 
 func SafeCastToTaskLabel(data interface{}) (TaskLabel, error) {
 	if val, ok := data.(TaskLabel); ok {
-		return val, ErrInvalidCast(data, TaskLabel{})
+		return val, nil
 	}
-	return TaskLabel{}, nil
+	return TaskLabel{}, ErrInvalidCast(data, TaskLabel{})
 }
 
 func SafeCastToRequiredId(data interface{}) (RequiredId, error) {
 	if val, ok := data.(RequiredId); ok {
-		return val, ErrInvalidCast(data, RequiredId{})
+		return val, nil
 	}
-	return RequiredId{}, nil
+	return RequiredId{}, ErrInvalidCast(data, RequiredId{})
 }
 
 func SafeCastToProject(data interface{}) (Project, error) {
 	if val, ok := data.(Project); ok {
-		return val, ErrInvalidCast(data, Project{})
+		return val, nil
 	}
-	return Project{}, nil
+	return Project{}, ErrInvalidCast(data, Project{})
 }
 
 func SafeCastToProjectUser(data interface{}) (ProjectUser, error) {
 	if val, ok := data.(ProjectUser); ok {
-		return val, ErrInvalidCast(data, ProjectUser{})
+		return val, nil
 	}
-	return ProjectUser{}, nil
+	return ProjectUser{}, ErrInvalidCast(data, ProjectUser{})
 }
 
 func SafeCastToTask(data interface{}) (Task, error) {
 	if val, ok := data.(Task); ok {
-		return val, ErrInvalidCast(data, Task{})
+		return val, nil
 	}
-	return Task{}, nil
+	return Task{}, ErrInvalidCast(data, Task{})
+}
+
+func SafeCastToUser(data interface{}) (User, error) {
+	if val, ok := data.(User); ok {
+		return val, nil
+	}
+	return User{}, ErrInvalidCast(data, User{})
+}
+
+func SafeCastToEmail(data interface{}) (Email, error) {
+	if val, ok := data.(Email); ok {
+		return val, nil
+	}
+	return Email(""), ErrInvalidCast(data, Email(""))
 }
