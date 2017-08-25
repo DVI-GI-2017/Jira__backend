@@ -28,7 +28,7 @@ func labelsResolver(action Action) (ServiceFunc, error) {
 			if taskLabel, ok := data.(models.TaskLabel); ok {
 				return tasks.AddLabelToTask(source, taskLabel.TaskId, taskLabel.Label)
 			}
-			return models.LabelsList{}, utils.CastFailsMsg(data, models.TaskLabel{})
+			return models.LabelsList{}, utils.ErrCastFails(data, models.TaskLabel{})
 		}, nil
 
 	case LabelsAllOnTask:
@@ -36,7 +36,7 @@ func labelsResolver(action Action) (ServiceFunc, error) {
 			if id, ok := data.(models.RequiredId); ok {
 				return tasks.AllLabels(source, id)
 			}
-			return models.LabelsList{}, utils.CastFailsMsg(data, models.RequiredId{})
+			return models.LabelsList{}, utils.ErrCastFails(data, models.RequiredId{})
 		}, nil
 
 	case LabelAlreadySet:
@@ -44,7 +44,7 @@ func labelsResolver(action Action) (ServiceFunc, error) {
 			if taskLabel, ok := data.(models.TaskLabel); ok {
 				return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
 			}
-			return false, utils.CastFailsMsg(data, models.TaskLabel{})
+			return false, utils.ErrCastFails(data, models.TaskLabel{})
 		}, nil
 
 	case LabelDeleteFromTask:

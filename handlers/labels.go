@@ -54,7 +54,7 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if _, ok := exists.(bool); !ok {
-		JsonErrorResponse(w, utils.CastFailsMsg(exists, false), http.StatusInternalServerError)
+		JsonErrorResponse(w, utils.ErrCastFails(exists, false), http.StatusInternalServerError)
 		return
 	}
 

@@ -31,7 +31,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if user, ok := data.(models.User); ok {
 				return users.CreateUser(source, user)
 			}
-			return models.User{}, utils.CastFailsMsg(data, models.User{})
+			return models.User{}, utils.ErrCastFails(data, models.User{})
 		}, nil
 
 	case UserExists:
@@ -39,7 +39,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if user, ok := data.(models.User); ok {
 				return users.CheckUserExists(source, user)
 			}
-			return false, utils.CastFailsMsg(data, models.User{})
+			return false, utils.ErrCastFails(data, models.User{})
 		}, nil
 
 	case UserAuthorize:
@@ -47,7 +47,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if user, ok := data.(models.User); ok {
 				return users.CheckUserCredentials(source, user)
 			}
-			return false, utils.CastFailsMsg(data, models.User{})
+			return false, utils.ErrCastFails(data, models.User{})
 		}, nil
 
 	case UsersAll:
@@ -60,7 +60,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if id, ok := data.(models.RequiredId); ok {
 				return users.FindUserById(source, id)
 			}
-			return models.User{}, utils.CastFailsMsg(data, models.RequiredId{})
+			return models.User{}, utils.ErrCastFails(data, models.RequiredId{})
 		}, nil
 
 	case UserFindByEmail:
@@ -68,7 +68,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if email, ok := data.(models.Email); ok {
 				return users.FindUserByEmail(source, email)
 			}
-			return models.User{}, utils.CastFailsMsg(data, models.Email(""))
+			return models.User{}, utils.ErrCastFails(data, models.Email(""))
 		}, nil
 
 	case UserAllProjects:
@@ -76,7 +76,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if id, ok := data.(models.RequiredId); ok {
 				return users.AllUserProjects(source, id)
 			}
-			return models.ProjectsList{}, utils.CastFailsMsg(data, models.RequiredId{})
+			return models.ProjectsList{}, utils.ErrCastFails(data, models.RequiredId{})
 		}, nil
 
 	default:

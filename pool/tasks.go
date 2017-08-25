@@ -28,7 +28,7 @@ func tasksResolver(action Action) (ServiceFunc, error) {
 			if task, ok := data.(models.Task); ok {
 				return tasks.AddTaskToProject(source, task)
 			}
-			return models.Task{}, utils.CastFailsMsg(data, models.Task{})
+			return models.Task{}, utils.ErrCastFails(data, models.Task{})
 		}, nil
 
 	case TaskExists:
@@ -36,7 +36,7 @@ func tasksResolver(action Action) (ServiceFunc, error) {
 			if task, ok := data.(models.Task); ok {
 				return tasks.CheckTaskExists(source, task)
 			}
-			return models.Task{}, utils.CastFailsMsg(data, models.Task{})
+			return models.Task{}, utils.ErrCastFails(data, models.Task{})
 		}, nil
 
 	case TasksAllOnProject:
@@ -44,7 +44,7 @@ func tasksResolver(action Action) (ServiceFunc, error) {
 			if id, ok := data.(models.RequiredId); ok {
 				return tasks.AllTasks(source, id)
 			}
-			return models.TasksList{}, utils.CastFailsMsg(data, models.RequiredId{})
+			return models.TasksList{}, utils.ErrCastFails(data, models.RequiredId{})
 		}, nil
 
 	case TaskFindById:
@@ -52,7 +52,7 @@ func tasksResolver(action Action) (ServiceFunc, error) {
 			if id, ok := data.(models.RequiredId); ok {
 				return tasks.FindTaskById(source, id)
 			}
-			return models.Task{}, utils.CastFailsMsg(data, models.RequiredId{})
+			return models.Task{}, utils.ErrCastFails(data, models.RequiredId{})
 		}, nil
 
 	default:

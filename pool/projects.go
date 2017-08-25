@@ -32,7 +32,7 @@ func projectsResolver(action Action) (ServiceFunc, error) {
 			if project, ok := data.(models.Project); ok {
 				return projects.CreateProject(source, project)
 			}
-			return models.Project{}, utils.CastFailsMsg(data, models.Project{})
+			return models.Project{}, utils.ErrCastFails(data, models.Project{})
 		}, nil
 
 	case ProjectExists:
@@ -40,7 +40,7 @@ func projectsResolver(action Action) (ServiceFunc, error) {
 			if project, ok := data.(models.Project); ok {
 				return projects.CheckProjectExists(source, project)
 			}
-			return false, utils.CastFailsMsg(data, models.Project{})
+			return false, utils.ErrCastFails(data, models.Project{})
 		}, nil
 
 	case ProjectsAll:
@@ -53,7 +53,7 @@ func projectsResolver(action Action) (ServiceFunc, error) {
 			if id, ok := data.(models.RequiredId); ok {
 				return projects.FindProjectById(source, id)
 			}
-			return models.Project{}, utils.CastFailsMsg(data, models.RequiredId{})
+			return models.Project{}, utils.ErrCastFails(data, models.RequiredId{})
 		}, nil
 
 	case ProjectAllUsers:
@@ -61,7 +61,7 @@ func projectsResolver(action Action) (ServiceFunc, error) {
 			if id, ok := data.(models.RequiredId); ok {
 				return projects.AllUsersInProject(source, id)
 			}
-			return models.UsersList{}, utils.CastFailsMsg(data, models.RequiredId{})
+			return models.UsersList{}, utils.ErrCastFails(data, models.RequiredId{})
 		}, nil
 
 	case ProjectAllTasks:
@@ -69,7 +69,7 @@ func projectsResolver(action Action) (ServiceFunc, error) {
 			if id, ok := data.(models.RequiredId); ok {
 				return projects.AllTasksInProject(source, id)
 			}
-			return models.TasksList{}, utils.CastFailsMsg(data, models.RequiredId{})
+			return models.TasksList{}, utils.ErrCastFails(data, models.RequiredId{})
 		}, nil
 
 	case ProjectAddUser:
@@ -77,7 +77,7 @@ func projectsResolver(action Action) (ServiceFunc, error) {
 			if ids, ok := data.(models.ProjectUser); ok {
 				return projects.AddUserToProject(source, ids.ProjectId, ids.UserId)
 			}
-			return models.UsersList{}, utils.CastFailsMsg(data, models.ProjectUser{})
+			return models.UsersList{}, utils.ErrCastFails(data, models.ProjectUser{})
 		}, nil
 
 	case ProjectDeleteUser:
@@ -85,7 +85,7 @@ func projectsResolver(action Action) (ServiceFunc, error) {
 			if ids, ok := data.(models.ProjectUser); ok {
 				return projects.DeleteUserFromProject(source, ids.ProjectId, ids.UserId)
 			}
-			return models.UsersList{}, utils.CastFailsMsg(data, models.ProjectUser{})
+			return models.UsersList{}, utils.ErrCastFails(data, models.ProjectUser{})
 		}, nil
 
 	case ProjectUserExists:
@@ -93,7 +93,7 @@ func projectsResolver(action Action) (ServiceFunc, error) {
 			if ids, ok := data.(models.ProjectUser); ok {
 				return projects.CheckUserInProject(source, ids.UserId, ids.ProjectId)
 			}
-			return false, utils.CastFailsMsg(data, models.ProjectUser{})
+			return false, utils.ErrCastFails(data, models.ProjectUser{})
 		}, nil
 
 	default:
