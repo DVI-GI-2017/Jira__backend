@@ -14,14 +14,12 @@ func init() {
 
 const (
 	ProjectCreate     = Action("ProjectCreate")
-	ProjectExists     = Action("ProjectExists")
 	ProjectsAll       = Action("ProjectsAll")
 	ProjectFindById   = Action("ProjectFindById")
 	ProjectAllUsers   = Action("ProjectAllUsers")
 	ProjectAllTasks   = Action("ProjectAllTasks")
 	ProjectAddUser    = Action("ProjectAddUser")
 	ProjectDeleteUser = Action("ProjectDeleteUser")
-	ProjectUserExists = Action("ProjectUserExists")
 )
 
 func projectsResolver(action Action) (service ServiceFunc, err error) {
@@ -33,16 +31,6 @@ func projectsResolver(action Action) (service ServiceFunc, err error) {
 				return models.Project{}, err
 			}
 			return projects.CreateProject(source, project)
-		}
-		return
-
-	case ProjectExists:
-		service = func(source db.DataSource, data interface{}) (interface{}, error) {
-			project, err := models.SafeCastToProject(data)
-			if err != nil {
-				return models.Project{}, err
-			}
-			return projects.CheckProjectExists(source, project)
 		}
 		return
 
@@ -102,15 +90,6 @@ func projectsResolver(action Action) (service ServiceFunc, err error) {
 		}
 		return
 
-	case ProjectUserExists:
-		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			ids, err := models.SafeCastToProjectUser(data)
-			if err != nil {
-				return false, err
-			}
-			return projects.CheckUserInProject(source, ids.UserId, ids.ProjectId)
-		}
-		return
 	}
 	return nil, fmt.Errorf("can not find resolver with action: %v, in projects resolvers", action)
 }
