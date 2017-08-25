@@ -24,67 +24,79 @@ const (
 	ProjectUserExists = Action("ProjectUserExists")
 )
 
-func projectsResolver(action Action) (service ServiceFunc) {
+func projectsResolver(action Action) ServiceFunc {
 	switch action {
 	case ProjectCreate:
-		service = func(source db.DataSource, project interface{}) (interface{}, error) {
-			return projects.CreateProject(source, project.(models.Project))
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if project, ok := data.(models.Project); ok {
+				return projects.CreateProject(source, project)
+			}
+			return models.Project{}, castFailsMsg(data, models.Project{})
 		}
-		return
 
 	case ProjectExists:
-		service = func(source db.DataSource, project interface{}) (interface{}, error) {
-			return projects.CheckProjectExists(source, project.(models.Project))
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if project, ok := data.(models.Project); ok {
+				return projects.CheckProjectExists(source, project)
+			}
+			return false, castFailsMsg(data, models.Project{})
 		}
-		return
 
 	case ProjectsAll:
-		service = func(source db.DataSource, _ interface{}) (interface{}, error) {
+		return func(source db.DataSource, _ interface{}) (interface{}, error) {
 			return projects.AllProjects(source)
 		}
-		return
 
 	case ProjectFindById:
-		service = func(source db.DataSource, id interface{}) (interface{}, error) {
-			return projects.FindProjectById(source, id.(models.RequiredId))
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if id, ok := data.(models.RequiredId); ok {
+				return projects.FindProjectById(source, id)
+			}
+			return models.Project{}, castFailsMsg(data, models.RequiredId{})
 		}
-		return
 
 	case ProjectAllUsers:
-		service = func(source db.DataSource, id interface{}) (result interface{}, err error) {
-			return projects.AllUsersInProject(source, id.(models.RequiredId))
+		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			if id, ok := data.(models.RequiredId); ok {
+				return projects.AllUsersInProject(source, id)
+			}
+			return models.UsersList{}, castFailsMsg(data, models.RequiredId{})
 		}
-		return
 
 	case ProjectAllTasks:
-		service = func(source db.DataSource, id interface{}) (result interface{}, err error) {
-			return projects.AllTasksInProject(source, id.(models.RequiredId))
+		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			if id, ok := data.(models.RequiredId); ok {
+				return projects.AllTasksInProject(source, id)
+			}
+			return models.TasksList{}, castFailsMsg(data, models.RequiredId{})
 		}
-		return
 
 	case ProjectAddUser:
-		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			ids := data.(models.ProjectUser)
-			return projects.AddUserToProject(source, ids.ProjectId, ids.UserId)
+		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			if ids, ok := data.(models.ProjectUser); ok {
+				return projects.AddUserToProject(source, ids.ProjectId, ids.UserId)
+			}
+			return models.UsersList{}, castFailsMsg(data, models.ProjectUser{})
 		}
-		return
 
 	case ProjectDeleteUser:
-		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			ids := data.(models.ProjectUser)
-			return projects.DeleteUserFromProject(source, ids.ProjectId, ids.UserId)
+		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			if ids, ok := data.(models.ProjectUser); ok {
+				return projects.DeleteUserFromProject(source, ids.ProjectId, ids.UserId)
+			}
+			return models.UsersList{}, castFailsMsg(data, models.ProjectUser{})
 		}
-		return
 
 	case ProjectUserExists:
-		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			ids := data.(models.ProjectUser)
-			return projects.CheckUserInProject(source, ids.UserId, ids.ProjectId)
+		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			if ids, ok := data.(models.ProjectUser); ok {
+				return projects.CheckUserInProject(source, ids.UserId, ids.ProjectId)
+			}
+			return false, castFailsMsg(data, models.ProjectUser{})
 		}
-		return
 
 	default:
 		log.Panicf("can not find resolver with action: %v, in projects resolvers", action)
-		return
+		return nil
 	}
 }
