@@ -1,7 +1,7 @@
 package pool
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
@@ -19,7 +19,7 @@ const (
 	TaskFindById      = Action("TaskFindById")
 )
 
-func tasksResolver(action Action) ServiceFunc {
+func tasksResolver(action Action) (ServiceFunc, error) {
 	switch action {
 
 	case TaskCreate:
@@ -28,7 +28,7 @@ func tasksResolver(action Action) ServiceFunc {
 				return tasks.AddTaskToProject(source, task)
 			}
 			return models.Task{}, castFailsMsg(data, models.Task{})
-		}
+		}, nil
 
 	case TaskExists:
 		return func(source db.DataSource, data interface{}) (interface{}, error) {
@@ -36,7 +36,7 @@ func tasksResolver(action Action) ServiceFunc {
 				return tasks.CheckTaskExists(source, task)
 			}
 			return models.Task{}, castFailsMsg(data, models.Task{})
-		}
+		}, nil
 
 	case TasksAllOnProject:
 		return func(source db.DataSource, data interface{}) (interface{}, error) {
@@ -44,7 +44,7 @@ func tasksResolver(action Action) ServiceFunc {
 				return tasks.AllTasks(source, id)
 			}
 			return models.TasksList{}, castFailsMsg(data, models.RequiredId{})
-		}
+		}, nil
 
 	case TaskFindById:
 		return func(source db.DataSource, data interface{}) (interface{}, error) {
@@ -52,10 +52,9 @@ func tasksResolver(action Action) ServiceFunc {
 				return tasks.FindTaskById(source, id)
 			}
 			return models.Task{}, castFailsMsg(data, models.RequiredId{})
-		}
+		}, nil
 
 	default:
-		log.Panicf("can not find resolver with action: %v, in tasks resolvers", action)
-		return nil
+		return nil, fmt.Errorf("can not find resolver with action: %v, in tasks resolvers", action)
 	}
 }

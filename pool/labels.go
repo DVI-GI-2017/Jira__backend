@@ -1,7 +1,7 @@
 package pool
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
@@ -19,7 +19,7 @@ const (
 	LabelDeleteFromTask = Action("LabelDeleteFromTask")
 )
 
-func labelsResolver(action Action) ServiceFunc {
+func labelsResolver(action Action) (ServiceFunc, error) {
 	switch action {
 
 	case LabelAddToTask:
@@ -28,7 +28,7 @@ func labelsResolver(action Action) ServiceFunc {
 				return tasks.AddLabelToTask(source, taskLabel.TaskId, taskLabel.Label)
 			}
 			return models.LabelsList{}, castFailsMsg(data, models.TaskLabel{})
-		}
+		}, nil
 
 	case LabelsAllOnTask:
 		return func(source db.DataSource, data interface{}) (interface{}, error) {
@@ -36,7 +36,7 @@ func labelsResolver(action Action) ServiceFunc {
 				return tasks.AllLabels(source, id)
 			}
 			return models.LabelsList{}, castFailsMsg(data, models.RequiredId{})
-		}
+		}, nil
 
 	case LabelAlreadySet:
 		return func(source db.DataSource, data interface{}) (interface{}, error) {
@@ -44,17 +44,16 @@ func labelsResolver(action Action) ServiceFunc {
 				return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
 			}
 			return false, castFailsMsg(data, models.TaskLabel{})
-		}
+		}, nil
 
 	case LabelDeleteFromTask:
 		return func(source db.DataSource, data interface{}) (interface{}, error) {
 			taskLabel := data.(models.TaskLabel)
 
 			return tasks.DeleteLabelFromTask(source, taskLabel.TaskId, taskLabel.Label)
-		}
+		}, nil
 
 	default:
-		log.Panicf("can not find resolver with action: %v, in labels resolvers", action)
-		return nil
+		return nil, fmt.Errorf("can not find resolver with action: %v, in labels resolvers", action)
 	}
 }

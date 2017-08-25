@@ -1,7 +1,7 @@
 package pool
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
@@ -22,7 +22,7 @@ const (
 	UserAllProjects = Action("UserAllProjects")
 )
 
-func usersResolver(action Action) ServiceFunc {
+func usersResolver(action Action) (ServiceFunc, error) {
 	switch action {
 
 	case UserCreate:
@@ -31,7 +31,7 @@ func usersResolver(action Action) ServiceFunc {
 				return users.CreateUser(source, user)
 			}
 			return models.User{}, castFailsMsg(data, models.User{})
-		}
+		}, nil
 
 	case UserExists:
 		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
@@ -39,7 +39,7 @@ func usersResolver(action Action) ServiceFunc {
 				return users.CheckUserExists(source, user)
 			}
 			return false, castFailsMsg(data, models.User{})
-		}
+		}, nil
 
 	case UserAuthorize:
 		return func(source db.DataSource, data interface{}) (interface{}, error) {
@@ -47,12 +47,12 @@ func usersResolver(action Action) ServiceFunc {
 				return users.CheckUserCredentials(source, user)
 			}
 			return false, castFailsMsg(data, models.User{})
-		}
+		}, nil
 
 	case UsersAll:
 		return func(source db.DataSource, _ interface{}) (result interface{}, err error) {
 			return users.AllUsers(source)
-		}
+		}, nil
 
 	case UserFindById:
 		return func(source db.DataSource, data interface{}) (interface{}, error) {
@@ -60,7 +60,7 @@ func usersResolver(action Action) ServiceFunc {
 				return users.FindUserById(source, id)
 			}
 			return models.User{}, castFailsMsg(data, models.RequiredId{})
-		}
+		}, nil
 
 	case UserFindByEmail:
 		return func(source db.DataSource, data interface{}) (interface{}, error) {
@@ -68,7 +68,7 @@ func usersResolver(action Action) ServiceFunc {
 				return users.FindUserByEmail(source, email)
 			}
 			return models.User{}, castFailsMsg(data, models.Email(""))
-		}
+		}, nil
 
 	case UserAllProjects:
 		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
@@ -76,10 +76,10 @@ func usersResolver(action Action) ServiceFunc {
 				return users.AllUserProjects(source, id)
 			}
 			return models.ProjectsList{}, castFailsMsg(data, models.RequiredId{})
-		}
+		}, nil
 
 	default:
-		log.Panicf("can not find resolver with action: %v, in users resolvers", action)
-		return nil
+		return nil, fmt.Errorf("can not find resolver with action: %v, in users resolvers", action)
+
 	}
 }
