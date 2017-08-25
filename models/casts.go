@@ -34,3 +34,10 @@ func SafeCastToProjectUser(data interface{}) (ProjectUser, error) {
 	}
 	return ProjectUser{}, nil
 }
+
+func SafeCastToTask(data interface{}) (Task, error) {
+	if val, ok := data.(Task); ok {
+		return val, ErrInvalidCast(data, Task{})
+	}
+	return Task{}, nil
+}

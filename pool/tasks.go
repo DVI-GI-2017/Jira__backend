@@ -6,7 +6,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/services/tasks"
-	"github.com/DVI-GI-2017/Jira__backend/utils"
 )
 
 func init() {
@@ -20,42 +19,49 @@ const (
 	TaskFindById      = Action("TaskFindById")
 )
 
-func tasksResolver(action Action) (ServiceFunc, error) {
+func tasksResolver(action Action) (service ServiceFunc, err error) {
 	switch action {
 
 	case TaskCreate:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if task, ok := data.(models.Task); ok {
-				return tasks.AddTaskToProject(source, task)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			task, err := models.SafeCastToTask(data)
+			if err != nil {
+				return models.Task{}, err
 			}
-			return models.Task{}, utils.ErrInvalidCast(data, models.Task{})
-		}, nil
+			return tasks.AddTaskToProject(source, task)
+		}
+		return
 
 	case TaskExists:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if task, ok := data.(models.Task); ok {
-				return tasks.CheckTaskExists(source, task)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			task, err := models.SafeCastToTask(data)
+			if err != nil {
+				return models.Task{}, err
 			}
-			return models.Task{}, utils.ErrInvalidCast(data, models.Task{})
-		}, nil
+			return tasks.CheckTaskExists(source, task)
+		}
+		return
 
 	case TasksAllOnProject:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if id, ok := data.(models.RequiredId); ok {
-				return tasks.AllTasks(source, id)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			id, err := models.SafeCastToRequiredId(data)
+			if err != nil {
+				return models.TasksList{}, err
 			}
-			return models.TasksList{}, utils.ErrInvalidCast(data, models.RequiredId{})
-		}, nil
+			return tasks.AllTasks(source, id)
+		}
+		return
 
 	case TaskFindById:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if id, ok := data.(models.RequiredId); ok {
-				return tasks.FindTaskById(source, id)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			id, err := models.SafeCastToRequiredId(data)
+			if err != nil {
+				return models.Task{}, err
 			}
-			return models.Task{}, utils.ErrInvalidCast(data, models.RequiredId{})
-		}, nil
-
-	default:
-		return nil, fmt.Errorf("can not find resolver with action: %v, in tasks resolvers", action)
+			return tasks.FindTaskById(source, id)
+		}
+		return
 	}
+	return nil, fmt.Errorf("can not find resolver with action: %v, in tasks resolvers", action)
+
 }
