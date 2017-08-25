@@ -9,6 +9,7 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
+	"github.com/DVI-GI-2017/Jira__backend/services/users"
 )
 
 // Creates project
@@ -96,13 +97,13 @@ func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
 func GetAllTasksFromProject(w http.ResponseWriter, req *http.Request) {
 	id := models.NewRequiredId(mux.Params(req).PathParams["id"])
 
-	users, err := pool.Dispatch(pool.ProjectAllTasks, id)
+	tasks, err := pool.Dispatch(pool.ProjectAllTasks, id)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
-	JsonResponse(w, users.(models.TasksList))
+	JsonResponse(w, tasks.(models.TasksList))
 }
 
 func AddUserToProject(w http.ResponseWriter, req *http.Request) {
