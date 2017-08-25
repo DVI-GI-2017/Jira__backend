@@ -9,6 +9,9 @@ type DataSource interface {
 
 	// Returns copy of data source (may be copy of session as well)
 	Copy() DataSource
+
+	// Closes data source (it will be runtime error to use it after close)
+	Close()
 }
 
 // Override Source method of mgo.Session to return wrapper around *mgo.DataSource.
@@ -29,4 +32,9 @@ func (d MongoDatabase) C(name string) Collection {
 // Returns database associated with copied session
 func (d MongoDatabase) Copy() DataSource {
 	return MongoDatabase{d.With(d.Session.Copy())}
+}
+
+// Closes current session with mongo db
+func (d MongoDatabase) Close() {
+	d.Database.Session.Close()
 }
