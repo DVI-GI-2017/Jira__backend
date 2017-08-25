@@ -93,6 +93,18 @@ func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
 	JsonResponse(w, users.(models.UsersList))
 }
 
+func GetAllTasksFromProject(w http.ResponseWriter, req *http.Request) {
+	id := models.NewRequiredId(mux.Params(req).PathParams["id"])
+
+	users, err := pool.Dispatch(pool.ProjectAllTasks, id)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
+		return
+	}
+
+	JsonResponse(w, users.(models.TasksList))
+}
+
 func AddUserToProject(w http.ResponseWriter, req *http.Request) {
 	projectId := models.NewRequiredId(mux.Params(req).PathParams["id"])
 
