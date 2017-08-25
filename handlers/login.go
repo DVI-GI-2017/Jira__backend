@@ -39,7 +39,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if _, ok := exists.(bool); !ok {
-		JsonErrorResponse(w, utils.ErrCastFails(exists, false), http.StatusInternalServerError)
+		JsonErrorResponse(w, utils.ErrInvalidCast(exists, false), http.StatusInternalServerError)
 		return
 	}
 
@@ -94,7 +94,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if _, ok := valid.(bool); !ok {
-		JsonErrorResponse(w, utils.ErrCastFails(valid, false), http.StatusInternalServerError)
+		JsonErrorResponse(w, utils.ErrInvalidCast(valid, false), http.StatusInternalServerError)
 		return
 	}
 
