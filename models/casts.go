@@ -20,3 +20,17 @@ func SafeCastToRequiredId(data interface{}) (RequiredId, error) {
 	}
 	return RequiredId{}, nil
 }
+
+func SafeCastToProject(data interface{}) (Project, error) {
+	if val, ok := data.(Project); ok {
+		return val, ErrInvalidCast(data, Project{})
+	}
+	return Project{}, nil
+}
+
+func SafeCastToProjectUser(data interface{}) (ProjectUser, error) {
+	if val, ok := data.(ProjectUser); ok {
+		return val, ErrInvalidCast(data, ProjectUser{})
+	}
+	return ProjectUser{}, nil
+}

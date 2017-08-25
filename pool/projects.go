@@ -6,7 +6,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/services/projects"
-	"github.com/DVI-GI-2017/Jira__backend/utils"
 )
 
 func init() {
@@ -25,79 +24,93 @@ const (
 	ProjectUserExists = Action("ProjectUserExists")
 )
 
-func projectsResolver(action Action) (ServiceFunc, error) {
+func projectsResolver(action Action) (service ServiceFunc, err error) {
 	switch action {
 	case ProjectCreate:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if project, ok := data.(models.Project); ok {
-				return projects.CreateProject(source, project)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			project, err := models.SafeCastToProject(data)
+			if err != nil {
+				return models.Project{}, err
 			}
-			return models.Project{}, utils.ErrInvalidCast(data, models.Project{})
-		}, nil
+			return projects.CreateProject(source, project)
+		}
+		return
 
 	case ProjectExists:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if project, ok := data.(models.Project); ok {
-				return projects.CheckProjectExists(source, project)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			project, err := models.SafeCastToProject(data)
+			if err != nil {
+				return models.Project{}, err
 			}
-			return false, utils.ErrInvalidCast(data, models.Project{})
-		}, nil
+			return projects.CheckProjectExists(source, project)
+		}
+		return
 
 	case ProjectsAll:
-		return func(source db.DataSource, _ interface{}) (interface{}, error) {
+		service = func(source db.DataSource, _ interface{}) (interface{}, error) {
 			return projects.AllProjects(source)
-		}, nil
+		}
+		return
 
 	case ProjectFindById:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if id, ok := data.(models.RequiredId); ok {
-				return projects.FindProjectById(source, id)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			id, err := models.SafeCastToRequiredId(data)
+			if err != nil {
+				return models.Project{}, err
 			}
-			return models.Project{}, utils.ErrInvalidCast(data, models.RequiredId{})
-		}, nil
+			return projects.FindProjectById(source, id)
+		}
+		return
 
 	case ProjectAllUsers:
-		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			if id, ok := data.(models.RequiredId); ok {
+		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			id, err := models.SafeCastToRequiredId(data)
+			if err != nil {
 				return projects.AllUsersInProject(source, id)
 			}
-			return models.UsersList{}, utils.ErrInvalidCast(data, models.RequiredId{})
-		}, nil
+			return models.UsersList{}, err
+		}
+		return
 
 	case ProjectAllTasks:
-		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			if id, ok := data.(models.RequiredId); ok {
-				return projects.AllTasksInProject(source, id)
+		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			id, err := models.SafeCastToRequiredId(data)
+			if err != nil {
+				return models.TasksList{}, err
 			}
-			return models.TasksList{}, utils.ErrInvalidCast(data, models.RequiredId{})
-		}, nil
+			return projects.AllTasksInProject(source, id)
+		}
+		return
 
 	case ProjectAddUser:
-		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			if ids, ok := data.(models.ProjectUser); ok {
-				return projects.AddUserToProject(source, ids.ProjectId, ids.UserId)
+		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			ids, err := models.SafeCastToProjectUser(data)
+			if err != nil {
+				return models.UsersList{}, err
 			}
-			return models.UsersList{}, utils.ErrInvalidCast(data, models.ProjectUser{})
-		}, nil
+			return projects.AddUserToProject(source, ids.ProjectId, ids.UserId)
+		}
+		return
 
 	case ProjectDeleteUser:
-		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			if ids, ok := data.(models.ProjectUser); ok {
-				return projects.DeleteUserFromProject(source, ids.ProjectId, ids.UserId)
+		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			ids, err := models.SafeCastToProjectUser(data)
+			if err != nil {
+				return models.UsersList{}, err
 			}
-			return models.UsersList{}, utils.ErrInvalidCast(data, models.ProjectUser{})
-		}, nil
+			return projects.DeleteUserFromProject(source, ids.ProjectId, ids.UserId)
+		}
+		return
 
 	case ProjectUserExists:
-		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
-			if ids, ok := data.(models.ProjectUser); ok {
-				return projects.CheckUserInProject(source, ids.UserId, ids.ProjectId)
+		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			ids, err := models.SafeCastToProjectUser(data)
+			if err != nil {
+				return false, err
 			}
-			return false, utils.ErrInvalidCast(data, models.ProjectUser{})
-		}, nil
-
-	default:
-		return nil, fmt.Errorf("can not find resolver with action: %v, in projects resolvers", action)
-
+			return projects.CheckUserInProject(source, ids.UserId, ids.ProjectId)
+		}
+		return
 	}
+	return nil, fmt.Errorf("can not find resolver with action: %v, in projects resolvers", action)
 }
