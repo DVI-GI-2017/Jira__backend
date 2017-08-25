@@ -10,6 +10,7 @@ import (
 )
 
 const cTasks = "tasks"
+const cProjects = "projects"
 
 // Checks if task with this 'title == task.Title' exists.
 func CheckTaskExists(source db.DataSource, task models.Task) (bool, error) {
@@ -21,14 +22,26 @@ func CheckTaskExists(source db.DataSource, task models.Task) (bool, error) {
 }
 
 // Creates task and returns it.
-func CreateTask(source db.DataSource, task models.Task) (models.Task, error) {
+func AddTaskToProject(source db.DataSource, task models.Task) (models.Task, error) {
 	task.Id = models.NewAutoId()
 
 	err := source.C(cTasks).Insert(task)
 	if err != nil {
-		return models.Task{}, fmt.Errorf("can not create task '%v': %v", task, err)
+		return models.Task{}, fmt.Errorf("can not create task '%s': %v", task, err)
+	}
+
+	if err := pushTask(source, task.Id, task.ProjectId); err != nil {
+		return models.Task{}, fmt.Errorf("can add task '%v' to project '%s': %v", task, task.ProjectId.Hex(), err)
 	}
 	return task, nil
+}
+
+// Pushes task to project's tasks array
+func pushTask(source db.DataSource, taskId models.AutoId, projectId models.RequiredId) error {
+	return source.C(cProjects).Update(
+		bson.M{"_id": projectId},
+		bson.M{"$push": bson.M{"tasks": taskId}},
+	)
 }
 
 // Returns all tasks.

@@ -24,7 +24,7 @@ func tasksResolver(action Action) (service ServiceFunc) {
 
 	case TaskCreate:
 		service = func(source db.DataSource, task interface{}) (interface{}, error) {
-			return tasks.CreateTask(source, task.(models.Task))
+			return tasks.AddTaskToProject(source, task.(models.Task))
 		}
 		return
 
