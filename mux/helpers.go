@@ -19,6 +19,10 @@ func convertSimplePatternToRegexp(pattern string) string {
 
 // Return path relative to "base"
 func relativePath(base string, absolute string) (string, error) {
+	if len(base) == 0 {
+		return absolute, nil
+	}
+
 	baseLen := len(base)
 	absoluteLen := len(absolute)
 
