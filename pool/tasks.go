@@ -19,35 +19,43 @@ const (
 	TaskFindById      = Action("TaskFindById")
 )
 
-func tasksResolver(action Action) (service ServiceFunc) {
+func tasksResolver(action Action) ServiceFunc {
 	switch action {
 
 	case TaskCreate:
-		service = func(source db.DataSource, task interface{}) (interface{}, error) {
-			return tasks.AddTaskToProject(source, task.(models.Task))
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if task, ok := data.(models.Task); ok {
+				return tasks.AddTaskToProject(source, task)
+			}
+			return models.Task{}, castFailsMsg(data, models.Task{})
 		}
-		return
 
 	case TaskExists:
-		service = func(source db.DataSource, task interface{}) (interface{}, error) {
-			return tasks.CheckTaskExists(source, task.(models.Task))
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if task, ok := data.(models.Task); ok {
+				return tasks.CheckTaskExists(source, task)
+			}
+			return models.Task{}, castFailsMsg(data, models.Task{})
 		}
-		return
 
 	case TasksAllOnProject:
-		service = func(source db.DataSource, projectId interface{}) (interface{}, error) {
-			return tasks.AllTasks(source, projectId.(models.RequiredId))
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if id, ok := data.(models.RequiredId); ok {
+				return tasks.AllTasks(source, id)
+			}
+			return models.TasksList{}, castFailsMsg(data, models.RequiredId{})
 		}
-		return
 
 	case TaskFindById:
-		service = func(source db.DataSource, id interface{}) (interface{}, error) {
-			return tasks.FindTaskById(source, id.(models.RequiredId))
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if id, ok := data.(models.RequiredId); ok {
+				return tasks.FindTaskById(source, id)
+			}
+			return models.Task{}, castFailsMsg(data, models.RequiredId{})
 		}
-		return
 
 	default:
 		log.Panicf("can not find resolver with action: %v, in tasks resolvers", action)
-		return
+		return nil
 	}
 }
