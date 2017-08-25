@@ -2,18 +2,22 @@ package pool
 
 import "github.com/DVI-GI-2017/Jira__backend/db"
 
-type Job struct {
+var jobs = make(chan *job, 512)
+
+type job struct {
 	service ServiceFunc
 	input   interface{}
 }
 
 // Process job with self-contained input and given data source
-func (j Job) process(source db.DataSource) (result interface{}, err error) {
-	return j.service(source, j.input)
-}
+func (j job) process() {
+	source := db.Copy()
+	defer source.Close()
 
-type JobResult struct {
-	workerId int
-	err      error
-	result   interface{}
+	result, err := j.service(source, j.input)
+
+	results <- &jobResult{
+		err:    err,
+		result: result,
+	}
 }
