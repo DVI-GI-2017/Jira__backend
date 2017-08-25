@@ -6,11 +6,28 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 )
 
-// Helper maps of channels
-var jobs = make(map[int](chan job), 512)
-var freeWorkers chan int
+// Starts worker pool
+func init() {
+	numCPU := runtime.NumCPU()
 
-var results = make(map[int](chan jobResult), 100)
+	freeWorkers = make(chan int, numCPU)
+	jobs = make(map[int](chan job), numCPU)
+	results = make(map[int](chan jobResult), numCPU)
+
+	for id := 0; id < numCPU; id++ {
+		jobs[id] = make(chan job, 100)
+		results[id] = make(chan jobResult, 100)
+
+		go worker(id)
+	}
+}
+
+// Helper maps of channels
+var jobs map[int](chan job)
+var results map[int](chan jobResult)
+
+// Channel for free workers ids
+var freeWorkers chan int
 
 // Type for jobs
 type job struct {
@@ -30,17 +47,6 @@ func (j job) process() (result interface{}, err error) {
 type jobResult struct {
 	err    error
 	result interface{}
-}
-
-// Starts worker pool
-func InitWorkers() {
-	numCPU := runtime.NumCPU()
-
-	freeWorkers = make(chan int, numCPU)
-
-	for id := 0; id < numCPU; id++ {
-		go worker(id)
-	}
 }
 
 // Reads from associated jobs channel and writes to associated results channel
@@ -63,10 +69,5 @@ func addJob(id int, input interface{}, service ServiceFunc) {
 
 // Read result from channel
 func readResult(id int) jobResult {
-	defer func(id int) {
-		close(results[id])
-		delete(results, id)
-	}(id)
-
 	return <-results[id]
 }
