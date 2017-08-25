@@ -5,6 +5,7 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
+	"github.com/DVI-GI-2017/Jira__backend/services/projects"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -31,8 +32,13 @@ func CreateTask(source db.DataSource, task models.Task) (models.Task, error) {
 }
 
 // Returns all tasks.
-func AllTasks(source db.DataSource) (tasksList models.TasksList, err error) {
-	err = source.C(cTasks).Find(bson.M{}).All(&tasksList)
+func AllTasks(source db.DataSource, projectId models.RequiredId) (tasksList models.TasksList, err error) {
+	project, err := projects.FindProjectById(source, projectId)
+	if err != nil {
+		return models.TasksList{}, fmt.Errorf("can not find project with id %s: %v", projectId.Hex(), err)
+	}
+
+	err = source.C(cTasks).Find(bson.M{"": bson.M{"$id": project.Tasks}}).All(&tasksList)
 	if err != nil {
 		return models.TasksList{}, fmt.Errorf("can not retrieve all tasks: %v", err)
 	}

@@ -36,7 +36,7 @@ func tasksResolver(action Action) (service ServiceFunc) {
 
 	case TasksAllOnProject:
 		service = func(source db.DataSource, projectId interface{}) (interface{}, error) {
-			return tasks.AllTasks(source)
+			return tasks.AllTasks(source, projectId.(models.RequiredId))
 		}
 		return
 
