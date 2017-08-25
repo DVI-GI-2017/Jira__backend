@@ -9,7 +9,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/DVI-GI-2017/Jira__backend/utils"
 )
 
 // Registers user
@@ -39,7 +38,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if _, ok := exists.(bool); !ok {
-		JsonErrorResponse(w, utils.ErrInvalidCast(exists, false), http.StatusInternalServerError)
+		JsonErrorResponse(w, models.ErrInvalidCastToBool(exists), http.StatusInternalServerError)
 		return
 	}
 
@@ -94,7 +93,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if _, ok := valid.(bool); !ok {
-		JsonErrorResponse(w, utils.ErrInvalidCast(valid, false), http.StatusInternalServerError)
+		JsonErrorResponse(w, models.ErrInvalidCastToBool(valid), http.StatusInternalServerError)
 		return
 	}
 

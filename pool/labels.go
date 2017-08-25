@@ -6,7 +6,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/services/tasks"
-	"github.com/DVI-GI-2017/Jira__backend/utils"
 )
 
 func init() {
@@ -28,7 +27,7 @@ func labelsResolver(action Action) (ServiceFunc, error) {
 			if taskLabel, ok := data.(models.TaskLabel); ok {
 				return tasks.AddLabelToTask(source, taskLabel.TaskId, taskLabel.Label)
 			}
-			return models.LabelsList{}, utils.ErrInvalidCast(data, models.TaskLabel{})
+			return models.LabelsList{}, models.ErrInvalidCastToTaskLabel(data)
 		}, nil
 
 	case LabelsAllOnTask:
@@ -36,7 +35,7 @@ func labelsResolver(action Action) (ServiceFunc, error) {
 			if id, ok := data.(models.RequiredId); ok {
 				return tasks.AllLabels(source, id)
 			}
-			return models.LabelsList{}, utils.ErrInvalidCast(data, models.RequiredId{})
+			return models.LabelsList{}, models.ErrInvalidCastToRequiredId(data)
 		}, nil
 
 	case LabelAlreadySet:
@@ -44,14 +43,15 @@ func labelsResolver(action Action) (ServiceFunc, error) {
 			if taskLabel, ok := data.(models.TaskLabel); ok {
 				return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
 			}
-			return false, utils.ErrInvalidCast(data, models.TaskLabel{})
+			return false, models.ErrInvalidCastToTaskLabel(data)
 		}, nil
 
 	case LabelDeleteFromTask:
 		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			taskLabel := data.(models.TaskLabel)
-
-			return tasks.DeleteLabelFromTask(source, taskLabel.TaskId, taskLabel.Label)
+			if taskLabel, ok := data.(models.TaskLabel); ok {
+				return tasks.DeleteLabelFromTask(source, taskLabel.TaskId, taskLabel.Label)
+			}
+			return models.LabelsList{}, models.ErrInvalidCastToTaskLabel(data)
 		}, nil
 
 	default:
