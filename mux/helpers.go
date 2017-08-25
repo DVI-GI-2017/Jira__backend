@@ -12,7 +12,7 @@ import (
 const hexType = `(?P<%s>[[:xdigit:]]{24})`
 const intType = `(?P<%s>[[:digit:]]+)`
 
-var paramRegexp = regexp.MustCompile(`{(hex|int)?:([[:lower:]]|_)+}`)
+var paramRegexp = regexp.MustCompile(`(hex|int)?:([[:lower:]]|_)+`)
 
 // Converts patterns like "/users/{id:hex}" to real regexps
 func convertSimplePatternToRegexp(pattern string) string {
