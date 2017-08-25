@@ -9,7 +9,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/DVI-GI-2017/Jira__backend/services/users"
 )
 
 // Creates project
@@ -85,13 +84,13 @@ func GetProjectById(w http.ResponseWriter, req *http.Request) {
 func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
 	id := models.NewRequiredId(mux.Params(req).PathParams["id"])
 
-	users, err := pool.Dispatch(pool.ProjectAllUsers, id)
+	user, err := pool.Dispatch(pool.ProjectAllUsers, id)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
-	JsonResponse(w, users.(models.UsersList))
+	JsonResponse(w, user.(models.UsersList))
 }
 
 func GetAllTasksFromProject(w http.ResponseWriter, req *http.Request) {
@@ -171,7 +170,7 @@ func DeleteUserFromProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	users, err := pool.Dispatch(pool.ProjectDeleteUser,
+	user, err := pool.Dispatch(pool.ProjectDeleteUser,
 		models.ProjectUser{
 			ProjectId: projectId,
 			UserId:    userId,
@@ -181,5 +180,5 @@ func DeleteUserFromProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	JsonResponse(w, users.(models.UsersList))
+	JsonResponse(w, user.(models.UsersList))
 }
