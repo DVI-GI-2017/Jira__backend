@@ -10,17 +10,22 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/pool"
 )
 
-// Create task
+// Adds task to project
+// Path param - "project_id"
 // Post body - task
 // Returns created task if OK
-func CreateTask(w http.ResponseWriter, req *http.Request) {
-	body := mux.Params(req).Body
+func AddTaskToProject(w http.ResponseWriter, req *http.Request) {
+	params := mux.Params(req)
+
+	projectId := models.NewRequiredId(params.PathParams[":project_id"])
 
 	var task models.Task
-	if err := json.Unmarshal(body, &task); err != nil {
+	if err := json.Unmarshal(params.Body, &task); err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
+
+	task.ProjectId = projectId
 
 	if err := task.Validate(); err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
@@ -51,8 +56,11 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 }
 
 // Returns all tasks
-func AllTasks(w http.ResponseWriter, _ *http.Request) {
-	tasks, err := pool.Dispatch(pool.TasksAll, nil)
+// Path param - "project_id"
+func AllTasksInProject(w http.ResponseWriter, req *http.Request) {
+	projectId := models.NewRequiredId(mux.Params(req).PathParams["project_id"])
+
+	tasks, err := pool.Dispatch(pool.TasksAllOnProject, projectId)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return

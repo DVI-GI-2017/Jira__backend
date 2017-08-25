@@ -35,7 +35,6 @@ func (t Task) Validate() error {
 
 type TasksList []Task
 
-// Helper structure for label associated with task.
 type TaskLabel struct {
 	TaskId RequiredId
 	Label  Label
