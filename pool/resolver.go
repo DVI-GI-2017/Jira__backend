@@ -8,21 +8,19 @@ func getService(action Action) (service ServiceFunc) {
 			return resolver(action)
 		}
 	}
+
 	log.Panicf("can not resolve service by action: %v", action)
 	return
 }
 
 // Creates job with given action and input and returns result.
-func Dispatch(action Action, input interface{}) (result interface{}, err error) {
-	Queue <- &Job{
-		Input:  input,
-		Action: action,
+func Dispatch(action Action, input interface{}) (interface{}, error) {
+	jobs <- &job{
+		input:   input,
+		service: getService(action),
 	}
 
-	jobResult := <-Results
+	jobResult := <-results
 
-	result = jobResult.Result
-	err = jobResult.Error
-
-	return
+	return jobResult.result, jobResult.err
 }
