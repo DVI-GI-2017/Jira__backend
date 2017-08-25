@@ -19,42 +19,48 @@ const (
 	LabelDeleteFromTask = Action("LabelDeleteFromTask")
 )
 
-func labelsResolver(action Action) (ServiceFunc, error) {
+func labelsResolver(action Action) (service ServiceFunc, err error) {
 	switch action {
 
 	case LabelAddToTask:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if taskLabel, ok := data.(models.TaskLabel); ok {
-				return tasks.AddLabelToTask(source, taskLabel.TaskId, taskLabel.Label)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			taskLabel, err := models.SafeCastToTaskLabel(data)
+			if err != nil {
+				return models.LabelsList{}, err
 			}
-			return models.LabelsList{}, models.ErrInvalidCastToTaskLabel(data)
-		}, nil
+			return tasks.AddLabelToTask(source, taskLabel.TaskId, taskLabel.Label)
+		}
+		return
 
 	case LabelsAllOnTask:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if id, ok := data.(models.RequiredId); ok {
-				return tasks.AllLabels(source, id)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			id, err := models.SafeCastToRequiredId(data)
+			if err != nil {
+				return models.LabelsList{}, err
 			}
-			return models.LabelsList{}, models.ErrInvalidCastToRequiredId(data)
-		}, nil
+			return tasks.AllLabels(source, id)
+		}
+		return
 
 	case LabelAlreadySet:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if taskLabel, ok := data.(models.TaskLabel); ok {
-				return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			taskLabel, err := models.SafeCastToTaskLabel(data)
+			if err != nil {
+				return models.TaskLabel{}, err
 			}
-			return false, models.ErrInvalidCastToTaskLabel(data)
-		}, nil
+			return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
+		}
+		return
 
 	case LabelDeleteFromTask:
-		return func(source db.DataSource, data interface{}) (interface{}, error) {
-			if taskLabel, ok := data.(models.TaskLabel); ok {
-				return tasks.DeleteLabelFromTask(source, taskLabel.TaskId, taskLabel.Label)
+		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+			taskLabel, err := models.SafeCastToTaskLabel(data)
+			if err != nil {
+				return models.LabelsList{}, err
 			}
-			return models.LabelsList{}, models.ErrInvalidCastToTaskLabel(data)
-		}, nil
-
-	default:
-		return nil, fmt.Errorf("can not find resolver with action: %v, in labels resolvers", action)
+			return tasks.DeleteLabelFromTask(source, taskLabel.TaskId, taskLabel.Label)
+		}
+		return
 	}
+	return nil, fmt.Errorf("can not find resolver with action: %v, in labels resolvers", action)
 }
