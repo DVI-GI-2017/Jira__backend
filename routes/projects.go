@@ -37,6 +37,12 @@ var projectRoutes = []Route{
 		Handler: auth.ValidateToken(handlers.GetAllUsersFromProject),
 	},
 	{
+		Name:    "Get all tasks from project with given id",
+		Pattern: "/projects/:id/tasks",
+		Method:  http.MethodGet,
+		Handler: auth.ValidateToken(handlers.GetAllTasksFromProject),
+	},
+	{
 		Name:    "Add user to project with given id",
 		Pattern: "/projects/:id/users",
 		Method:  http.MethodPost,

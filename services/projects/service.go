@@ -10,6 +10,7 @@ import (
 
 const cProjects = "projects"
 const cUsers = "users"
+const cTasks = "tasks"
 
 // Check if project with title == project.Title exists
 func CheckProjectExists(source db.DataSource, project models.Project) (bool, error) {
@@ -61,6 +62,16 @@ func AllUsersInProject(mongo db.DataSource, id models.RequiredId) (result models
 	err = mongo.C(cUsers).Find(bson.M{"_id": bson.M{"$in": project.Users}}).All(&result)
 	if err != nil {
 		return models.UsersList{}, fmt.Errorf("can not retrieve all users from project: %s", id.Hex())
+	}
+	return result, nil
+}
+
+// Returns all tasks in project
+func AllTasksInProject(mongo db.DataSource, id models.RequiredId) (result models.TasksList, err error) {
+	err = mongo.C(cTasks).Find(bson.M{"project_id": id}).All(&result)
+	if err != nil {
+		fmt.Println(err)
+		return models.TasksList{}, fmt.Errorf("can not retrieve all tasks from project: %s", id.Hex())
 	}
 	return result, nil
 }

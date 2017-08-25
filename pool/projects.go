@@ -18,6 +18,7 @@ const (
 	ProjectsAll       = Action("ProjectsAll")
 	ProjectFindById   = Action("ProjectFindById")
 	ProjectAllUsers   = Action("ProjectAllUsers")
+	ProjectAllTasks   = Action("ProjectAllTasks")
 	ProjectAddUser    = Action("ProjectAddUser")
 	ProjectDeleteUser = Action("ProjectDeleteUser")
 	ProjectUserExists = Action("ProjectUserExists")
@@ -52,6 +53,12 @@ func projectsResolver(action Action) (service ServiceFunc) {
 	case ProjectAllUsers:
 		service = func(source db.DataSource, id interface{}) (result interface{}, err error) {
 			return projects.AllUsersInProject(source, id.(models.RequiredId))
+		}
+		return
+
+	case ProjectAllTasks:
+		service = func(source db.DataSource, id interface{}) (result interface{}, err error) {
+			return projects.AllTasksInProject(source, id.(models.RequiredId))
 		}
 		return
 
