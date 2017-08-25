@@ -15,7 +15,6 @@ func init() {
 const (
 	LabelAddToTask      = Action("LabelAddToTask")
 	LabelsAllOnTask     = Action("LabelsAllOnTask")
-	LabelAlreadySet     = Action("LabelAlreadySet")
 	LabelDeleteFromTask = Action("LabelDeleteFromTask")
 )
 
@@ -39,16 +38,6 @@ func labelsResolver(action Action) (service ServiceFunc, err error) {
 				return models.LabelsList{}, err
 			}
 			return tasks.AllLabels(source, id)
-		}
-		return
-
-	case LabelAlreadySet:
-		service = func(source db.DataSource, data interface{}) (interface{}, error) {
-			taskLabel, err := models.SafeCastToTaskLabel(data)
-			if err != nil {
-				return models.TaskLabel{}, err
-			}
-			return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
 		}
 		return
 
