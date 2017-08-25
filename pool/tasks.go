@@ -14,7 +14,6 @@ func init() {
 
 const (
 	TaskCreate        = Action("TaskCreate")
-	TaskExists        = Action("TaskExists")
 	TasksAllOnProject = Action("TasksAllOnProject")
 	TaskFindById      = Action("TaskFindById")
 )
@@ -29,16 +28,6 @@ func tasksResolver(action Action) (service ServiceFunc, err error) {
 				return models.Task{}, err
 			}
 			return tasks.AddTaskToProject(source, task)
-		}
-		return
-
-	case TaskExists:
-		service = func(source db.DataSource, data interface{}) (interface{}, error) {
-			task, err := models.SafeCastToTask(data)
-			if err != nil {
-				return models.Task{}, err
-			}
-			return tasks.CheckTaskExists(source, task)
 		}
 		return
 

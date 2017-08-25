@@ -23,6 +23,12 @@ func CheckTaskExists(source db.DataSource, task models.Task) (bool, error) {
 
 // Creates task and returns it.
 func AddTaskToProject(source db.DataSource, task models.Task) (models.Task, error) {
+	if exists, err := CheckTaskExists(source, task); err != nil {
+		return models.Task{}, err
+	} else if exists {
+		return models.Task{}, fmt.Errorf("task %v already in project %s", task, task.ProjectId.Hex())
+	}
+
 	task.Id = models.NewAutoId()
 
 	err := source.C(cTasks).Insert(task)
