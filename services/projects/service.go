@@ -59,7 +59,7 @@ func AllUsersInProject(mongo db.DataSource, id models.RequiredId) (result models
 		return models.UsersList{}, fmt.Errorf("can not find project with id '%s': %v", id, err)
 	}
 
-	err = mongo.C(cUsers).Find(bson.M{"_id": bson.M{"$in": project.Users}}).All(&result)
+	err = mongo.C(cUsers).Find(bson.M{"_id": bson.M{"$in": project.Users}}).Select(bson.M{"password": 0}).All(&result)
 	if err != nil {
 		return models.UsersList{}, fmt.Errorf("can not retrieve all users from project: %s", id.Hex())
 	}
