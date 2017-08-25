@@ -74,6 +74,10 @@ func (r *router) Route(pattern, method string, handler http.Handler) error {
 		return err
 	}
 
+	if _, ok := r.routes[method]; !ok {
+		return fmt.Errorf("method '%s' not supported", method)
+	}
+
 	r.routes[method] = append(r.routes[method],
 		route{compiledPattern, Wrap(handler, r.wrappers...).ServeHTTP})
 
