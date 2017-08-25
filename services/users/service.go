@@ -56,7 +56,7 @@ func AllUsers(source db.DataSource) (usersLists models.UsersList, err error) {
 }
 
 // Returns user with given id.
-func FindUserById(source db.DataSource, id bson.ObjectId) (user models.User, err error) {
+func FindUserById(source db.DataSource, id models.RequiredId) (user models.User, err error) {
 	err = source.C(cUsers).FindId(id).Select(bson.M{"password": 0}).One(&user)
 	if err != nil {
 		return models.User{}, fmt.Errorf("can not find user with id '%s': %v", id, err)
@@ -74,7 +74,7 @@ func FindUserByEmail(source db.DataSource, email models.Email) (user models.User
 }
 
 // Returns all users project.
-func AllUsersProject(source db.DataSource, id models.RequiredId) (projects models.ProjectsList, err error) {
+func AllUserProjects(source db.DataSource, id models.RequiredId) (projects models.ProjectsList, err error) {
 	var user models.User
 	err = source.C(cUsers).FindId(id).One(&user)
 	if err != nil {

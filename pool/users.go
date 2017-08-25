@@ -6,7 +6,6 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/services/users"
-	"gopkg.in/mgo.v2/bson"
 )
 
 func init() {
@@ -23,53 +22,64 @@ const (
 	UserAllProjects = Action("UserAllProjects")
 )
 
-func usersResolver(action Action) (service ServiceFunc) {
+func usersResolver(action Action) ServiceFunc {
 	switch action {
 
 	case UserCreate:
-		service = func(source db.DataSource, user interface{}) (result interface{}, err error) {
-			return users.CreateUser(source, user.(models.User))
+		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			if user, ok := data.(models.User); ok {
+				return users.CreateUser(source, user)
+			}
+			return models.User{}, castFailsMsg(data, models.User{})
 		}
-		return
 
 	case UserExists:
-		service = func(source db.DataSource, credentials interface{}) (result interface{}, err error) {
-			return users.CheckUserExists(source, credentials.(models.User))
+		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			if user, ok := data.(models.User); ok {
+				return users.CheckUserExists(source, user)
+			}
+			return false, castFailsMsg(data, models.User{})
 		}
-		return
 
 	case UserAuthorize:
-		service = func(source db.DataSource, credentials interface{}) (interface{}, error) {
-			return users.CheckUserCredentials(source, credentials.(models.User))
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if user, ok := data.(models.User); ok {
+				return users.CheckUserCredentials(source, user)
+			}
+			return false, castFailsMsg(data, models.User{})
 		}
-		return
 
 	case UsersAll:
-		service = func(source db.DataSource, _ interface{}) (result interface{}, err error) {
+		return func(source db.DataSource, _ interface{}) (result interface{}, err error) {
 			return users.AllUsers(source)
 		}
-		return
 
 	case UserFindById:
-		service = func(source db.DataSource, id interface{}) (interface{}, error) {
-			return users.FindUserById(source, id.(bson.ObjectId))
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if id, ok := data.(models.RequiredId); ok {
+				return users.FindUserById(source, id)
+			}
+			return models.User{}, castFailsMsg(data, models.RequiredId{})
 		}
-		return
 
 	case UserFindByEmail:
-		service = func(source db.DataSource, email interface{}) (interface{}, error) {
-			return users.FindUserByEmail(source, email.(models.Email))
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if email, ok := data.(models.Email); ok {
+				return users.FindUserByEmail(source, email)
+			}
+			return models.User{}, castFailsMsg(data, models.Email(""))
 		}
-		return
 
 	case UserAllProjects:
-		service = func(source db.DataSource, id interface{}) (result interface{}, err error) {
-			return users.AllUsersProject(source, id.(models.RequiredId))
+		return func(source db.DataSource, data interface{}) (result interface{}, err error) {
+			if id, ok := data.(models.RequiredId); ok {
+				return users.AllUserProjects(source, id)
+			}
+			return models.ProjectsList{}, castFailsMsg(data, models.RequiredId{})
 		}
-		return
 
 	default:
 		log.Panicf("can not find resolver with action: %v, in users resolvers", action)
-		return
+		return nil
 	}
 }
