@@ -6,6 +6,7 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/services/users"
+	"github.com/DVI-GI-2017/Jira__backend/utils"
 )
 
 func init() {
@@ -30,7 +31,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if user, ok := data.(models.User); ok {
 				return users.CreateUser(source, user)
 			}
-			return models.User{}, castFailsMsg(data, models.User{})
+			return models.User{}, utils.CastFailsMsg(data, models.User{})
 		}, nil
 
 	case UserExists:
@@ -38,7 +39,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if user, ok := data.(models.User); ok {
 				return users.CheckUserExists(source, user)
 			}
-			return false, castFailsMsg(data, models.User{})
+			return false, utils.CastFailsMsg(data, models.User{})
 		}, nil
 
 	case UserAuthorize:
@@ -46,7 +47,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if user, ok := data.(models.User); ok {
 				return users.CheckUserCredentials(source, user)
 			}
-			return false, castFailsMsg(data, models.User{})
+			return false, utils.CastFailsMsg(data, models.User{})
 		}, nil
 
 	case UsersAll:
@@ -59,7 +60,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if id, ok := data.(models.RequiredId); ok {
 				return users.FindUserById(source, id)
 			}
-			return models.User{}, castFailsMsg(data, models.RequiredId{})
+			return models.User{}, utils.CastFailsMsg(data, models.RequiredId{})
 		}, nil
 
 	case UserFindByEmail:
@@ -67,7 +68,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if email, ok := data.(models.Email); ok {
 				return users.FindUserByEmail(source, email)
 			}
-			return models.User{}, castFailsMsg(data, models.Email(""))
+			return models.User{}, utils.CastFailsMsg(data, models.Email(""))
 		}, nil
 
 	case UserAllProjects:
@@ -75,7 +76,7 @@ func usersResolver(action Action) (ServiceFunc, error) {
 			if id, ok := data.(models.RequiredId); ok {
 				return users.AllUserProjects(source, id)
 			}
-			return models.ProjectsList{}, castFailsMsg(data, models.RequiredId{})
+			return models.ProjectsList{}, utils.CastFailsMsg(data, models.RequiredId{})
 		}, nil
 
 	default:

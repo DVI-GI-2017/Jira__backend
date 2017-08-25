@@ -9,6 +9,7 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
+	"github.com/DVI-GI-2017/Jira__backend/utils"
 )
 
 // Registers user
@@ -34,6 +35,11 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 	exists, err := pool.Dispatch(pool.UserExists, credentials)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	if _, ok := exists.(bool); !ok {
+		JsonErrorResponse(w, utils.CastFailsMsg(exists, false), http.StatusInternalServerError)
 		return
 	}
 
@@ -84,6 +90,11 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	valid, err := pool.Dispatch(pool.UserAuthorize, credentials)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	if _, ok := valid.(bool); !ok {
+		JsonErrorResponse(w, utils.CastFailsMsg(valid, false), http.StatusInternalServerError)
 		return
 	}
 

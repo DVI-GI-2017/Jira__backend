@@ -8,6 +8,7 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
+	"github.com/DVI-GI-2017/Jira__backend/utils"
 )
 
 // Adds task to project
@@ -40,6 +41,12 @@ func AddTaskToProject(w http.ResponseWriter, req *http.Request) {
 			http.StatusInternalServerError)
 		return
 	}
+
+	if _, ok := exists.(bool); !ok {
+		JsonErrorResponse(w, utils.CastFailsMsg(exists, false), http.StatusInternalServerError)
+		return
+	}
+
 	if exists.(bool) {
 		JsonErrorResponse(w, fmt.Errorf("Task with title: %s already exists!", task.Title),
 			http.StatusConflict)

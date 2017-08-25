@@ -8,6 +8,7 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
+	"github.com/DVI-GI-2017/Jira__backend/utils"
 )
 
 // Returns all labels from task
@@ -49,6 +50,11 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 	exists, err := pool.Dispatch(pool.LabelAlreadySet, taskLabel)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	if _, ok := exists.(bool); !ok {
+		JsonErrorResponse(w, utils.CastFailsMsg(exists, false), http.StatusInternalServerError)
 		return
 	}
 

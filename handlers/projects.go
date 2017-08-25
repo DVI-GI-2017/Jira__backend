@@ -9,6 +9,7 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
+	"github.com/DVI-GI-2017/Jira__backend/utils"
 )
 
 // Creates project
@@ -37,6 +38,11 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		JsonErrorResponse(w, fmt.Errorf("can not check project existence: %v", err),
 			http.StatusInternalServerError)
+		return
+	}
+
+	if _, ok := exists.(bool); !ok {
+		JsonErrorResponse(w, utils.CastFailsMsg(exists, false), http.StatusInternalServerError)
 		return
 	}
 
@@ -125,6 +131,11 @@ func AddUserToProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if _, ok := exists.(bool); !ok {
+		JsonErrorResponse(w, utils.CastFailsMsg(exists, false), http.StatusInternalServerError)
+		return
+	}
+
 	if exists.(bool) {
 		JsonErrorResponse(w, fmt.Errorf("user '%s' already in project '%s'", userId.Hex(), projectId.Hex()),
 			http.StatusConflict)
@@ -161,6 +172,11 @@ func DeleteUserFromProject(w http.ResponseWriter, req *http.Request) {
 		})
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	if _, ok := exists.(bool); !ok {
+		JsonErrorResponse(w, utils.CastFailsMsg(exists, false), http.StatusInternalServerError)
 		return
 	}
 

@@ -1,8 +1,8 @@
-package pool
+package utils
 
 import "fmt"
 
 // Helper to generate error message about bad cast.
-func castFailsMsg(got, expected interface{}) error {
+func CastFailsMsg(got, expected interface{}) error {
 	return fmt.Errorf("can not cast input data with type: %T to %T", got, expected)
 }
