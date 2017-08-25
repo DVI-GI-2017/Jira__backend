@@ -19,10 +19,14 @@ func (j job) process() {
 
 	result, err := j.service(source, j.input)
 
+	resultsInUse <- true
+
 	results <- &jobResult{
 		err:    err,
 		result: result,
 	}
+
+	<-resultsInUse
 }
 
 var jobs = make(chan *job, 512)
@@ -34,6 +38,7 @@ type jobResult struct {
 }
 
 var results = make(chan *jobResult, 512)
+var resultsInUse chan bool
 
 func InitWorkers() {
 	for id := 0; id < runtime.NumCPU(); id++ {
