@@ -19,40 +19,42 @@ const (
 	LabelDeleteFromTask = Action("LabelDeleteFromTask")
 )
 
-func labelsResolver(action Action) (service ServiceFunc) {
+func labelsResolver(action Action) ServiceFunc {
 	switch action {
 
 	case LabelAddToTask:
-		service = func(source db.DataSource, data interface{}) (interface{}, error) {
-			taskLabel := data.(models.TaskLabel)
-
-			return tasks.AddLabelToTask(source, taskLabel.TaskId, taskLabel.Label)
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if taskLabel, ok := data.(models.TaskLabel); ok {
+				return tasks.AddLabelToTask(source, taskLabel.TaskId, taskLabel.Label)
+			}
+			return models.LabelsList{}, castFailsMsg(data, models.TaskLabel{})
 		}
-		return
 
 	case LabelsAllOnTask:
-		service = func(source db.DataSource, id interface{}) (interface{}, error) {
-			return tasks.AllLabels(source, id.(models.RequiredId))
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if id, ok := data.(models.RequiredId); ok {
+				return tasks.AllLabels(source, id)
+			}
+			return models.LabelsList{}, castFailsMsg(data, models.RequiredId{})
 		}
-		return
 
 	case LabelAlreadySet:
-		service = func(source db.DataSource, data interface{}) (interface{}, error) {
-			taskLabel := data.(models.TaskLabel)
-
-			return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
+			if taskLabel, ok := data.(models.TaskLabel); ok {
+				return tasks.CheckLabelAlreadySet(source, taskLabel.TaskId, taskLabel.Label)
+			}
+			return false, castFailsMsg(data, models.TaskLabel{})
 		}
-		return
+
 	case LabelDeleteFromTask:
-		service = func(source db.DataSource, data interface{}) (interface{}, error) {
+		return func(source db.DataSource, data interface{}) (interface{}, error) {
 			taskLabel := data.(models.TaskLabel)
 
 			return tasks.DeleteLabelFromTask(source, taskLabel.TaskId, taskLabel.Label)
 		}
-		return
 
 	default:
 		log.Panicf("can not find resolver with action: %v, in labels resolvers", action)
-		return
+		return nil
 	}
 }
