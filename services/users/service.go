@@ -21,19 +21,25 @@ func CheckUserExists(source db.DataSource, credentials models.User) (bool, error
 }
 
 // Checks if user credentials present in users collection.
-func CheckUserCredentials(source db.DataSource, credentials models.User) (bool, error) {
-	empty, err := source.C(cUsers).Find(bson.M{
+func AuthorizeUser(source db.DataSource, credentials models.User) (user models.User, err error) {
+	err = source.C(cUsers).Find(bson.M{
 		"email":    credentials.Email,
 		"password": credentials.Password,
-	}).IsEmpty()
+	}).One(&user)
 	if err != nil {
-		return false, fmt.Errorf("can not check user credentials '%v': %v", credentials, err)
+		return models.User{}, fmt.Errorf("can not check user credentials '%v': %v", credentials, err)
 	}
-	return !empty, nil
+	return user, nil
 }
 
 // Creates user and returns it.
 func CreateUser(source db.DataSource, user models.User) (models.User, error) {
+	if exists, err := CheckUserExists(source, user); err != nil {
+		return models.User{}, err
+	} else if exists {
+		return models.User{}, fmt.Errorf("user %v already exists", user)
+	}
+
 	user.Id = models.NewAutoId()
 
 	err := source.C(cUsers).Insert(user)

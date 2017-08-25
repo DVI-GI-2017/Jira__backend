@@ -15,7 +15,7 @@ func init() {
 const (
 	UserCreate      = Action("UserCreate")
 	UserExists      = Action("UserExists")
-	UserAuthorize   = Action("UserAuthorize")
+	UserAuthorized  = Action("UserAuthorized")
 	UserFindById    = Action("UserFindById")
 	UserFindByEmail = Action("UserFindByEmail")
 	UsersAll        = Action("UsersAll")
@@ -45,13 +45,13 @@ func usersResolver(action Action) (service ServiceFunc, err error) {
 		}
 		return
 
-	case UserAuthorize:
+	case UserAuthorized:
 		service = func(source db.DataSource, data interface{}) (interface{}, error) {
 			user, err := models.SafeCastToUser(data)
 			if err != nil {
 				return false, err
 			}
-			return users.CheckUserCredentials(source, user)
+			return users.AuthorizeUser(source, user)
 		}
 		return
 
