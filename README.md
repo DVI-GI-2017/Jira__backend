@@ -7,9 +7,10 @@
 - Настроен автодеплой из Travis CI на хероку
 - База данных хранится на mLab
 
-Приложение [ссылка на heroku app](https://jira-clone.herokuapp.com)  
-Презентация [ссылка на github pages](https://dvi-gi-2017.github.io/Jira__presentation/)  
-Swagger API [ссылка на swagger](https://swaggerhub.com/apis/dvi-gi-2017/JiraAPI/1.1.0)
+Приложение [heroku app](https://jira-clone.herokuapp.com)  
+Презентация [github pages](https://dvi-gi-2017.github.io/Jira__presentation/)  
+Презентация [pdf](http://bit.ly/2wdj9UO)  
+Swagger API [swagger](https://swaggerhub.com/apis/dvi-gi-2017/JiraAPI/1.1.0)  
 
 #### Технологии
 - Golang для написания логики,
