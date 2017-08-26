@@ -12,7 +12,11 @@ import (
 // Returns all labels from task
 // Path parameter: "task_id" - task id.
 func AllLabelsOnTask(w http.ResponseWriter, req *http.Request) {
-	id := models.NewRequiredId(mux.Params(req).PathParams["task_id"])
+	id, err := models.NewRequiredId(mux.Params(req).PathParams["task_id"])
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
+		return
+	}
 
 	labels, err := pool.Dispatch(pool.LabelsAllOnTask, id)
 	if err != nil {
@@ -42,7 +46,12 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	taskId := models.NewRequiredId(params.PathParams["task_id"])
+	taskId, err := models.NewRequiredId(params.PathParams["task_id"])
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
+		return
+	}
+
 	taskLabel := models.TaskLabel{TaskId: taskId, Label: label}
 
 	labels, err := pool.Dispatch(pool.LabelAddToTask, taskLabel)
@@ -67,7 +76,12 @@ func DeleteLabelFromTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	taskId := models.NewRequiredId(params.PathParams["task_id"])
+	taskId, err := models.NewRequiredId(params.PathParams["task_id"])
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
+		return
+	}
+
 	taskLabel := models.TaskLabel{TaskId: taskId, Label: label}
 
 	labels, err := pool.Dispatch(pool.LabelDeleteFromTask, taskLabel)

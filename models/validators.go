@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"unicode/utf8"
 
+	"fmt"
+
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -165,8 +167,11 @@ func (id RequiredId) Validate() error {
 }
 
 // New required id
-func NewRequiredId(hex string) RequiredId {
-	return RequiredId{Id: Id{ObjectId: bson.ObjectIdHex(hex)}}
+func NewRequiredId(hex string) (RequiredId, error) {
+	if bson.IsObjectIdHex(hex) {
+		return RequiredId{Id: Id{ObjectId: bson.ObjectIdHex(hex)}}, nil
+	}
+	return RequiredId{}, fmt.Errorf("invalid id format: %s", hex)
 }
 
 // Optional Id helpers

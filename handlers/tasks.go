@@ -16,7 +16,11 @@ import (
 func AddTaskToProject(w http.ResponseWriter, req *http.Request) {
 	params := mux.Params(req)
 
-	projectId := models.NewRequiredId(params.PathParams["project_id"])
+	projectId, err := models.NewRequiredId(params.PathParams["project_id"])
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
+		return
+	}
 
 	var task models.Task
 	if err := json.Unmarshal(params.Body, &task); err != nil {
@@ -45,7 +49,11 @@ func AddTaskToProject(w http.ResponseWriter, req *http.Request) {
 // Returns all tasks
 // Path param - "project_id"
 func AllTasksInProject(w http.ResponseWriter, req *http.Request) {
-	projectId := models.NewRequiredId(mux.Params(req).PathParams["project_id"])
+	projectId, err := models.NewRequiredId(mux.Params(req).PathParams["project_id"])
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
+		return
+	}
 
 	tasks, err := pool.Dispatch(pool.TasksAllOnProject, projectId)
 	if err != nil {
@@ -60,7 +68,11 @@ func AllTasksInProject(w http.ResponseWriter, req *http.Request) {
 // Path params: "id" - task id.
 func GetTaskById(w http.ResponseWriter, req *http.Request) {
 
-	id := models.NewRequiredId(mux.Params(req).PathParams["id"])
+	id, err := models.NewRequiredId(mux.Params(req).PathParams["id"])
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusNotFound)
+		return
+	}
 
 	task, err := pool.Dispatch(pool.TaskFindById, id)
 	if err != nil {
