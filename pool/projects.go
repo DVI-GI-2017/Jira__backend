@@ -5,7 +5,7 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/services/projects"
+	"github.com/DVI-GI-2017/Jira__backend/services"
 )
 
 func init() {
@@ -30,13 +30,13 @@ func projectsResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.Project{}, err
 			}
-			return projects.CreateProject(source, project)
+			return services.CreateProject(source, project)
 		}
 		return
 
 	case ProjectsAll:
 		service = func(source db.DataSource, _ interface{}) (interface{}, error) {
-			return projects.AllProjects(source)
+			return services.AllProjects(source)
 		}
 		return
 
@@ -46,7 +46,7 @@ func projectsResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.Project{}, err
 			}
-			return projects.FindProjectById(source, id)
+			return services.FindProjectById(source, id)
 		}
 		return
 
@@ -54,7 +54,7 @@ func projectsResolver(action Action) (service ServiceFunc, err error) {
 		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
 			id, err := models.SafeCastToRequiredId(data)
 			if err != nil {
-				return projects.AllUsersInProject(source, id)
+				return services.AllUsersInProject(source, id)
 			}
 			return models.UsersList{}, err
 		}
@@ -66,7 +66,7 @@ func projectsResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.TasksList{}, err
 			}
-			return projects.AllTasksInProject(source, id)
+			return services.AllTasksInProject(source, id)
 		}
 		return
 
@@ -76,7 +76,7 @@ func projectsResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.UsersList{}, err
 			}
-			return projects.AddUserToProject(source, ids.ProjectId, ids.UserId)
+			return services.AddUserToProject(source, ids.ProjectId, ids.UserId)
 		}
 		return
 
@@ -86,7 +86,7 @@ func projectsResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.UsersList{}, err
 			}
-			return projects.DeleteUserFromProject(source, ids.ProjectId, ids.UserId)
+			return services.DeleteUserFromProject(source, ids.ProjectId, ids.UserId)
 		}
 		return
 

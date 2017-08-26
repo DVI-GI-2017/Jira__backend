@@ -1,4 +1,4 @@
-package users
+package services
 
 import (
 	"fmt"
@@ -9,7 +9,6 @@ import (
 )
 
 const cUsers = "users"
-const cProjects = "projects"
 
 // Checks if user with this credentials.Email exists.
 func CheckUserExists(source db.DataSource, credentials models.User) (bool, error) {

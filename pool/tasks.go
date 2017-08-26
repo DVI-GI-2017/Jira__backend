@@ -5,7 +5,7 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/services/tasks"
+	"github.com/DVI-GI-2017/Jira__backend/services"
 )
 
 func init() {
@@ -27,7 +27,7 @@ func tasksResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.Task{}, err
 			}
-			return tasks.AddTaskToProject(source, task)
+			return services.AddTaskToProject(source, task)
 		}
 		return
 
@@ -37,7 +37,7 @@ func tasksResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.TasksList{}, err
 			}
-			return tasks.AllTasks(source, id)
+			return services.AllTasks(source, id)
 		}
 		return
 
@@ -47,7 +47,7 @@ func tasksResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.Task{}, err
 			}
-			return tasks.FindTaskById(source, id)
+			return services.FindTaskById(source, id)
 		}
 		return
 	}

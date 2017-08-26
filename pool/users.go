@@ -5,7 +5,7 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/services/users"
+	"github.com/DVI-GI-2017/Jira__backend/services"
 )
 
 func init() {
@@ -31,7 +31,7 @@ func usersResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.User{}, err
 			}
-			return users.CreateUser(source, user)
+			return services.CreateUser(source, user)
 		}
 		return
 
@@ -41,7 +41,7 @@ func usersResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return false, err
 			}
-			return users.CheckUserExists(source, user)
+			return services.CheckUserExists(source, user)
 		}
 		return
 
@@ -51,13 +51,13 @@ func usersResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return false, err
 			}
-			return users.AuthorizeUser(source, user)
+			return services.AuthorizeUser(source, user)
 		}
 		return
 
 	case UsersAll:
 		service = func(source db.DataSource, _ interface{}) (result interface{}, err error) {
-			return users.AllUsers(source)
+			return services.AllUsers(source)
 		}
 		return
 
@@ -67,7 +67,7 @@ func usersResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.User{}, err
 			}
-			return users.FindUserById(source, id)
+			return services.FindUserById(source, id)
 		}
 		return
 
@@ -77,7 +77,7 @@ func usersResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.User{}, err
 			}
-			return users.FindUserByEmail(source, email)
+			return services.FindUserByEmail(source, email)
 		}
 		return
 
@@ -87,7 +87,7 @@ func usersResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.ProjectsList{}, err
 			}
-			return users.AllUserProjects(source, id)
+			return services.AllUserProjects(source, id)
 		}
 		return
 	}

@@ -5,7 +5,7 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/services/tasks"
+	"github.com/DVI-GI-2017/Jira__backend/services"
 )
 
 func init() {
@@ -27,7 +27,7 @@ func labelsResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.LabelsList{}, err
 			}
-			return tasks.AddLabelToTask(source, taskLabel.TaskId, taskLabel.Label)
+			return services.AddLabelToTask(source, taskLabel.TaskId, taskLabel.Label)
 		}
 		return
 
@@ -37,7 +37,7 @@ func labelsResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.LabelsList{}, err
 			}
-			return tasks.AllLabels(source, id)
+			return services.AllLabels(source, id)
 		}
 		return
 
@@ -47,7 +47,7 @@ func labelsResolver(action Action) (service ServiceFunc, err error) {
 			if err != nil {
 				return models.LabelsList{}, err
 			}
-			return tasks.DeleteLabelFromTask(source, taskLabel.TaskId, taskLabel.Label)
+			return services.DeleteLabelFromTask(source, taskLabel.TaskId, taskLabel.Label)
 		}
 		return
 	}

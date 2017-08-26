@@ -1,4 +1,4 @@
-package projects
+package services
 
 import (
 	"fmt"
@@ -9,8 +9,6 @@ import (
 )
 
 const cProjects = "projects"
-const cUsers = "users"
-const cTasks = "tasks"
 
 // Check if project with title == project.Title exists
 func CheckProjectExists(source db.DataSource, project models.Project) (bool, error) {
