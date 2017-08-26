@@ -32,7 +32,7 @@ func convertSimplePatternToRegexp(pattern string) string {
 				return ""
 			}
 
-			return fmt.Sprintf(fmtString, paramParts[1][:len(paramParts[1])-1])
+			return fmt.Sprintf(fmtString, paramParts[1])
 		}
 
 		log.Panicf("wrong pattern format %s", param)
