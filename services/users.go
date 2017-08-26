@@ -36,14 +36,14 @@ func CreateUser(source db.DataSource, user models.User) (models.User, error) {
 	if exists, err := CheckUserExists(source, user); err != nil {
 		return models.User{}, err
 	} else if exists {
-		return models.User{}, fmt.Errorf("user %v already exists", user)
+		return models.User{}, fmt.Errorf("user %s already exists", user.Email)
 	}
 
 	user.Id = models.NewAutoId()
 
 	err := source.C(cUsers).Insert(user)
 	if err != nil {
-		return models.User{}, fmt.Errorf("can not create user '%v': %v", user, err)
+		return models.User{}, fmt.Errorf("can not create user '%s': %v", user.Email, err)
 	}
 
 	user.Password = ""
