@@ -83,7 +83,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 
 	user, err := models.SafeCastToUser(userRaw)
 	if err != nil {
-		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
 
