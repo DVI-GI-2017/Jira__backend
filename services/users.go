@@ -1,4 +1,4 @@
-package users
+package services
 
 import (
 	"fmt"
@@ -9,7 +9,6 @@ import (
 )
 
 const cUsers = "users"
-const cProjects = "projects"
 
 // Checks if user with this credentials.Email exists.
 func CheckUserExists(source db.DataSource, credentials models.User) (bool, error) {
@@ -21,19 +20,25 @@ func CheckUserExists(source db.DataSource, credentials models.User) (bool, error
 }
 
 // Checks if user credentials present in users collection.
-func CheckUserCredentials(source db.DataSource, credentials models.User) (bool, error) {
-	empty, err := source.C(cUsers).Find(bson.M{
+func AuthorizeUser(source db.DataSource, credentials models.User) (user models.User, err error) {
+	err = source.C(cUsers).Find(bson.M{
 		"email":    credentials.Email,
 		"password": credentials.Password,
-	}).IsEmpty()
+	}).One(&user)
 	if err != nil {
-		return false, fmt.Errorf("can not check user credentials '%v': %v", credentials, err)
+		return models.User{}, fmt.Errorf("can not check user credentials '%v': %v", credentials, err)
 	}
-	return !empty, nil
+	return user, nil
 }
 
 // Creates user and returns it.
 func CreateUser(source db.DataSource, user models.User) (models.User, error) {
+	if exists, err := CheckUserExists(source, user); err != nil {
+		return models.User{}, err
+	} else if exists {
+		return models.User{}, fmt.Errorf("user %v already exists", user)
+	}
+
 	user.Id = models.NewAutoId()
 
 	err := source.C(cUsers).Insert(user)
@@ -56,7 +61,7 @@ func AllUsers(source db.DataSource) (usersLists models.UsersList, err error) {
 }
 
 // Returns user with given id.
-func FindUserById(source db.DataSource, id bson.ObjectId) (user models.User, err error) {
+func FindUserById(source db.DataSource, id models.RequiredId) (user models.User, err error) {
 	err = source.C(cUsers).FindId(id).Select(bson.M{"password": 0}).One(&user)
 	if err != nil {
 		return models.User{}, fmt.Errorf("can not find user with id '%s': %v", id, err)
@@ -74,7 +79,7 @@ func FindUserByEmail(source db.DataSource, email models.Email) (user models.User
 }
 
 // Returns all users project.
-func AllUsersProject(source db.DataSource, id models.RequiredId) (projects models.ProjectsList, err error) {
+func AllUserProjects(source db.DataSource, id models.RequiredId) (projects models.ProjectsList, err error) {
 	var user models.User
 	err = source.C(cUsers).FindId(id).One(&user)
 	if err != nil {

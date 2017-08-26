@@ -1,4 +1,4 @@
-package projects
+package services
 
 import (
 	"fmt"
@@ -9,8 +9,6 @@ import (
 )
 
 const cProjects = "projects"
-const cUsers = "users"
-const cTasks = "tasks"
 
 // Check if project with title == project.Title exists
 func CheckProjectExists(source db.DataSource, project models.Project) (bool, error) {
@@ -24,6 +22,12 @@ func CheckProjectExists(source db.DataSource, project models.Project) (bool, err
 // Creates project and returns it.
 
 func CreateProject(source db.DataSource, project models.Project) (models.Project, error) {
+	if exist, err := CheckProjectExists(source, project); err != nil {
+		return models.Project{}, err
+	} else if exist {
+		return models.Project{}, fmt.Errorf("project %v already exists", project)
+	}
+
 	project.Id = models.NewAutoId()
 
 	err := source.C(cProjects).Insert(project)
@@ -77,6 +81,12 @@ func AllTasksInProject(mongo db.DataSource, id models.RequiredId) (result models
 }
 
 func AddUserToProject(source db.DataSource, projectId, userId models.RequiredId) (result models.UsersList, err error) {
+	if exist, err := CheckUserInProject(source, projectId, userId); err != nil {
+		return models.UsersList{}, err
+	} else if exist {
+		return models.UsersList{}, fmt.Errorf("user '%s' already in project '%s'", userId.Hex(), projectId.Hex())
+	}
+
 	if err := pushUser(source, projectId, userId); err != nil {
 		return models.UsersList{},
 			fmt.Errorf("can not add user '%v' to project '%s': %v", userId, projectId, err)
@@ -106,6 +116,12 @@ func pushProject(source db.DataSource, userId, projectId models.RequiredId) erro
 }
 
 func DeleteUserFromProject(source db.DataSource, projectId, userId models.RequiredId) (result models.UsersList, err error) {
+	if exist, err := CheckUserInProject(source, projectId, userId); err != nil {
+		return models.UsersList{}, err
+	} else if !exist {
+		return models.UsersList{}, fmt.Errorf("user '%s' not found in project '%s'", userId.Hex(), projectId.Hex())
+	}
+
 	if err := pullUser(source, projectId, userId); err != nil {
 		return models.UsersList{},
 			fmt.Errorf("can not delete user '%v' from project '%s': %v", userId.Hex(), projectId.Hex(), err)

@@ -1,16 +1,14 @@
-package tasks
+package services
 
 import (
 	"fmt"
 
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/services/projects"
 	"gopkg.in/mgo.v2/bson"
 )
 
 const cTasks = "tasks"
-const cProjects = "projects"
 
 // Checks if task with this 'title == task.Title' exists.
 func CheckTaskExists(source db.DataSource, task models.Task) (bool, error) {
@@ -23,6 +21,12 @@ func CheckTaskExists(source db.DataSource, task models.Task) (bool, error) {
 
 // Creates task and returns it.
 func AddTaskToProject(source db.DataSource, task models.Task) (models.Task, error) {
+	if exists, err := CheckTaskExists(source, task); err != nil {
+		return models.Task{}, err
+	} else if exists {
+		return models.Task{}, fmt.Errorf("task %v already in project %s", task, task.ProjectId.Hex())
+	}
+
 	task.Id = models.NewAutoId()
 
 	err := source.C(cTasks).Insert(task)
@@ -46,7 +50,7 @@ func pushTask(source db.DataSource, taskId models.AutoId, projectId models.Requi
 
 // Returns all tasks.
 func AllTasks(source db.DataSource, projectId models.RequiredId) (tasksList models.TasksList, err error) {
-	project, err := projects.FindProjectById(source, projectId)
+	project, err := FindProjectById(source, projectId)
 	if err != nil {
 		return models.TasksList{}, fmt.Errorf("can not find project with id %s: %v", projectId.Hex(), err)
 	}

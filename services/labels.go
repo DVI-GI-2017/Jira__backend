@@ -1,4 +1,4 @@
-package tasks
+package services
 
 import (
 	"fmt"
@@ -32,8 +32,8 @@ func queryLabels(source db.DataSource, taskId models.RequiredId) db.Query {
 }
 
 // Checks if label already set on this task.
-func CheckLabelAlreadySet(source db.DataSource, id models.RequiredId, label models.Label) (bool, error) {
-	notset, err := queryLabel(source, id, label).IsEmpty()
+func CheckLabelAlreadySet(source db.DataSource, taskId models.RequiredId, label models.Label) (bool, error) {
+	notset, err := queryLabel(source, taskId, label).IsEmpty()
 	if err != nil {
 		return false, err
 	}
@@ -52,6 +52,12 @@ func queryLabel(source db.DataSource, taskId models.RequiredId, label models.Lab
 
 // Adds label to task and returns new list of labels on this task.
 func AddLabelToTask(source db.DataSource, taskId models.RequiredId, label models.Label) (models.LabelsList, error) {
+	if exists, err := CheckLabelAlreadySet(source, taskId, label); err != nil {
+		return models.LabelsList{}, err
+	} else if exists {
+		return models.LabelsList{}, fmt.Errorf("label '%s' already set on task '%s'", label, taskId.Hex())
+	}
+
 	err := pushLabel(source, taskId, label)
 	if err != nil {
 		return models.LabelsList{},
@@ -71,6 +77,12 @@ func pushLabel(source db.DataSource, taskId models.RequiredId, label models.Labe
 
 // Deletes label from task and returns new list of labels on this task
 func DeleteLabelFromTask(source db.DataSource, taskId models.RequiredId, label models.Label) (models.LabelsList, error) {
+	if exists, err := CheckLabelAlreadySet(source, taskId, label); err != nil {
+		return models.LabelsList{}, err
+	} else if !exists {
+		return models.LabelsList{}, fmt.Errorf("label '%s' not found on task '%s'", label, taskId.Hex())
+	}
+
 	err := pullLabel(source, taskId, label)
 	if err != nil {
 		return models.LabelsList{},
