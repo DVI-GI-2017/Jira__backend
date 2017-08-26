@@ -12,11 +12,7 @@ import (
 // Returns new router with root path == rootPath
 func NewRouter(rootPath string) (*router, error) {
 	r := &router{}
-	r.routes = make(map[string]routes)
-
-	for _, m := range supportedMethods {
-		r.routes[m] = make(routes, 0)
-	}
+	r.routes = make(routes, 0, 5)
 
 	err := r.SetRootPath(rootPath)
 	if err != nil {
@@ -32,10 +28,20 @@ var supportedMethods = [...]string{
 	http.MethodPut, http.MethodPatch, http.MethodHead,
 }
 
+// Check if method supported
+func isSupported(method string) bool {
+	for _, value := range supportedMethods {
+		if value == method {
+			return true
+		}
+	}
+	return false
+}
+
 type router struct {
 	root *url.URL
 
-	routes map[string]routes
+	routes routes
 
 	wrappers []WrapperFunc
 }
@@ -44,6 +50,7 @@ type router struct {
 type route struct {
 	pattern     *regexp.Regexp
 	handlerFunc http.HandlerFunc
+	method      string
 }
 
 type routes []route
@@ -74,12 +81,15 @@ func (r *router) Route(pattern, method string, handler http.Handler) error {
 		return err
 	}
 
-	if _, ok := r.routes[method]; !ok {
+	if !isSupported(method) {
 		return fmt.Errorf("method '%s' not supported", method)
 	}
 
-	r.routes[method] = append(r.routes[method],
-		route{compiledPattern, Wrap(handler, r.wrappers...).ServeHTTP})
+	r.routes = append(r.routes, route{
+		pattern:     compiledPattern,
+		handlerFunc: Wrap(handler, r.wrappers...).ServeHTTP,
+		method:      method,
+	})
 
 	return nil
 }
@@ -112,40 +122,36 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 // Handles request: iterate over all routes before finds first matching route.
 func (r *router) handleRequest(w http.ResponseWriter, req *http.Request, path string) {
 
-	if routes, ok := r.routes[req.Method]; ok {
-		for _, route := range routes {
-			if route.pattern.MatchString(path) {
-				params, err := newParams(req, route.pattern, path)
+	for _, route := range r.routes {
+		if route.pattern.MatchString(path) {
+			if route.method != req.Method {
+				w.WriteHeader(http.StatusMethodNotAllowed)
+				fmt.Fprintf(w, "Method: '%s' not allowed on path: '%s'", req.Method, req.URL.Path)
+			}
 
-				if err != nil {
-					fmt.Printf("error while parsing params: %v", err)
-					w.WriteHeader(http.StatusBadRequest)
-					return
-				}
+			params, err := newParams(req, route.pattern, path)
 
-				route.handlerFunc(w, putParams(req, params))
-
+			if err != nil {
+				fmt.Printf("error while parsing params: %v", err)
+				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
+
+			route.handlerFunc(w, putParams(req, params))
+			return
 		}
-
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Method: %s not allowed on path: %s", req.Method, req.URL.Path)
-
-		return
 	}
-	w.WriteHeader(http.StatusMethodNotAllowed)
-	fmt.Fprintf(w, "Method: %s not supported", req.Method)
+
+	w.WriteHeader(http.StatusNotFound)
+	fmt.Fprintf(w, "not found: %s", req.URL)
 }
 
 // Pretty prints routes
 func (r *router) PrintRoutes() {
 	log.Println(strings.Repeat("-", 10))
 
-	for method, list := range r.routes {
-		for _, r := range list {
-			log.Printf("'%s': '%s'", method, r.pattern)
-		}
+	for _, route := range r.routes {
+		log.Printf("'%s': '%s'", route.method, route.pattern)
 	}
 
 	log.Println(strings.Repeat("-", 10))

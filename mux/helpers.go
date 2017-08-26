@@ -18,11 +18,11 @@ var paramRegexp = regexp.MustCompile(`{((str|hex|int):)??((?:[[:lower:]]|_)+)}`)
 // Converts patterns like "/users/id:hex" to real regexps
 func convertSimplePatternToRegexp(pattern string) string {
 	patternWithParams := paramRegexp.ReplaceAllStringFunc(pattern, func(param string) string {
-		trimmedParam := strings.Trim(param, "{}")
-		if !strings.Contains(trimmedParam, ":") {
-			return fmt.Sprintf(stringType, trimmedParam)
+		param = strings.Trim(param, "{}")
+		if !strings.Contains(param, ":") {
+			return fmt.Sprintf(stringType, param)
 		}
-		paramParts := strings.Split(trimmedParam, ":")
+		paramParts := strings.Split(param, ":")
 
 		if len(paramParts) == 2 {
 			fmtString, err := getPatternByType(paramParts[0])
