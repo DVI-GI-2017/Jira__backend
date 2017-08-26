@@ -75,13 +75,13 @@ func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	user, err := pool.Dispatch(pool.ProjectAllUsers, id)
+	users, err := pool.Dispatch(pool.ProjectAllUsers, id)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
-	JsonResponse(w, user)
+	JsonResponse(w, users)
 }
 
 func GetAllTasksFromProject(w http.ResponseWriter, req *http.Request) {
