@@ -8,6 +8,7 @@
 - База данных хранится на mLab
 
 Приложение [ссылка на heroku app](https://jira-clone.herokuapp.com)
+Презентация [ссылка на github pages](https://dvi-gi-2017.github.io/Jira__presentation/)
 
 #### Технологии
 - Golang для написания логики,
