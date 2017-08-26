@@ -5,7 +5,6 @@ import (
 
 	"encoding/json"
 
-	"fmt"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
@@ -24,13 +23,12 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
+	projectInfo.Id = models.NewAutoId()
 
 	if err := projectInfo.Validate(); err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
-
-	projectInfo.Id = models.NewAutoId()
 
 	project, err := pool.Dispatch(pool.ProjectCreate, projectInfo)
 	if err != nil {
