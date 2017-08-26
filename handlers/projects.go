@@ -23,12 +23,13 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
-	projectInfo.Id = models.NewAutoId()
 
 	if err := projectInfo.Validate(); err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
+
+	projectInfo.Id = models.NewAutoId()
 
 	project, err := pool.Dispatch(pool.ProjectCreate, projectInfo)
 	if err != nil {
