@@ -9,6 +9,7 @@
 
 Приложение [ссылка на heroku app](https://jira-clone.herokuapp.com)  
 Презентация [ссылка на github pages](https://dvi-gi-2017.github.io/Jira__presentation/)
+Swagger API [ссылка на swagger](https://swaggerhub.com/apis/dvi-gi-2017/JiraAPI/1.1.0)
 
 #### Технологии
 - Golang для написания логики,

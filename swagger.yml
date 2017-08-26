@@ -1,0 +1,406 @@
+swagger: '2.0'
+info:
+  version: "1.1.0"
+  title: JIRA Clone API
+  description: 'For Jira Clone'
+basePath: /dvi-gi-2017/JiraAPI/api/v1
+paths:
+  /signup:
+    post:
+      summary: Регистрирует нового пользователя
+      consumes:
+        - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+        400:
+          description: неверный запрос
+          schema:
+            type: string
+        409:
+          description: пользователь уже зарегистрирован
+          schema:
+            type: string
+        403:
+          description: пользователь залогинен 
+          schema:
+            type: string
+  /signin:
+    post:
+      summary: Вход пользователя в систему
+      consumes:
+        - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        description: username - логин или email
+        schema:
+          $ref: '#/definitions/UserLogin'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+        400:
+          description: неверный запрос
+          schema:
+            type: string
+        403:
+          description: неверные данные
+          schema:
+            type: string
+        404:
+          description: пользователь не найден
+          schema:
+            type: string
+  /cur-user:
+    get:
+      summary: Возвращает вошедшего пользователя
+      produces:
+      - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+        401:
+          description: пользователь не вошел 
+          schema:
+            type: string
+        404:
+          description: пользователь не найден
+          schema:
+            type: string
+  /users:
+    get:
+      summary: Возвращает всех пользователей
+      produces:
+      - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserResponse'
+  /users/{id}:
+    get:
+      summary: Возвращает пользователя c данным id
+      produces:
+      - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Имя или id пользователя, которого нужно вернуть
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+        400:
+          description: неверный запрос
+          schema:
+            type: string
+        404:
+          description: пользователь не найден
+          schema:
+            type: string
+    post:
+      summary: Сохранение пользователя c данным
+      produces:
+      - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Имя или id пользователя, которого нужно вернуть
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+        400:
+          description: неверный запрос
+          schema:
+            type: string
+        404:
+          description: пользователь не найден
+          schema:
+            type: string
+  /tasks:
+    get:
+      summary: Возвращает все задачи пользователя
+      produces:
+      - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TaskResponse'
+  /projects/{id}:
+    get:
+      summary: Возвращает проект по id
+      produces:
+      - application/json
+      parameters:
+        - name: id
+          in: path
+          description: id проекта, который нужно вернуть
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProjectResponse'
+  /tasks/{id}:
+    get:
+      summary: Возвращает таск по id
+      produces:
+      - application/json
+      parameters:
+        - name: id
+          in: path
+          description: id таска, который нужно вернуть
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TaskResponse'
+    post:
+      summary: Сохранение таска c данным
+      produces:
+      - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Имя или id пользователя, которого нужно вернуть
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/TaskResponse'
+        400:
+          description: неверный запрос
+          schema:
+            type: string
+        404:
+          description: пользователь не найден
+          schema:
+            type: string
+  /projects/{id}/users:
+    get:
+      summary: Возвращает всех юзеров проекта с id
+      produces:
+      - application/json
+      parameters:
+        - name: id
+          in: path
+          description: id таска, который нужно вернуть
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserResponse'
+    post:
+      summary: Добавление юзера в проект
+      produces:
+      - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Имя или id пользователя, которого нужно вернуть
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+        400:
+          description: неверный запрос
+          schema:
+            type: string
+        404:
+          description: пользователь не найден
+          schema:
+            type: string
+  /users/{id}/projects:
+    get:
+      summary: Возвращает все проекты пользователя с id
+      produces:
+      - application/json
+      parameters:
+        - name: id
+          in: path
+          description: id таска, который нужно вернуть
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProjectResponse'
+    post:
+      summary: Добавление проекта в юзер
+      produces:
+      - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Имя или id пользователя, которого нужно вернуть
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+        400:
+          description: неверный запрос
+          schema:
+            type: string
+        404:
+          description: пользователь не найден
+          schema:
+            type: string
+definitions:
+  UserLogin:
+    type: object
+    properties:
+      email: 
+        type: string
+        description: Email
+      password:
+        type: string
+        description: Пароль
+  User:
+    type: object
+    properties:
+      name: 
+        type: string
+        description: Имя пользователя
+      email: 
+        type: string
+        description: Email
+      password:
+        type: string
+        description: Пароль
+  UserResponse:
+    type: object
+    properties:
+      name: 
+        type: string
+        description: Имя пользователя
+      email: 
+        type: string
+        description: Email
+      bio:
+        type: string
+        description: Описание
+      token:
+        type: string
+        description: token
+      tasks:
+        type: array
+        items: 
+          $ref: '#/definitions/UserTask'
+        description: Список из задач пользователя.
+        example: ['New': '100500', 'In work': '1']
+  UserTask:
+    type: object
+    properties:
+      type: 
+        type: string
+        description: Тип задачи 
+      count:
+        type: string
+        description: Количество задач
+  Task:
+    type: object
+    properties:
+      title: 
+        type: string
+        description: Название задачи
+      description: 
+        type: string
+        description: Описание задачи
+      initiator: 
+        type: string
+        description: Инициатор задачи
+      assignee:
+        type: string
+        description: Исполнитель задачи
+      labels:
+        type: string
+        description: Статус задачи
+      created_at:
+        type: string
+        description: Время создания задачи
+      updated_at:
+        type: string
+        description: Время обновления задачи
+  TaskResponse:
+    type: object
+    properties:
+      title: 
+        type: string
+        description: Название задачи
+      labels:
+        type: string
+        description: Статус задачи
+  Project:
+    type: object
+    properties:
+      title: 
+        type: string
+        description: Название проекта
+      description: 
+        type: string
+        description: Описание проекта
+      labels:
+        type: string
+        description: Статус задачи
+      created_at:
+        type: string
+        description: Время создания проекта
+      updated_at:
+        type: string
+        description: Время обновления проекта
+  ProjectResponse:
+    type: object
+    properties:
+      title: 
+        type: string
+        description: Название проекта
+schemes:
+ - https
+host: virtserver.swaggerhub.com
