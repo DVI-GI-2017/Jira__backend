@@ -26,7 +26,7 @@ func AuthorizeUser(source db.DataSource, credentials models.User) (user models.U
 		"password": credentials.Password,
 	}).One(&user)
 	if err != nil {
-		return models.User{}, fmt.Errorf("can not check user credentials '%v': %v", credentials, err)
+		return models.User{}, fmt.Errorf("can not autorize user '%v': %v", credentials.Email, err)
 	}
 	return user, nil
 }
