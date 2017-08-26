@@ -46,7 +46,7 @@ func AllProjects(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	JsonResponse(w, projects.(models.ProjectsList))
+	JsonResponse(w, projects)
 }
 
 // Returns project with given id
@@ -64,7 +64,7 @@ func GetProjectById(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	JsonResponse(w, user.(models.Project))
+	JsonResponse(w, user)
 	return
 }
 
@@ -81,7 +81,7 @@ func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	JsonResponse(w, user.(models.UsersList))
+	JsonResponse(w, user)
 }
 
 func GetAllTasksFromProject(w http.ResponseWriter, req *http.Request) {
@@ -97,7 +97,7 @@ func GetAllTasksFromProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	JsonResponse(w, tasks.(models.TasksList))
+	JsonResponse(w, tasks)
 }
 
 func AddUserToProject(w http.ResponseWriter, req *http.Request) {
@@ -124,7 +124,7 @@ func AddUserToProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	JsonResponse(w, users.(models.UsersList))
+	JsonResponse(w, users)
 }
 
 func DeleteUserFromProject(w http.ResponseWriter, req *http.Request) {

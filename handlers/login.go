@@ -31,7 +31,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 
 	credentials.Encrypt()
 
-	user, err := pool.Dispatch(pool.UserCreate, credentials)
+	userRaw, err := pool.Dispatch(pool.UserCreate, credentials)
 	if err != nil {
 		JsonErrorResponse(w, fmt.Errorf("can not create account: %v", err), http.StatusBadGateway)
 		return
@@ -43,10 +43,16 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	user, err := models.SafeCastToUser(userRaw)
+	if err != nil {
+		JsonErrorResponse(w, fmt.Errorf("can not create account: %v", err), http.StatusBadGateway)
+		return
+	}
+
 	JsonResponse(w, struct {
 		models.User
 		auth.Token
-	}{user.(models.User), token})
+	}{user, token})
 }
 
 // Authorizes user in system.
