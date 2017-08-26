@@ -150,7 +150,7 @@ func pullProject(source db.DataSource, userId, projectId models.RequiredId) erro
 }
 
 // Checks if user already in current project
-func CheckUserInProject(source db.DataSource, userId, projectId models.RequiredId) (bool, error) {
+func CheckUserInProject(source db.DataSource, projectId, userId models.RequiredId) (bool, error) {
 	project, err := FindProjectById(source, projectId)
 	if err != nil {
 		return false, err
