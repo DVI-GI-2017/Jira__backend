@@ -56,14 +56,13 @@ func FindProjectById(mongo db.DataSource, id models.RequiredId) (result models.P
 }
 
 // Returns all users in project
-func AllUsersInProject(mongo db.DataSource, id models.RequiredId) (result models.UsersList, err error) {
-	var project models.Project
-	err = mongo.C(cProjects).FindId(id).One(&project)
+func AllUsersInProject(source db.DataSource, id models.RequiredId) (result models.UsersList, err error) {
+	project, err := FindProjectById(source, id)
 	if err != nil {
-		return models.UsersList{}, fmt.Errorf("can not find project with id '%s': %v", id, err)
+		return models.UsersList{}, err
 	}
 
-	err = mongo.C(cUsers).Find(bson.M{"_id": bson.M{"$in": project.Users}}).Select(bson.M{"password": 0}).All(&result)
+	err = source.C(cUsers).Find(bson.M{"_id": bson.M{"$in": project.Users}}).Select(bson.M{"password": 0}).All(&result)
 	if err != nil {
 		return models.UsersList{}, fmt.Errorf("can not retrieve all users from project: %s", id.Hex())
 	}
@@ -152,11 +151,11 @@ func pullProject(source db.DataSource, userId, projectId models.RequiredId) erro
 
 // Checks if user already in current project
 func CheckUserInProject(source db.DataSource, userId, projectId models.RequiredId) (bool, error) {
-	var project models.Project
-	err := source.C(cProjects).FindId(projectId).One(&project)
+	project, err := FindProjectById(source, projectId)
 	if err != nil {
-		return false, fmt.Errorf("can not find project with id '%s': %v", projectId.Hex(), err)
+		return false, err
 	}
+
 	for _, id := range project.Users {
 		if id == userId {
 			return true, nil
