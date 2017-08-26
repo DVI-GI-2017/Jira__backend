@@ -86,6 +86,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
+	user.Password = ""
 
 	token, err := auth.NewToken()
 	if err != nil {
