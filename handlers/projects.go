@@ -5,6 +5,7 @@ import (
 
 	"encoding/json"
 
+	"fmt"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
@@ -33,7 +34,7 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 
 	project, err := pool.Dispatch(pool.ProjectCreate, projectInfo)
 	if err != nil {
-		JsonErrorResponse(w, err, http.StatusBadGateway)
+		JsonErrorResponse(w, err, http.StatusConflict)
 		return
 	}
 
