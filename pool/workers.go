@@ -8,7 +8,7 @@ import (
 
 // Starts worker pool
 func init() {
-	numWorkers := 100 * runtime.NumCPU()
+	numWorkers := runtime.NumCPU()
 
 	freeWorkers = make(chan int, numWorkers)
 	jobs = make(map[int](chan job), numWorkers)
