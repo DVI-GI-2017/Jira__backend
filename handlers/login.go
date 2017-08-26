@@ -33,7 +33,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 
 	userRaw, err := pool.Dispatch(pool.UserCreate, credentials)
 	if err != nil {
-		JsonErrorResponse(w, fmt.Errorf("can not create account: %v", err), http.StatusBadGateway)
+		JsonErrorResponse(w, fmt.Errorf("can not create account: %v", err), http.StatusBadRequest)
 		return
 	}
 
@@ -45,7 +45,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 
 	user, err := models.SafeCastToUser(userRaw)
 	if err != nil {
-		JsonErrorResponse(w, fmt.Errorf("can not create account: %v", err), http.StatusBadGateway)
+		JsonErrorResponse(w, fmt.Errorf("can not create account: %v", err), http.StatusConflict)
 		return
 	}
 
@@ -83,9 +83,10 @@ func Login(w http.ResponseWriter, req *http.Request) {
 
 	user, err := models.SafeCastToUser(userRaw)
 	if err != nil {
-		JsonErrorResponse(w, err, http.StatusInternalServerError)
+		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
+	user.Password = ""
 
 	token, err := auth.NewToken()
 	if err != nil {
