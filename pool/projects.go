@@ -54,9 +54,9 @@ func projectsResolver(action Action) (service ServiceFunc, err error) {
 		service = func(source db.DataSource, data interface{}) (result interface{}, err error) {
 			id, err := models.SafeCastToRequiredId(data)
 			if err != nil {
-				return services.AllUsersInProject(source, id), err
+				return models.UsersList{}, err
 			}
-			return models.UsersList{}, nil
+			return services.AllUsersInProject(source, id)
 		}
 		return
 
