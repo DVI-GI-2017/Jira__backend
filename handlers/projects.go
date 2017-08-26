@@ -29,8 +29,6 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	projectInfo.Id = models.NewAutoId()
-
 	project, err := pool.Dispatch(pool.ProjectCreate, projectInfo)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusConflict)
