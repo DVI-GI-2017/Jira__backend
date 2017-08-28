@@ -8,22 +8,6 @@ import (
 	"net/http/httptest"
 )
 
-func TestRouterSetRootPath(t *testing.T) {
-	router := router{}
-
-	newRoot := "/api/v1"
-
-	err := router.SetRootPath(newRoot)
-
-	if err != nil {
-		t.Errorf("%v", err)
-	}
-
-	if router.root == nil || router.root.Path != newRoot {
-		t.Errorf("%s", router.root)
-	}
-}
-
 func TestRouterCreate(t *testing.T) {
 	_, err := NewRouter("/api/v1")
 	if err != nil {

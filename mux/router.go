@@ -10,7 +10,7 @@ import (
 )
 
 // Returns new router with root path == rootPath
-func NewRouter(rootPath string) (*router, error) {
+func NewRouter(root string) (*router, error) {
 	r := &router{}
 	r.routes = make(map[string]routes)
 
@@ -18,10 +18,12 @@ func NewRouter(rootPath string) (*router, error) {
 		r.routes[m] = make(routes, 0)
 	}
 
-	err := r.SetRootPath(rootPath)
+	newRoot, err := url.Parse(root)
 	if err != nil {
-		return r, err
+		return nil, fmt.Errorf("invalid path format %s: %v", root, err)
 	}
+
+	r.root = newRoot
 
 	return r, nil
 }
@@ -47,18 +49,6 @@ type route struct {
 }
 
 type routes []route
-
-// Set router root path, other paths will be relative to it
-func (r *router) SetRootPath(path string) error {
-	newRoot, err := url.Parse(path)
-	if err != nil {
-		return fmt.Errorf("invalid path format %s: %v", path, err)
-	}
-
-	r.root = newRoot
-
-	return nil
-}
 
 // Add wrappers to router
 func (r *router) AddWrappers(wrappers ...WrapperFunc) {
