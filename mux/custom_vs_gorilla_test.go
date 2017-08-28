@@ -119,7 +119,7 @@ func initCustomRouter(data *benchmarkData) *Router {
 		log.Panicf("can not create router: %v", err)
 	}
 
-	err = router.Get(data.patternCustom, func(w http.ResponseWriter, req *http.Request) {
+	err = router.Get(Pattern(data.patternCustom), func(w http.ResponseWriter, req *http.Request) {
 		params := Params(req)
 		data, err := json.Marshal(params.PathParams)
 		if err != nil {

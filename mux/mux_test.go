@@ -20,7 +20,7 @@ func TestRouterResolve(t *testing.T) {
 	router.Get("/users/{hex:id}", func(_ http.ResponseWriter, _ *http.Request) {})
 
 	reader := bytes.NewBufferString("")
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/users/1234feabc1357346781234524", reader)
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/users/1234feabc135734678123452", reader)
 	response := httptest.NewRecorder()
 
 	router.ServeHTTP(response, request)

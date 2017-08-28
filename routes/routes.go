@@ -1,34 +1,21 @@
 package routes
 
 import (
-	"fmt"
 	"log"
-	"net/http"
+
+	"github.com/DVI-GI-2017/Jira__backend/mux"
 )
 
-// Helper struct for defining routes
-type Route struct {
-	Name    string
-	Pattern string
-	Method  string
-	Handler http.HandlerFunc
-}
-
-type Mux interface {
-	Get(pattern string, handler http.HandlerFunc) error
-	Post(pattern string, handler http.HandlerFunc) error
-}
-
 // Setup routes defined in this package
-func SetupRoutes(m Mux) {
+func SetupRoutes(m *mux.Router) {
 	addRoutesToMux(m, defaultRoutes)
 }
 
 // Slice of default routes will be resolved automatically
-var defaultRoutes []Route
+var defaultRoutes mux.Routes
 
 // Adds slice of routes to mux
-func addRoutesToMux(m Mux, routes []Route) {
+func addRoutesToMux(m *mux.Router, routes mux.Routes) {
 	for _, route := range routes {
 		err := addRouteToMux(m, route)
 		if err != nil {
@@ -38,12 +25,6 @@ func addRoutesToMux(m Mux, routes []Route) {
 }
 
 // Adds one route to mux
-func addRouteToMux(m Mux, r Route) error {
-	switch r.Method {
-	case http.MethodGet:
-		return m.Get(r.Pattern, r.Handler)
-	case http.MethodPost:
-		return m.Post(r.Pattern, r.Handler)
-	}
-	return fmt.Errorf("method '%s' not supported", r.Method)
+func addRouteToMux(m *mux.Router, r mux.Route) error {
+	return m.Route(r.Pattern, r.Method, r.Handler)
 }

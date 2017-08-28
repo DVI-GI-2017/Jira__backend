@@ -13,19 +13,20 @@ import (
 type Pattern string
 type Method string
 
-// Structure to store routes
 type Route struct {
-	pattern     *regexp.Regexp
-	handlerFunc http.HandlerFunc
+	Method  Method
+	Pattern Pattern
+	Handler http.HandlerFunc
+
+	matcher *regexp.Regexp
 }
 
 // Structure that stores supported methods for each route.
-type Routes map[Pattern]map[Method]Route
+type Routes []Route
 
 // Returns new router with root path == rootPath
 func NewRouter(root string) (*Router, error) {
-	r := &Router{}
-	r.routes = make(Routes)
+	r := &Router{routes: make(Routes, 0)}
 
 	newRoot, err := url.Parse(root)
 	if err != nil {
@@ -40,7 +41,7 @@ func NewRouter(root string) (*Router, error) {
 type Router struct {
 	root *url.URL
 
-	routes map[Pattern]map[Method]Route
+	routes Routes
 
 	wrappers []WrapperFunc
 }
@@ -51,31 +52,33 @@ func (r *Router) AddWrappers(wrappers ...WrapperFunc) {
 }
 
 // Add generic route to routes.
-func (r *Router) Route(pattern, method string, handler http.Handler) error {
-	pattern = convertSimplePatternToRegexp(pattern)
-
-	compiledPattern, err := regexp.Compile(pattern)
+func (r *Router) Route(pattern Pattern, method Method, handler http.HandlerFunc) error {
+	re, err := regexp.Compile(convertSimplePatternToRegexp(pattern))
 	if err != nil {
-		return err
+		return fmt.Errorf("can not compile pattern: %v", err)
 	}
 
-	if _, ok := r.routes[method]; !ok {
-		return fmt.Errorf("method '%s' not supported", method)
+	for _, route := range r.routes {
+		if route.Method == method && route.Pattern == pattern {
+			return fmt.Errorf("route already exists")
+		}
 	}
 
-	r.routes[method] = append(r.routes[method],
-		Route{compiledPattern, Wrap(handler, r.wrappers...).ServeHTTP})
+	r.routes = append(r.routes, Route{
+		Pattern: pattern, Method: method,
+		Handler: Wrap(handler, r.wrappers...), matcher: re,
+	})
 
 	return nil
 }
 
 // Adds Get handler
-func (r *Router) Get(pattern string, handler http.HandlerFunc) error {
+func (r *Router) Get(pattern Pattern, handler http.HandlerFunc) error {
 	return r.Route(pattern, http.MethodGet, handler)
 }
 
 // Adds Post handler
-func (r *Router) Post(pattern string, handler http.HandlerFunc) error {
+func (r *Router) Post(pattern Pattern, handler http.HandlerFunc) error {
 	return r.Route(pattern, http.MethodPost, handler)
 }
 
@@ -96,41 +99,35 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 // Handles request: iterate over all routes before finds first matching route.
 func (r *Router) handleRequest(w http.ResponseWriter, req *http.Request, path string) {
+	var pathFound bool
 
-	if routes, ok := r.routes[req.Method]; ok {
-		for _, route := range routes {
-			if route.pattern.MatchString(path) {
-				params, err := newParams(req, route.pattern, path)
-
+	for _, route := range r.routes {
+		if route.matcher.MatchString(path) {
+			pathFound = true
+			if route.Method == Method(req.Method) {
+				params, err := newParams(req, route.matcher, path)
 				if err != nil {
-					fmt.Printf("error while parsing params: %v", err)
 					w.WriteHeader(http.StatusBadRequest)
-					return
 				}
-
-				route.handlerFunc(w, putParams(req, params))
-
+				route.Handler(w, putParams(req, params))
 				return
 			}
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
 		}
-
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Method: %s not allowed on path: %s", req.Method, req.URL.Path)
-
-		return
 	}
-	w.WriteHeader(http.StatusMethodNotAllowed)
-	fmt.Fprintf(w, "Method: %s not supported", req.Method)
+
+	if !pathFound {
+		http.NotFound(w, req)
+	}
 }
 
 // Pretty prints routes
 func (r *Router) PrintRoutes() {
 	log.Println(strings.Repeat("-", 10))
 
-	for method, list := range r.routes {
-		for _, r := range list {
-			log.Printf("'%s': '%s'", method, r.pattern)
-		}
+	for _, route := range r.routes {
+		log.Printf("'%s': '%s'", route.Method, route.Pattern)
 	}
 
 	log.Println(strings.Repeat("-", 10))

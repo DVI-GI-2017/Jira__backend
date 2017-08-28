@@ -4,21 +4,20 @@ import (
 	"net/http"
 
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
+	"github.com/DVI-GI-2017/Jira__backend/mux"
 )
 
 func init() {
 	defaultRoutes = append(defaultRoutes, loginRoutes...)
 }
 
-var loginRoutes = []Route{
+var loginRoutes = mux.Routes{
 	{
-		Name:    "Sign-up route",
 		Pattern: "/signup",
 		Method:  http.MethodPost,
 		Handler: handlers.RegisterUser,
 	},
 	{
-		Name:    "Sign-in route",
 		Pattern: "/signin",
 		Method:  http.MethodPost,
 		Handler: handlers.Login,

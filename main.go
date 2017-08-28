@@ -3,8 +3,6 @@ package main
 import (
 	"log"
 
-	"time"
-
 	_ "github.com/DVI-GI-2017/Jira__backend/auth"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/db"
@@ -24,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("can not create router: %v", err)
 	}
-	router.AddWrappers(mux.Logger, mux.Timeout(5*time.Second))
+	router.AddWrappers(mux.Logger)
 
 	routes.SetupRoutes(router)
 

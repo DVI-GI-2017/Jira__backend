@@ -16,8 +16,8 @@ const intType = `(?P<%s>[[:digit:]]+)`
 var paramRegexp = regexp.MustCompile(`{((str|hex|int):)??((?:[[:lower:]]|_)+)}`)
 
 // Converts patterns like "/users/id:hex" to real regexps
-func convertSimplePatternToRegexp(pattern string) string {
-	patternWithParams := paramRegexp.ReplaceAllStringFunc(pattern, func(param string) string {
+func convertSimplePatternToRegexp(pattern Pattern) string {
+	patternWithParams := paramRegexp.ReplaceAllStringFunc(string(pattern), func(param string) string {
 		trimmedParam := strings.Trim(param, "{}")
 		if !strings.Contains(trimmedParam, ":") {
 			return fmt.Sprintf(stringType, trimmedParam)
