@@ -113,7 +113,7 @@ func initGorillaRouter(data *benchmarkData) *mux.Router {
 }
 
 // Helper to work with custom router
-func initCustomRouter(data *benchmarkData) *router {
+func initCustomRouter(data *benchmarkData) *Router {
 	router, err := NewRouter(data.basePath)
 	if err != nil {
 		log.Panicf("can not create router: %v", err)
