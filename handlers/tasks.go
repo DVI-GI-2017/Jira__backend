@@ -14,7 +14,11 @@ import (
 // Post body - task
 // Returns created task if OK
 func AddTaskToProject(w http.ResponseWriter, req *http.Request) {
-	params := mux.Params(req)
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
 
 	projectId, err := models.NewRequiredId(params.PathParams["project_id"])
 	if err != nil {
@@ -49,7 +53,13 @@ func AddTaskToProject(w http.ResponseWriter, req *http.Request) {
 // Returns all tasks
 // Path param - "project_id"
 func AllTasksInProject(w http.ResponseWriter, req *http.Request) {
-	projectId, err := models.NewRequiredId(mux.Params(req).PathParams["project_id"])
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	projectId, err := models.NewRequiredId(params.PathParams["project_id"])
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
@@ -67,8 +77,13 @@ func AllTasksInProject(w http.ResponseWriter, req *http.Request) {
 // Returns task with given id
 // Path params: "id" - task id.
 func GetTaskById(w http.ResponseWriter, req *http.Request) {
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
 
-	id, err := models.NewRequiredId(mux.Params(req).PathParams["id"])
+	id, err := models.NewRequiredId(params.PathParams["id"])
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return

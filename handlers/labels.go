@@ -12,7 +12,13 @@ import (
 // Returns all labels from task
 // Path parameter: "task_id" - task id.
 func AllLabelsOnTask(w http.ResponseWriter, req *http.Request) {
-	id, err := models.NewRequiredId(mux.Params(req).PathParams["task_id"])
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	id, err := models.NewRequiredId(params.PathParams["task_id"])
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
@@ -31,10 +37,14 @@ func AllLabelsOnTask(w http.ResponseWriter, req *http.Request) {
 // Query parameter: "task_id" - task id.
 // Post body - label.
 func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
-	params := mux.Params(req)
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
 
 	var label models.Label
-	err := json.Unmarshal(params.Body, &label)
+	err = json.Unmarshal(params.Body, &label)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -67,10 +77,14 @@ func AddLabelToTask(w http.ResponseWriter, req *http.Request) {
 // Path parameter: "task_id" - task id.
 // Post body - label
 func DeleteLabelFromTask(w http.ResponseWriter, req *http.Request) {
-	params := mux.Params(req)
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
 
 	var label models.Label
-	err := json.Unmarshal(params.Body, &label)
+	err = json.Unmarshal(params.Body, &label)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return

@@ -17,7 +17,11 @@ import (
 func RegisterUser(w http.ResponseWriter, req *http.Request) {
 	var credentials models.User
 
-	params := mux.Params(req)
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
 
 	if err := json.Unmarshal(params.Body, &credentials); err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
@@ -61,7 +65,11 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 func Login(w http.ResponseWriter, req *http.Request) {
 	var credentials models.User
 
-	params := mux.Params(req)
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
 
 	if err := json.Unmarshal(params.Body, &credentials); err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)

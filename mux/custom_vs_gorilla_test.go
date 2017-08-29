@@ -120,11 +120,16 @@ func initCustomRouter(data *benchmarkData) *Router {
 	}
 
 	err = router.Get(Pattern(data.patternCustom), func(w http.ResponseWriter, req *http.Request) {
-		params := Params(req)
+		params, err := Params(req)
+		if err != nil {
+			log.Panicf("%v", err)
+		}
+
 		data, err := json.Marshal(params.PathParams)
 		if err != nil {
 			log.Panicf("can not marshal data: %v", err)
 		}
+
 		w.Write(data)
 	})
 	if err != nil {

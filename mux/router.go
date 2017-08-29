@@ -109,7 +109,7 @@ func (r *Router) handleRequest(w http.ResponseWriter, req *http.Request, path st
 				if err != nil {
 					w.WriteHeader(http.StatusBadRequest)
 				}
-				route.Handler(w, putParams(req, params))
+				route.Handler(w, putParamsToRequest(req, params))
 				return
 			}
 			w.WriteHeader(http.StatusMethodNotAllowed)

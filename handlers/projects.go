@@ -16,9 +16,14 @@ import (
 func CreateProject(w http.ResponseWriter, req *http.Request) {
 	var projectInfo models.Project
 
-	body := mux.Params(req).Body
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+	body := params.Body
 
-	err := json.Unmarshal(body, &projectInfo)
+	err = json.Unmarshal(body, &projectInfo)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -52,7 +57,13 @@ func AllProjects(w http.ResponseWriter, _ *http.Request) {
 // Returns project with given id
 // Query param: "id" - project id
 func GetProjectById(w http.ResponseWriter, req *http.Request) {
-	id, err := models.NewRequiredId(mux.Params(req).PathParams["id"])
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	id, err := models.NewRequiredId(params.PathParams["id"])
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
@@ -69,7 +80,13 @@ func GetProjectById(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
-	id, err := models.NewRequiredId(mux.Params(req).PathParams["id"])
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	id, err := models.NewRequiredId(params.PathParams["id"])
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
@@ -85,7 +102,13 @@ func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllTasksFromProject(w http.ResponseWriter, req *http.Request) {
-	id, err := models.NewRequiredId(mux.Params(req).PathParams["id"])
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	id, err := models.NewRequiredId(params.PathParams["id"])
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
@@ -101,14 +124,20 @@ func GetAllTasksFromProject(w http.ResponseWriter, req *http.Request) {
 }
 
 func AddUserToProject(w http.ResponseWriter, req *http.Request) {
-	projectId, err := models.NewRequiredId(mux.Params(req).PathParams["id"])
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	projectId, err := models.NewRequiredId(params.PathParams["id"])
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
 	var userId models.RequiredId
-	err = json.Unmarshal(mux.Params(req).Body, &userId)
+	err = json.Unmarshal(params.Body, &userId)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -128,14 +157,20 @@ func AddUserToProject(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeleteUserFromProject(w http.ResponseWriter, req *http.Request) {
-	projectId, err := models.NewRequiredId(mux.Params(req).PathParams["id"])
+	params, err := mux.Params(req)
+	if err != nil {
+		JsonErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	projectId, err := models.NewRequiredId(params.PathParams["id"])
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusNotFound)
 		return
 	}
 
 	var userId models.RequiredId
-	err = json.Unmarshal(mux.Params(req).Body, &userId)
+	err = json.Unmarshal(params.Body, &userId)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return

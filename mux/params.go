@@ -2,6 +2,7 @@ package mux
 
 import (
 	"context"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -15,15 +16,19 @@ type PostBody []byte // Byte array with request body
 type GetParams map[string]string
 
 // Extracts "params" from request
-func Params(req *http.Request) *params {
-	return req.Context().Value("params").(*params)
+func Params(req *http.Request) (params, error) {
+	if p, ok := req.Context().Value("params").(params); ok {
+		return p, nil
+	}
+	return params{}, errors.New("can not extract params from request's context")
 }
 
 // Puts params in request context and returns new request
-func putParams(req *http.Request, params *params) *http.Request {
+func putParamsToRequest(req *http.Request, params params) *http.Request {
 	return req.WithContext(context.WithValue(req.Context(), "params", params))
 }
 
+// Wrapper around query parameters, request body and custom path params
 type params struct {
 	Query      GetParams
 	Body       PostBody
@@ -31,17 +36,17 @@ type params struct {
 }
 
 // Creates new params
-func newParams(request *http.Request, pattern *regexp.Regexp, path string) (*params, error) {
+func newParams(request *http.Request, pattern *regexp.Regexp, path string) (params, error) {
 	var body []byte
 	if request.Body != nil {
 		newBody, err := ioutil.ReadAll(request.Body)
 		if err != nil {
-			return nil, err
+			return params{}, err
 		}
 		body = newBody
 	}
 
-	return &params{
+	return params{
 		Query:      valuesToGetParams(request.URL.Query()),
 		Body:       body,
 		PathParams: extractPathParams(pattern, path),
@@ -58,7 +63,7 @@ func valuesToGetParams(values url.Values) GetParams {
 	return params
 }
 
-// Example: url "/api/v1/users/599a49bacdf43b817eeea57b" and pattern `/api/v1/users/:id`
+// Example: url "/api/v1/users/599a49bacdf43b817eeea57b" and pattern `/api/v1/users/{hex:id}`
 // path params = {"id": "599a49bacdf43b817eeea57b"}
 type PathParams map[string]string
 
