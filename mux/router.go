@@ -99,11 +99,8 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 // Handles request: iterate over all routes before finds first matching route.
 func (r *Router) handleRequest(w http.ResponseWriter, req *http.Request, path string) {
-	var pathFound bool
-
 	for _, route := range r.routes {
 		if route.matcher.MatchString(path) {
-			pathFound = true
 			if route.Method == Method(req.Method) {
 				params, err := newParams(req, route.matcher, path)
 				if err != nil {
@@ -113,13 +110,13 @@ func (r *Router) handleRequest(w http.ResponseWriter, req *http.Request, path st
 				return
 			}
 			w.WriteHeader(http.StatusMethodNotAllowed)
+			fmt.Fprintf(w, "method %s not allowed at path %s", req.Method, req.URL)
 			return
 		}
 	}
 
-	if !pathFound {
-		http.NotFound(w, req)
-	}
+	w.WriteHeader(http.StatusNotFound)
+	fmt.Fprintf(w, "path %s not found", req.URL)
 }
 
 // Pretty prints routes
