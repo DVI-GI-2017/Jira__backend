@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -19,6 +20,8 @@ func JsonResponse(w http.ResponseWriter, response interface{}) {
 
 	w.Header().Set(contentType, jsonContentType)
 	w.WriteHeader(http.StatusOK)
+
+	log.Println(string(result))
 	w.Write(result)
 }
 
@@ -32,6 +35,8 @@ func JsonErrorResponse(w http.ResponseWriter, err error, code int) {
 
 	w.Header().Set(contentType, jsonContentType)
 	w.WriteHeader(code)
+
+	log.Println(string(result))
 	w.Write(result)
 }
 
