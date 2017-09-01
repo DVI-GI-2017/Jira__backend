@@ -6,6 +6,4 @@ import:
 - package: gopkg.in/mgo.v2
   subpackages:
   - bson
-testImport:
-- package: github.com/gorilla/mux
-- package: github.com/buger/jsonparser
+- package: github.com/weitbelou/yacrouter

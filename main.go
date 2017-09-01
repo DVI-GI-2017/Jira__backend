@@ -6,8 +6,8 @@ import (
 	_ "github.com/DVI-GI-2017/Jira__backend/auth"
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/db"
-	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
+	"github.com/weitbelou/yacrouter"
 )
 
 func main() {

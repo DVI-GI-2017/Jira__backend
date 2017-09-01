@@ -3,7 +3,7 @@ package routes
 import (
 	"log"
 
-	"github.com/DVI-GI-2017/Jira__backend/mux"
+	"github.com/weitbelou/yacrouter"
 )
 
 // Setup routes defined in this package

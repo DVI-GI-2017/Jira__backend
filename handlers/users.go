@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
-	"github.com/DVI-GI-2017/Jira__backend/mux"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
+	"github.com/weitbelou/yacrouter"
 	"gopkg.in/mgo.v2/bson"
 )
 
