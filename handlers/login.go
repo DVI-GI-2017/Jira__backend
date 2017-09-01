@@ -8,7 +8,7 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/auth"
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/weitbelou/yacrouter"
+	"github.com/weitbelou/yac"
 )
 
 // Registers user
@@ -17,7 +17,7 @@ import (
 func RegisterUser(w http.ResponseWriter, req *http.Request) {
 	var credentials models.User
 
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -65,7 +65,7 @@ func RegisterUser(w http.ResponseWriter, req *http.Request) {
 func Login(w http.ResponseWriter, req *http.Request) {
 	var credentials models.User
 
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return

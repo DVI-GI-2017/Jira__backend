@@ -1,12 +1,12 @@
-hash: c75be0026943e6e23a49fc4da02c267fd95a60a0b5169f4f9fef3ed884f7fee0
-updated: 2017-09-02T01:38:31.931924289+03:00
+hash: c4dd133b30c60cb5f40464f32361d69ac808c34f223a3863d1dd1c1b270c2daf
+updated: 2017-09-02T01:50:18.228492336+03:00
 imports:
 - name: github.com/dgrijalva/jwt-go
   version: a539ee1a749a2b895533f979515ac7e6e0f5b650
   subpackages:
   - request
-- name: github.com/weitbelou/yacrouter
-  version: e31276a4e2361fb621e63696b62a3f726bebfdcb
+- name: github.com/weitbelou/yac
+  version: 56a3a41f427b7a7e3895840961b8450013dd1cae
 - name: gopkg.in/mgo.v2
   version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
   subpackages:

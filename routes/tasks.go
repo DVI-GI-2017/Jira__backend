@@ -5,14 +5,14 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/auth"
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
-	"github.com/weitbelou/yacrouter"
+	"github.com/weitbelou/yac"
 )
 
 func init() {
 	defaultRoutes = append(defaultRoutes, tasksRoutes...)
 }
 
-var tasksRoutes = mux.Routes{
+var tasksRoutes = yac.Routes{
 	{
 		Pattern: "/projects/{hex:project_id}/tasks",
 		Method:  http.MethodPost,

@@ -6,7 +6,7 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/weitbelou/yacrouter"
+	"github.com/weitbelou/yac"
 )
 
 // Adds task to project
@@ -14,7 +14,7 @@ import (
 // Post body - task
 // Returns created task if OK
 func AddTaskToProject(w http.ResponseWriter, req *http.Request) {
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -53,7 +53,7 @@ func AddTaskToProject(w http.ResponseWriter, req *http.Request) {
 // Returns all tasks
 // Path param - "project_id"
 func AllTasksInProject(w http.ResponseWriter, req *http.Request) {
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -77,7 +77,7 @@ func AllTasksInProject(w http.ResponseWriter, req *http.Request) {
 // Returns task with given id
 // Path params: "id" - task id.
 func GetTaskById(w http.ResponseWriter, req *http.Request) {
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return

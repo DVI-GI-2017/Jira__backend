@@ -3,6 +3,7 @@ package bson_test
 import (
 	"gopkg.in/mgo.v2/bson"
 
+	. "gopkg.in/check.v1"
 	"reflect"
 	"strings"
 	"time"

@@ -2,9 +2,8 @@ package test
 
 import (
 	"crypto/rsa"
-	"io/ioutil"
-
 	"github.com/dgrijalva/jwt-go"
+	"io/ioutil"
 )
 
 func LoadRSAPrivateKeyFromDisk(location string) *rsa.PrivateKey {

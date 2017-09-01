@@ -5,7 +5,7 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/weitbelou/yacrouter"
+	"github.com/weitbelou/yac"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -23,7 +23,7 @@ func AllUsers(w http.ResponseWriter, _ *http.Request) {
 // Returns user with given id.
 // Path param: "id" - user id.
 func GetUserById(w http.ResponseWriter, req *http.Request) {
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -41,7 +41,7 @@ func GetUserById(w http.ResponseWriter, req *http.Request) {
 
 // Returns all projects of given user
 func GetAllProjectsFromUser(w http.ResponseWriter, req *http.Request) {
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return

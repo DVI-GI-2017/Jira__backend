@@ -1,11 +1,10 @@
 package jwt_test
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"io/ioutil"
 	"strings"
 	"testing"
-
-	"github.com/dgrijalva/jwt-go"
 )
 
 var hmacTestData = []struct {

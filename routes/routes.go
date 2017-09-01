@@ -3,19 +3,19 @@ package routes
 import (
 	"log"
 
-	"github.com/weitbelou/yacrouter"
+	"github.com/weitbelou/yac"
 )
 
 // Setup routes defined in this package
-func SetupRoutes(m *mux.Router) {
+func SetupRoutes(m *yac.Router) {
 	addRoutesToMux(m, defaultRoutes)
 }
 
 // Slice of default routes will be resolved automatically
-var defaultRoutes mux.Routes
+var defaultRoutes yac.Routes
 
 // Adds slice of routes to mux
-func addRoutesToMux(m *mux.Router, routes mux.Routes) {
+func addRoutesToMux(m *yac.Router, routes yac.Routes) {
 	for _, route := range routes {
 		err := addRouteToMux(m, route)
 		if err != nil {
@@ -25,6 +25,6 @@ func addRoutesToMux(m *mux.Router, routes mux.Routes) {
 }
 
 // Adds one route to mux
-func addRouteToMux(m *mux.Router, r mux.Route) error {
+func addRouteToMux(m *yac.Router, r yac.Route) error {
 	return m.Route(r.Pattern, r.Method, r.Handler)
 }

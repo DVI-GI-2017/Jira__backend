@@ -5,14 +5,14 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/auth"
 	"github.com/DVI-GI-2017/Jira__backend/handlers"
-	"github.com/weitbelou/yacrouter"
+	"github.com/weitbelou/yac"
 )
 
 func init() {
 	defaultRoutes = append(defaultRoutes, usersRoutes...)
 }
 
-var usersRoutes = mux.Routes{
+var usersRoutes = yac.Routes{
 	{
 		Pattern: "/users/{hex:id}",
 		Method:  http.MethodGet,

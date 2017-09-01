@@ -2,10 +2,9 @@ package jwt_test
 
 import (
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"io/ioutil"
 	"time"
-
-	"github.com/dgrijalva/jwt-go"
 )
 
 // For HMAC signing method, the key can be any []byte. It is recommended to generate

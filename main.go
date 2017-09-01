@@ -7,7 +7,7 @@ import (
 	"github.com/DVI-GI-2017/Jira__backend/configs"
 	"github.com/DVI-GI-2017/Jira__backend/db"
 	"github.com/DVI-GI-2017/Jira__backend/routes"
-	"github.com/weitbelou/yacrouter"
+	"github.com/weitbelou/yac"
 )
 
 func main() {
@@ -18,11 +18,11 @@ func main() {
 
 	db.InitDB(config.Mongo)
 
-	router, err := mux.NewRouter("/api/v1")
+	router, err := yac.NewRouter("/api/v1")
 	if err != nil {
 		log.Fatalf("can not create router: %v", err)
 	}
-	router.AddWrappers(mux.Logger)
+	router.AddWrappers(yac.Logger)
 
 	routes.SetupRoutes(router)
 

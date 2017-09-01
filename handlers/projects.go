@@ -7,7 +7,7 @@ import (
 
 	"github.com/DVI-GI-2017/Jira__backend/models"
 	"github.com/DVI-GI-2017/Jira__backend/pool"
-	"github.com/weitbelou/yacrouter"
+	"github.com/weitbelou/yac"
 )
 
 // Creates project
@@ -16,7 +16,7 @@ import (
 func CreateProject(w http.ResponseWriter, req *http.Request) {
 	var projectInfo models.Project
 
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -57,7 +57,7 @@ func AllProjects(w http.ResponseWriter, _ *http.Request) {
 // Returns project with given id
 // Query param: "id" - project id
 func GetProjectById(w http.ResponseWriter, req *http.Request) {
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -80,7 +80,7 @@ func GetProjectById(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -102,7 +102,7 @@ func GetAllUsersFromProject(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllTasksFromProject(w http.ResponseWriter, req *http.Request) {
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -124,7 +124,7 @@ func GetAllTasksFromProject(w http.ResponseWriter, req *http.Request) {
 }
 
 func AddUserToProject(w http.ResponseWriter, req *http.Request) {
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
@@ -157,7 +157,7 @@ func AddUserToProject(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeleteUserFromProject(w http.ResponseWriter, req *http.Request) {
-	params, err := mux.Params(req)
+	params, err := yac.Params(req)
 	if err != nil {
 		JsonErrorResponse(w, err, http.StatusBadRequest)
 		return
